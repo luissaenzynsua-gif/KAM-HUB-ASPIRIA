@@ -1,0 +1,1466 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>KAM Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F7FB; --surface:#FFFFFF; --ink:#0E1422; --muted:#6B7280; --faint:#9AA1AE;
+  --line:#ECEEF3; --line-2:#E4E7EE;
+  --brand:#6D28D9; --brand-2:#DB2777; --brand-soft:#F3EEFF;
+  --emerald:#0FB97B; --emerald-soft:#E5F8F0;
+  --amber:#F59E0B; --amber-soft:#FEF4E2;
+  --rose:#F43F5E; --rose-soft:#FEECEF;
+  --sky:#0EA5E9; --sky-soft:#E4F4FE;
+  --r:18px; --r-sm:12px;
+  --shadow:0 1px 2px rgba(16,20,34,.04), 0 8px 24px rgba(16,20,34,.05);
+  --shadow-lg:0 18px 50px rgba(16,20,34,.12);
+  --font:'Plus Jakarta Sans',system-ui,sans-serif; --data:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.45}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:#dcdfe7;border-radius:20px;border:3px solid var(--bg)}
+.tnum{font-family:var(--data);font-feature-settings:"tnum"}
+
+/* ---------- login ---------- */
+.login{min-height:100vh;display:grid;place-items:center;background:radial-gradient(1200px 600px at 70% -10%,#efe7ff,transparent),radial-gradient(900px 500px at 10% 110%,#ffe4f1,transparent),var(--bg);padding:24px}
+.login-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow-lg);width:100%;max-width:420px;padding:36px 34px}
+.login .mark{width:52px;height:52px;border-radius:15px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:24px;box-shadow:0 10px 24px rgba(109,40,217,.35);margin-bottom:20px}
+.login h1{font-size:23px;font-weight:800;letter-spacing:-.03em}
+.login p{color:var(--muted);font-size:13.5px;margin-top:4px;margin-bottom:22px}
+.login label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.login input{width:100%;padding:12px 14px;border:1px solid var(--line-2);border-radius:12px;font-size:14px;outline:none;margin-bottom:14px}
+.login input:focus{border-color:var(--brand)}
+.login .demo{display:flex;gap:8px;margin-top:8px}
+.login .demo button{flex:1;padding:10px;border:1px solid var(--line-2);border-radius:11px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.login .demo button:hover{border-color:var(--brand);color:var(--brand)}
+.login .hint{font-size:11.5px;color:var(--faint);margin-top:16px;text-align:center}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:1px solid var(--line);padding:22px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px;overflow-y:auto}
+.logo{display:flex;align-items:center;gap:11px;padding:6px 8px 16px}
+.logo .mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--brand),var(--brand-2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:0 6px 16px rgba(109,40,217,.35)}
+.logo b{font-weight:800;font-size:16px;letter-spacing:-.02em}
+.logo span{display:block;font-size:11px;color:var(--faint);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.nav-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:14px 10px 6px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 11px;border-radius:11px;color:var(--muted);font-weight:600;font-size:13.5px;transition:.16s;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg);color:var(--ink)}
+.nav-item.active{background:var(--brand-soft);color:var(--brand)}
+.nav-item .ic{width:19px;height:19px;flex:none;stroke-width:2}
+.nav-item .badge{margin-left:auto;background:var(--rose);color:#fff;font-size:10.5px;font-weight:700;min-width:19px;height:19px;border-radius:9px;display:grid;place-items:center;padding:0 5px}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#8b5cf6,#ec4899);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.side-foot small{color:var(--faint);font-size:11px;display:block}
+.logout{margin-left:auto;color:var(--faint)}
+.logout:hover{color:var(--rose)}
+.role-tag{font-size:9.5px;font-weight:800;letter-spacing:.05em;padding:2px 7px;border-radius:6px;text-transform:uppercase}
+.role-admin{background:#0E1422;color:#fff}.role-kam{background:var(--brand-soft);color:var(--brand)}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:30;background:rgba(246,247,251,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:16px 28px;display:flex;align-items:center;gap:16px}
+.hamb{display:none}
+.greet h1{font-size:21px;font-weight:800;letter-spacing:-.025em}
+.greet p{color:var(--muted);font-size:12.5px;margin-top:1px}
+.search{margin-left:auto;display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line-2);padding:9px 14px;border-radius:11px;width:260px;color:var(--faint)}
+.search input{border:none;outline:none;background:none;font-size:13px;width:100%;color:var(--ink)}
+.icon-btn{width:40px;height:40px;border-radius:11px;background:var(--surface);border:1px solid var(--line-2);display:grid;place-items:center;color:var(--muted);position:relative}
+.icon-btn:hover{color:var(--brand)}
+.content{padding:24px 28px 48px;flex:1}
+
+/* ---------- primitives ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:20px}
+.row{display:flex;align-items:center}
+.between{justify-content:space-between}
+.gap{gap:14px}.gap8{gap:8px}
+.muted{color:var(--muted)}.faint{color:var(--faint)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.h-title{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.page-h h2{font-size:19px;font-weight:800;letter-spacing:-.02em}
+.page-h p{color:var(--muted);font-size:13px;margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:11px;font-weight:700;font-size:13px;transition:.15s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;box-shadow:0 6px 16px rgba(109,40,217,.28)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-ghost{background:var(--surface);border:1px solid var(--line-2);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--brand);color:var(--brand)}
+.btn-danger{background:var(--rose-soft);color:#d22a45;border:1px solid #f9c9d1}
+.btn-danger:hover{background:var(--rose);color:#fff}
+.btn-sm{padding:7px 11px;font-size:12px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:700}
+.chip .d{width:6px;height:6px;border-radius:50%}
+.c-emerald{background:var(--emerald-soft);color:#0a8f5e}.c-emerald .d{background:var(--emerald)}
+.c-amber{background:var(--amber-soft);color:#b9760a}.c-amber .d{background:var(--amber)}
+.c-rose{background:var(--rose-soft);color:#d22a45}.c-rose .d{background:var(--rose)}
+.c-sky{background:var(--sky-soft);color:#0a82bb}.c-sky .d{background:var(--sky)}
+.c-violet{background:var(--brand-soft);color:var(--brand)}.c-violet .d{background:var(--brand)}
+.c-slate{background:#EEF1F6;color:#5a6373}.c-slate .d{background:#94a0b3}
+
+.grid{display:grid;gap:18px}
+.kpis{grid-template-columns:repeat(4,1fr)}
+.cols-2{grid-template-columns:1.6fr 1fr}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.cols-2e{grid-template-columns:1fr 1fr}
+
+.kpi{position:relative;overflow:hidden}
+.kpi .ic-wrap{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+.kpi .val{font-size:28px;font-weight:800;letter-spacing:-.03em;font-family:var(--data)}
+.kpi .lbl{color:var(--muted);font-size:12.5px;font-weight:600;margin-top:2px}
+.kpi .delta{position:absolute;top:18px;right:18px;font-size:11.5px;font-weight:700}
+.up{color:var(--emerald)}.down{color:var(--rose)}
+
+/* results card (adaptable) */
+.res-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+.res-cell{background:var(--bg);border-radius:14px;padding:14px}
+.res-cell .rv{font-size:24px;font-weight:800;font-family:var(--data);letter-spacing:-.02em}
+.res-cell .rl{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.res-cell .rd{font-size:11px;font-weight:700;margin-top:6px}
+
+/* leaderboard / lists */
+.lb-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.lb-item:last-child{border:none}
+.rank{width:22px;font-weight:800;color:var(--faint);font-family:var(--data);text-align:center}
+.rank.top{color:var(--brand)}
+.lb-name{font-weight:700;font-size:13.5px}.lb-sub{font-size:11.5px;color:var(--faint)}
+.lb-bar{flex:1;height:6px;background:var(--bg);border-radius:6px;overflow:hidden;max-width:120px;margin-left:auto}
+.lb-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brand),var(--brand-2))}
+.lb-val{font-family:var(--data);font-weight:800;font-size:13px;width:44px;text-align:right}
+
+/* hbar % */
+.hbar{margin-bottom:11px}
+.hbar .top{display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:5px}
+.hbar .track{height:8px;background:var(--bg);border-radius:6px;overflow:hidden}
+.hbar .track i{display:block;height:100%;border-radius:6px}
+
+/* table */
+.tbl-wrap{overflow-x:auto}
+.table{width:100%;border-collapse:collapse;min-width:640px}
+.table th{text-align:left;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);padding:12px 14px;background:var(--bg)}
+.table th:first-child{border-radius:10px 0 0 10px}.table th:last-child{border-radius:0 10px 10px 0}
+.table td{padding:13px 14px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+.table tr:hover td{background:#FAFAFE}
+.t-brand{display:flex;align-items:center;gap:11px}
+.t-logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:13px;color:#fff;flex:none}
+.t-name{font-weight:700}.t-cat{font-size:11.5px;color:var(--faint)}
+.kam-pill{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:12.5px}
+.kam-av{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff}
+
+/* calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
+.cal-h{font-size:10px;font-weight:700;color:var(--faint);text-align:center;padding-bottom:2px}
+.cal-d{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--muted);position:relative;font-family:var(--data);cursor:pointer;transition:.13s;border:1px solid transparent}
+.cal-d:hover{background:var(--bg)}
+.cal-d.muted{color:#c8cdd6;cursor:default}
+.cal-d.today{background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;font-weight:800}
+.cal-d.has{border-color:var(--brand-soft);background:#faf7ff}
+.cal-d.has.today{background:linear-gradient(135deg,var(--brand),var(--brand-2))}
+.cal-d .evd{position:absolute;bottom:5px;display:flex;gap:2px}
+.cal-d .evd i{width:5px;height:5px;border-radius:50%}
+.cal-d.today .evd i{background:#fff!important}
+
+/* tasks */
+.task{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.task:last-child{border:none}
+.tcheck{width:19px;height:19px;border-radius:6px;border:2px solid var(--line-2);flex:none;margin-top:1px;cursor:pointer;transition:.15s;display:grid;place-items:center}
+.tcheck.done{background:var(--emerald);border-color:var(--emerald)}
+.tcheck.done svg{stroke:#fff}
+.task.done .ttext{text-decoration:line-through;color:var(--faint)}
+.ttext{font-weight:600;font-size:13px}
+.tmeta{font-size:11px;color:var(--faint);margin-top:2px}
+.call-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--line)}
+.call-item:last-child{border:none}
+.call-btn{margin-left:auto;width:32px;height:32px;border-radius:9px;background:var(--emerald-soft);color:#0a8f5e;display:grid;place-items:center}
+.call-btn:hover{background:var(--emerald);color:#fff}
+.act-btns{margin-left:auto;display:flex;gap:6px;flex:none}
+.mini-act{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;flex:none;transition:.14s}
+.mini-act.wa{background:#e7f8ef;color:#128C7E}.mini-act.wa:hover{background:#25D366;color:#fff}
+.mini-act.gm{background:#fdeaea;color:#EA4335}.mini-act.gm:hover{background:#EA4335;color:#fff}
+.mini-act.rg{background:var(--brand-soft);color:var(--brand)}.mini-act.rg:hover{background:var(--brand);color:#fff}
+
+/* segmented + filters */
+.seg{display:inline-flex;background:var(--bg);border-radius:11px;padding:4px;gap:2px;flex-wrap:wrap}
+.seg button{padding:7px 13px;border-radius:8px;font-size:12.5px;font-weight:700;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.filterbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0}
+.input,select.input{padding:9px 13px;border:1px solid var(--line-2);border-radius:11px;background:var(--surface);font-size:13px;outline:none}
+.input:focus{border-color:var(--brand)}
+
+/* assets / bank */
+.asset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.asset{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);transition:.15s}
+.asset:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+.asset .thumb{height:96px;display:grid;place-items:center;font-weight:800;font-size:20px;color:#fff;position:relative}
+.asset .a-body{padding:11px 13px}
+.asset .a-name{font-weight:700;font-size:12.5px}
+.asset .a-meta{font-size:10.5px;color:var(--faint);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;font-weight:700}
+.a-dl{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.9);display:grid;place-items:center;color:#0E1422}
+
+/* chat */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 200px);max-height:660px}
+.chat-body{flex:1;overflow-y:auto;padding:8px 4px;display:flex;flex-direction:column;gap:14px}
+.bubble{max-width:80%;padding:13px 16px;border-radius:16px;font-size:13.5px;line-height:1.5}
+.bubble.user{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-bottom-right-radius:5px}
+.bubble.ai{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:5px}
+.bubble.ai b{color:var(--brand)}
+.chat-suggest{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.suggest{padding:9px 13px;border:1px solid var(--line-2);border-radius:20px;font-size:12.5px;font-weight:600;color:var(--muted);background:var(--surface)}
+.suggest:hover{border-color:var(--brand);color:var(--brand)}
+.chat-input{display:flex;gap:10px}
+.chat-input input{flex:1;padding:13px 16px;border:1px solid var(--line-2);border-radius:13px;font-size:13.5px;outline:none}
+.chat-input input:focus{border-color:var(--brand)}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(14,20,34,.45);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center;padding:24px}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:22px;width:100%;max-width:600px;max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg);animation:pop .2s ease}
+.modal.wide{max-width:720px}
+@keyframes pop{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:2}
+.modal-head h3{font-size:17px;font-weight:800;letter-spacing:-.02em}
+.modal-body{padding:22px 24px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 13px;border:1px solid var(--line-2);border-radius:11px;font-size:13.5px;outline:none;background:var(--surface)}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field-row-3{display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:10px}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--surface)}
+.sub-h{font-size:12.5px;font-weight:800;color:var(--ink);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.sub-h::before{content:"";width:4px;height:14px;border-radius:3px;background:linear-gradient(var(--brand),var(--brand-2))}
+
+/* file drop */
+.filedrop{border:1.5px dashed var(--line-2);border-radius:14px;padding:22px;text-align:center;background:var(--bg);transition:.15s;cursor:pointer}
+.filedrop:hover{border-color:var(--brand);background:var(--brand-soft)}
+.filedrop svg{color:var(--brand)}
+.filedrop .fd-t{font-weight:700;font-size:13px;margin-top:8px}
+.filedrop .fd-s{font-size:11.5px;color:var(--faint);margin-top:2px}
+
+/* pos row */
+.pos-row{display:grid;grid-template-columns:1fr 1.6fr 1.2fr auto;gap:8px;align-items:center}
+.pos-card{border:1px solid var(--line-2);border-radius:14px;padding:12px;margin-bottom:10px;background:var(--surface)}
+.pos-card .pos-row{margin-bottom:8px}
+.pos-row select,.pos-row input,.pos-card select,.pos-card input{padding:9px 12px;border:1px solid var(--line-2);border-radius:11px;font-size:13px;outline:none;background:var(--surface);width:100%;color:var(--ink)}
+.pos-row select:focus,.pos-row input:focus,.pos-card select:focus,.pos-card input:focus{border-color:var(--brand)}
+.pos-num{font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.pos-del{width:34px;height:34px;border-radius:9px;background:var(--rose-soft);color:#d22a45;display:grid;place-items:center;flex:none}
+.pos-del:hover{background:var(--rose);color:#fff}
+.mini-tag{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:600;margin:2px 3px 0 0}
+
+.section-gap{margin-top:20px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px}
+.dl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--faint)}
+.dv{font-weight:700;margin-top:3px;font-size:14px}
+.danger-box{border:1px solid #f9c9d1;background:var(--rose-soft);border-radius:16px;padding:20px}
+
+.hidden{display:none!important}
+@media (max-width:1080px){.kpis{grid-template-columns:repeat(2,1fr)}.cols-2,.cols-3,.cols-2e{grid-template-columns:1fr}.res-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;z-index:60;width:248px;transform:translateX(-100%);transition:.25s;box-shadow:var(--shadow-lg)}
+  .sidebar.open{transform:none}
+  .hamb{display:grid;place-items:center}.search{display:none}
+  .content{padding:18px 16px 40px}.topbar{padding:14px 16px}
+  .pos-row{grid-template-columns:1fr 1fr;gap:6px}
+}
+@media (max-width:520px){.kpis,.res-grid{grid-template-columns:1fr}.field-row,.field-row-3,.detail-grid{grid-template-columns:1fr}}
+@media print{.sidebar,.topbar,.btn,.icon-btn,.filterbar,.no-print{display:none!important}.app{grid-template-columns:1fr}.content{padding:0}.card{box-shadow:none;border-color:#ddd}}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:55;display:none}
+.scrim.open{display:block}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="loginScreen">
+  <div class="login-card">
+    <div class="mark">K</div>
+    <h1>KAM Hub</h1>
+    <p>Ingresa con tu correo. Verás únicamente tu gestión; los administradores ven todo consolidado.</p>
+    <label>Correo corporativo</label>
+    <input id="loginEmail" type="email" placeholder="valeria@empresa.pe" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">Ingresar</button>
+    <div class="demo">
+      <button onclick="quickLogin('valeria@empresa.pe')">Entrar como KAM</button>
+      <button onclick="quickLogin('admin@empresa.pe')">Entrar como Admin</button>
+    </div>
+    <div class="hint">Demo · KAM: valeria@empresa.pe · Admin: admin@empresa.pe</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="scrim" id="scrim" onclick="toggleNav(false)"></div>
+<div class="app hidden" id="appRoot">
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><div class="mark">K</div><div><b>KAM Hub</b><span>Gestión Key Account</span></div></div>
+    <div class="nav-label">Operación</div>
+    <button class="nav-item active" data-view="dashboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</button>
+    <button class="nav-item" data-view="comercial"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l1.5-5h15L21 9M4 9h16v11H4zM9 9v11"/></svg>Comercial</button>
+    <button class="nav-item" data-view="puntos"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 21s-6-5.3-6-10a6 6 0 0112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>Base de comercios</button>
+    <button class="nav-item" data-view="campanas"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 11l16-6v14L3 13z"/><path d="M7 12v5a2 2 0 002 2"/></svg>Campañas & Incentivos</button>
+    <button class="nav-item" data-view="crm"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 8h5M18.5 5.5v5"/></svg>CRM · Funnel</button>
+    <button class="nav-item" data-view="biblioteca"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 5h5l2 2h9v12H4z"/></svg>Biblioteca</button>
+    <div class="nav-label">Inteligencia</div>
+    <button class="nav-item" data-view="ejecutivo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Dashboard Ejecutivo</button>
+    <button class="nav-item" data-view="ia"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8z"/><circle cx="18" cy="18" r="2"/></svg>IA Assistant</button>
+    <div class="nav-label" id="adminLabel">Administración</div>
+    <button class="nav-item" data-view="admin" id="adminNav"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 00-1.7-1l-.3-2.6H9.7l-.3 2.6a7 7 0 00-1.7 1l-2.3-1-2 3.4L5.4 11a7 7 0 000 2l-2 1.5 2 3.4 2.3-1a7 7 0 001.7 1l.3 2.6h4.6l.3-2.6a7 7 0 001.7-1l2.3 1 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg>Panel Admin</button>
+    <div class="side-foot">
+      <div class="avatar" id="userAv">VC</div>
+      <div style="min-width:0"><b style="font-size:13px" id="userName">Valeria C.</b><small id="userRole">KAM Senior</small></div>
+      <button class="logout" onclick="logout()" title="Cerrar sesión"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn hamb" onclick="toggleNav(true)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="greet" id="greet"><h1>Dashboard</h1><p>Tu cartera hoy</p></div>
+      <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg><input placeholder="Buscar comercio…" id="globalSearch" /></div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+
+<script>
+/* ============ DEMO USERS ============ */
+const USERS={
+  "valeria@empresa.pe":{name:"Valeria C.",role:"kam",kam:"Valeria"},
+  "gianfranco@empresa.pe":{name:"Gianfranco R.",role:"kam",kam:"Gianfranco"},
+  "admin@empresa.pe":{name:"Admin",role:"admin",kam:null}
+};
+let USER=null;
+
+/* ============ REFERENCE DATA ============ */
+const KAMS=[
+  {n:"Gianfranco",c:"#6366F1"},{n:"María Pía",c:"#8B5CF6"},{n:"Thea",c:"#DB2777"},
+  {n:"Clemencia",c:"#F59E0B"},{n:"Valeria",c:"#0FB97B"},{n:"Fabiola",c:"#0EA5E9"},
+  {n:"Marko",c:"#EF4444"},{n:"Carlos",c:"#14B8A6"},{n:"Silvia",c:"#A855F7"}
+];
+const CAT_COLORS={"Moda":"#DB2777","Tecnología":"#6366F1","Electrohogar":"#0EA5E9","Belleza":"#EC4899","Salud":"#0FB97B","Hogar":"#F59E0B","Deporte":"#EF4444","Educación":"#8B5CF6","Entretenimiento":"#F97316","Motos":"#14B8A6","Automotriz":"#64748B"};
+const CATS=Object.keys(CAT_COLORS);
+const VIAS=["Av.","C.C.","Ca.","Jr.","Mz.","Lote","Psje."];
+const DISTRITOS=["Ate","Barranco","Breña","Callao","Cercado de Lima","Chorrillos","Comas","Independencia","Jesús María","La Molina","La Victoria","Lince","Los Olivos","Lurín","Magdalena","Miraflores","Pueblo Libre","Rímac","San Borja","San Isidro","San Juan de Lurigancho","San Juan de Miraflores","San Luis","San Martín de Porres","San Miguel","Santa Anita","Santiago de Surco","Surquillo","Villa El Salvador","Villa María del Triunfo"];
+const catColor=c=>CAT_COLORS[c]||"#94A0B3";
+const initials=s=>(s||"?").split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const kamColor=n=>(KAMS.find(k=>k.n===n)||{}).c||"#94A0B3";
+const TODAY=new Date("2026-06-18");
+
+/* ============ SEED (mutable, resettable) ============ */
+let COMMERCES=[], CAMPAIGNS=[], INCENTIVOS=[], CONTACTS=[], INTERACTIONS=[], TASKS=[], CALLS=[], CONVENIOS=[], BANK=[], DEALS=[];
+/* Funnel comercial: etapas ordenadas + % de avance por etapa */
+const ETAPAS=["Prospecto","Contactado","Propuesta","Negociación","Convenio firmado","Perdido"];
+const ETAPA_PCT={"Prospecto":15,"Contactado":35,"Propuesta":55,"Negociación":80,"Convenio firmado":100,"Perdido":0};
+const ETAPA_COLOR={"Prospecto":"#94A0B3","Contactado":"#0EA5E9","Propuesta":"#8B5CF6","Negociación":"#F59E0B","Convenio firmado":"#0FB97B","Perdido":"#F43F5E"};
+let CAMPAIGN_NAMES=["Campaña Día del Padre","Campaña Fiestas Patrias","Campaña Cyber","Campaña Aniversario","Campaña Navidad","Campaña Back to School"];
+let RESULTS={updatedBy:"Admin",updated:"2026-06-18",metrics:[
+  {label:"Transacciones",value:"5.240",unit:"trx",delta:"+18% MoM",dir:"up"},
+  {label:"Trx promedio",value:"S/ 182",unit:"",delta:"+4% MoM",dir:"up"},
+  {label:"% Activos",value:"82%",unit:"",delta:"+3 pts",dir:"up"},
+  {label:"Crecimiento MoM",value:"18%",unit:"",delta:"vs 12% Q1",dir:"up"}
+]};
+let PORTFOLIO={activos:1256,inactivos:153,proceso:8};
+let GEO={
+  provincias:[["Lima",1080],["Chiclayo",52],["Piura",48],["Trujillo",44],["Arequipa",41],["Cusco",19],["Huancayo",16],["Ica",15]],
+  distritos:[["Santiago de Surco",111],["Miraflores",100],["Independencia",75],["San Miguel",69],["La Molina",57],["San Juan de Lurigancho",56],["Ate",48],["Jesús María",46],["San Borja",42]]
+};
+
+function seedData(){
+  COMMERCES=[
+    {id:1,n:"Ishop",cat:"Tecnología",kam:"Clemencia",razonSocial:"Ishop Perú S.A.C.",ruc:"20512345678",codigos:"ISH-001, ISH-002, ISH-003",modalidad:"Tienda + Ecommerce",pres:110000,obj:"Liderar iPhone 15 financiado",kpi:95,oficina:"Av. Javier Prado Este 4200, San Borja",fields:[{label:"Segmento",value:"Premium"}]},
+    {id:2,n:"Mac Center",cat:"Tecnología",kam:"Clemencia",razonSocial:"Mac Center Perú S.A.",ruc:"20487654321",codigos:"MAC-001, MAC-002",modalidad:"Tienda",pres:90000,obj:"Financiar iPhone 17 en sedes premium",kpi:88,oficina:"C.C. Jockey Plaza, Surco",fields:[]},
+    {id:3,n:"Tiendas Efe",cat:"Electrohogar",kam:"Gianfranco",tipoCanal:"Retail electro",modalidad:"Tienda + Ecommerce",pres:120000,obj:"Impulsar venta de TVs en cuotas",kpi:78,oficina:"Av. Aviación 2405, San Borja",fields:[]},
+    {id:4,n:"Lego",cat:"Entretenimiento",kam:"Thea",tipoCanal:"Marca propia",modalidad:"Tienda + Ecommerce",pres:48000,obj:"Posicionar bundles de temporada",kpi:92,oficina:"C.C. Real Plaza Salaverry, Jesús María",fields:[{label:"Contacto trade",value:"M. Ramírez"}]},
+    {id:5,n:"New Balance",cat:"Deporte",kam:"Valeria",tipoCanal:"Marca deportiva",modalidad:"Tienda",pres:42000,obj:"Activar modelo 530 en tiendas",kpi:69,oficina:"Av. Primavera 1050, Surco",fields:[]},
+    {id:6,n:"Samsonite",cat:"Moda",kam:"Valeria",tipoCanal:"Marca propia",modalidad:"Tienda",pres:28000,obj:"Temporada de viajes",kpi:58,oficina:"C.C. Jockey Plaza, Surco",fields:[]},
+    {id:7,n:"Curacao",cat:"Electrohogar",kam:"Gianfranco",tipoCanal:"Retail electro",modalidad:"Tienda + Ecommerce",pres:140000,obj:"Crecer ticket promedio financiado",kpi:84,oficina:"Av. La Marina 2000, San Miguel",fields:[]},
+    {id:8,n:"Sony",cat:"Tecnología",kam:"María Pía",tipoCanal:"Marca electrónica",modalidad:"Tienda + Ecommerce",pres:75000,obj:"Empujar PS5 Digital Bundle",kpi:65,oficina:"Av. República de Panamá 3535, San Isidro",fields:[]},
+  ];
+  // puntos de venta seed
+  const P=(bid,brand,kam,cat,list)=>list.map((x,i)=>({id:bid*100+i,brandId:bid,brand,kam,cat,via:x[0],dir:x[1],distrito:x[2],codigos:x[3]||""}));
+  PUNTOS=[
+    ...P(1,"Ishop","Clemencia","Tecnología",[["C.C.","Jockey Plaza","Santiago de Surco","ISH-001, ISH-011"],["C.C.","Real Plaza Salaverry","Jesús María","ISH-002"],["Av.","Larco 743","Miraflores","ISH-003"],["C.C.","Plaza San Miguel","San Miguel","ISH-004"]]),
+    ...P(2,"Mac Center","Clemencia","Tecnología",[["C.C.","Jockey Plaza","Santiago de Surco","MAC-001"],["C.C.","Mall del Sur","San Juan de Miraflores","MAC-002"]]),
+    ...P(3,"Tiendas Efe","Gianfranco","Electrohogar",[["Av.","Aviación 2405","San Borja","EFE-100"],["C.C.","Plaza Norte","Independencia","EFE-101, EFE-131"],["Av.","La Marina 1500","San Miguel","EFE-102"]]),
+    ...P(4,"Lego","Thea","Entretenimiento",[["C.C.","Real Plaza Salaverry","Jesús María","LEG-01"],["C.C.","Jockey Plaza","Santiago de Surco","LEG-02"]]),
+    ...P(5,"New Balance","Valeria","Deporte",[["Av.","Primavera 1050","Santiago de Surco","NB-05"],["C.C.","Plaza San Miguel","San Miguel","NB-06"]]),
+    ...P(7,"Curacao","Gianfranco","Electrohogar",[["Av.","La Marina 2000","San Miguel","CUR-200"],["C.C.","Mega Plaza","Independencia","CUR-201"]]),
+  ];
+  CAMPAIGNS=[
+    {id:101,brand:"Ishop",cat:"Tecnología",kam:"Clemencia",nombre:"Campaña Día del Padre",promo:"iPhone 15 con cupón de s/200",canal:"Web + InStore",pres:40000,inc:"Cupón PROMO200 (s/200)",cupon:"PROMO200",ini:"2026-06-01",fin:"2026-06-30",resp:"Clemencia",estado:"Activa",tyc:"Válido en iPhone 15 desde s/3.500. 1 cupón por cliente, no acumulable. Solo financiando con la tarjeta. Del 01 al 30 de junio.",material:"Banner web 1080x1080, faldón de góndola y sticker de vitrina",pos:["C.C. Jockey Plaza","Av. Larco 743"]},
+    {id:102,brand:"Lego",cat:"Entretenimiento",kam:"Thea",nombre:"Campaña Aniversario",promo:"Bundles de temporada con s/80 de descuento",canal:"Web + InStore",pres:18000,inc:"Cupón DESC80 (s/80)",cupon:"DESC80",ini:"2026-06-01",fin:"2026-06-30",resp:"Thea",estado:"Activa",tyc:"En compras desde s/599. Descuento automático en caja. 1 uso por cliente. Hasta agotar stock. Todo junio.",material:"Colgante de estante y afiche A3",pos:["C.C. Real Plaza Salaverry","C.C. Jockey Plaza"]},
+    {id:103,brand:"Tiendas Efe",cat:"Electrohogar",kam:"Gianfranco",nombre:"Campaña Cyber",promo:"TV en 18 cuotas + cupón de s/150",canal:"Web",pres:35000,inc:"Cupón CYBER150 (s/150)",cupon:"CYBER150",ini:"2026-06-01",fin:"2026-06-22",resp:"Gianfranco",estado:"Por vencer",tyc:"TV desde s/1.299 en 18 cuotas sin interés. Cupón sobre el precio final. Solo web. Del 01 al 22 de junio.",material:"Banner home ecommerce y pop-up de checkout",pos:["C.C. Plaza Norte","Av. La Marina 1500"]},
+    {id:104,brand:"New Balance",cat:"Deporte",kam:"Valeria",nombre:"Campaña Día del Padre",promo:"NB 530 con cupón de s/50",canal:"InStore",pres:12000,inc:"Cupón s/50 (automático)",cupon:"Automático",ini:"2026-06-10",fin:"2026-07-10",resp:"Valeria",estado:"Activa",tyc:"NB 530 desde s/419. 70 cupones en total, 1 por cliente. Solo tienda física. Del 10/06 al 10/07.",material:"Totem de ingreso y sticker de caja",pos:["Av. Primavera 1050","C.C. Plaza San Miguel"]},
+    {id:105,brand:"Mac Center",cat:"Tecnología",kam:"Clemencia",nombre:"Campaña Cyber",promo:"MacBook Air en 12 cuotas sin interés",canal:"Web + InStore",pres:0,inc:"12 cuotas sin interés",cupon:"CUOTAS0",ini:"2026-06-05",fin:"2026-06-25",resp:"Clemencia",estado:"Activa",tyc:"Aplica a MacBook Air M3. 12 cuotas sin interés financiando en tienda. No acumulable con otros descuentos. Del 05 al 25 de junio.",material:"Banner ecommerce y flyer digital para asesores",pos:["C.C. Jockey Plaza","C.C. Mall del Sur"]},
+    {id:106,brand:"Samsonite",cat:"Moda",kam:"Valeria",nombre:"Campaña Fiestas Patrias",promo:"2x1 en accesorios de viaje",canal:"Tienda",pres:0,inc:"2x1 en accesorios",cupon:"VIAJE2X1",ini:"2026-06-15",fin:"2026-07-31",resp:"Valeria",estado:"Activa",tyc:"2x1 en accesorios seleccionados (el de menor valor es gratis). No aplica a maletas. Solo tienda. Del 15/06 al 31/07.",material:"Colgante de percha y cenefa de vitrina",pos:["C.C. Jockey Plaza"]},
+    {id:107,brand:"Curacao",cat:"Electrohogar",kam:"Gianfranco",nombre:"Campaña Cyber",promo:"Línea blanca en 18 cuotas + delivery gratis",canal:"Web + InStore",pres:0,inc:"18 cuotas + delivery gratis",cupon:"CURA18",ini:"2026-06-08",fin:"2026-06-21",resp:"Gianfranco",estado:"Por vencer",tyc:"Refrigeradoras y lavadoras desde s/999 en 18 cuotas. Delivery gratis en Lima. Del 08 al 21 de junio.",material:"Banner góndola y pieza para redes",pos:["Av. La Marina 2000","C.C. Mega Plaza"]},
+    {id:108,brand:"Sony",cat:"Tecnología",kam:"María Pía",nombre:"Campaña Aniversario",promo:"PS5 Bundle + juego de regalo",canal:"Web + InStore",pres:0,inc:"Juego de regalo",cupon:"PS5GAME",ini:"2026-06-12",fin:"2026-06-30",resp:"María Pía",estado:"Activa",tyc:"En la compra del PS5 Digital Bundle financiado, llévate 1 juego de catálogo seleccionado. Stock limitado. Del 12 al 30 de junio.",material:"KV bundle, banner web y sticker de góndola",pos:["Av. República de Panamá 3535"]},
+  ];
+  INCENTIVOS=[
+    {id:201,brand:"Ishop",cat:"Tecnología",kam:"Clemencia",inc:"Por cada trx financiada, el asesor gana s/30",ini:"2026-06-01",fin:"2026-06-30",tyc:"Aplica a toda compra financiada en tienda. Se paga sobre trx aprobadas y no anuladas. Cierre el 30/06.",pos:["C.C. Jockey Plaza","C.C. Plaza San Miguel"]},
+    {id:202,brand:"Curacao",cat:"Electrohogar",kam:"Gianfranco",inc:"3 trx desde s/999 → vale de s/100",ini:"2026-06-05",fin:"2026-06-30",tyc:"Acumulable solo en línea blanca. El vale se entrega al cerrar la 3.ª trx del mes. Vigencia junio.",pos:["Av. La Marina 2000"]},
+    {id:203,brand:"Mac Center",cat:"Tecnología",kam:"Clemencia",inc:"Meta de 50 trx/mes → bono de s/500 al asesor",ini:"2026-06-01",fin:"2026-06-30",tyc:"Bono por asesor que supere 50 trx financiadas aprobadas en el mes. No incluye anulaciones. Cierre el 30/06.",pos:["C.C. Jockey Plaza","C.C. Mall del Sur"]},
+    {id:204,brand:"Sony",cat:"Tecnología",kam:"María Pía",inc:"Trx mayor a s/2.000 → doble acumulación de puntos",ini:"2026-06-10",fin:"2026-06-30",tyc:"Doble puntos del programa por compras financiadas sobre s/2.000. 1 vez por cliente por día. Del 10 al 30 de junio.",pos:["Av. República de Panamá 3535"]},
+  ];
+  CONTACTS=[
+    {id:1,name:"Sandra Torres",brand:"Ishop",role:"Gerente comercial",tel:"+51 922 887 665",email:"storres@ishop.pe",salud:92,convenio:"Convenio marco Ishop 2026"},
+    {id:2,name:"Andrés Quispe",brand:"Mac Center",role:"KAM Apple",tel:"+51 944 556 778",email:"aquispe@maccenter.pe",salud:80,convenio:"Convenio Mac Center 2026"},
+    {id:3,name:"Rodrigo Núñez",brand:"Curacao",role:"Jefe de marketing",tel:"+51 970 445 660",email:"rnunez@curacao.pe",salud:58,convenio:"Convenio Curacao 2026"},
+    {id:4,name:"María Ramírez",brand:"Lego",role:"Trade marketing",tel:"+51 999 112 233",email:"mramirez@lego.pe",salud:88,convenio:""},
+    {id:5,name:"Elena Cabrera",brand:"Sony",role:"KAM retail",tel:"+51 966 332 110",email:"ecabrera@sony.pe",salud:70,convenio:"Convenio Sony 2026"},
+  ];
+  INTERACTIONS=[
+    {id:1,contactId:1,contactName:"Sandra Torres",brand:"Ishop",tipo:"Reunión",t:"Planning campaña iPhone 15 junio",fecha:"2026-06-05",next:"Enviar propuesta de bundle",etapa:"Propuesta"},
+    {id:2,contactId:1,contactName:"Sandra Torres",brand:"Ishop",tipo:"Propuesta",t:"Envío de propuesta de campaña Día del Padre",fecha:"2026-06-10",next:"Revisar T&C juntos",etapa:"Negociación"},
+    {id:3,contactId:1,contactName:"Sandra Torres",brand:"Ishop",tipo:"Acuerdo",t:"Cierre de campaña y renovación de convenio",fecha:"2026-06-14",next:"Firma de adenda",etapa:"Convenio firmado"},
+    {id:4,contactId:2,contactName:"Andrés Quispe",brand:"Mac Center",tipo:"Reunión",t:"Presentación de plan Cyber MacBook Air",fecha:"2026-06-11",next:"Enviar adenda iPhone 17",etapa:"Negociación"},
+    {id:5,contactId:3,contactName:"Rodrigo Núñez",brand:"Curacao",tipo:"Llamada",t:"Interés en financiar línea blanca",fecha:"2026-06-09",next:"Enviar propuesta de cuotas",etapa:"Contactado"},
+    {id:6,contactId:3,contactName:"Rodrigo Núñez",brand:"Curacao",tipo:"Seguimiento",t:"Ajuste de vigencia de cupón Cyber",fecha:"2026-06-17",next:"Reenviar T&C corregidos",etapa:"Propuesta"},
+    {id:7,contactId:4,contactName:"María Ramírez",brand:"Lego",tipo:"Acuerdo",t:"Confirmación de bundles de aniversario",fecha:"2026-06-13",next:"Coordinar material en tienda",etapa:"Convenio firmado"},
+    {id:8,contactId:5,contactName:"Elena Cabrera",brand:"Sony",tipo:"Llamada",t:"Primer contacto por bundle PS5",fecha:"2026-06-16",next:"Agendar kick-off",etapa:"Contactado"},
+  ];
+  TASKS=[
+    {id:1,t:"Aprobar T&C de Mac Center (iPhone 17)",meta:"Campañas · vence hoy",fecha:"2026-06-18",tipo:"tarea",done:false},
+    {id:2,t:"Reunión planning Q3 con Ishop",meta:"CRM · 11:00 am",fecha:"2026-06-20",tipo:"reunion",done:false},
+    {id:3,t:"Enviar reporte de cierre a Curacao",meta:"CRM",fecha:"2026-06-19",tipo:"tarea",done:false},
+    {id:4,t:"Kick-off campaña Samsung Julio",meta:"Campañas",fecha:"2026-06-24",tipo:"reunion",done:false},
+    {id:5,t:"Cargar logos de New Balance",meta:"Biblioteca",fecha:"2026-06-22",tipo:"tarea",done:false},
+  ];
+  CALLS=[
+    {id:1,name:"Rodrigo Núñez",brand:"Curacao",tel:"+51 970 445 660",motivo:"Observación de vigencia",kam:"Gianfranco"},
+    {id:2,name:"Elena Cabrera",brand:"Sony",tel:"+51 966 332 110",motivo:"Kick-off PS5 bundle",kam:"María Pía"},
+    {id:3,name:"Andrés Quispe",brand:"Mac Center",tel:"+51 944 556 778",motivo:"Confirmar sedes iPhone 17",kam:"Clemencia"},
+    {id:4,name:"Sandra Torres",brand:"Ishop",tel:"+51 922 887 665",motivo:"Firma de adenda",kam:"Clemencia"},
+  ];
+  CONVENIOS=[
+    {id:1,name:"Convenio marco Ishop 2026",brand:"Ishop",type:"PDF",contact:"Sandra Torres",vigencia:"2026-12-31"},
+    {id:2,name:"Adenda comercial Ishop Q3",brand:"Ishop",type:"PDF",contact:"Sandra Torres",vigencia:"2026-09-30"},
+    {id:3,name:"Convenio Mac Center 2026",brand:"Mac Center",type:"PDF",contact:"Andrés Quispe",vigencia:"2026-12-31"},
+    {id:4,name:"Convenio Curacao 2026",brand:"Curacao",type:"PDF",contact:"Rodrigo Núñez",vigencia:"2026-12-31"},
+    {id:5,name:"Convenio Sony 2026",brand:"Sony",type:"PDF",contact:"Elena Cabrera",vigencia:"2026-12-31"},
+    {id:6,name:"Convenio Tiendas Efe 2026",brand:"Tiendas Efe",type:"PDF",contact:"—",vigencia:"2026-12-31"},
+    {id:7,name:"Convenio Lego 2026",brand:"Lego",type:"PDF",contact:"María Ramírez",vigencia:"2026-12-31"},
+    {id:8,name:"Convenio New Balance 2026",brand:"New Balance",type:"PDF",contact:"—",vigencia:"2026-11-30"},
+  ];
+  BANK=[
+    {id:1,name:"Logo Ishop (vector)",brand:"Ishop",type:"SVG",kind:"Logo"},
+    {id:2,name:"KV iPhone 15",brand:"Ishop",type:"PNG",kind:"Foto"},
+    {id:3,name:"Logo Lego",brand:"Lego",type:"SVG",kind:"Logo"},
+    {id:4,name:"Banner Cyber Tiendas Efe",brand:"Tiendas Efe",type:"PNG",kind:"Gráfica"},
+    {id:5,name:"Logo New Balance",brand:"New Balance",type:"SVG",kind:"Logo"},
+    {id:6,name:"Foto tienda Mac Center",brand:"Mac Center",type:"JPG",kind:"Foto"},
+  ];
+  // Funnel comercial: una gestión por marca/contacto, usando lo ya registrado (contactos, convenios, campañas)
+  // etapa = funnel operativo (6 etapas, módulo Funnel) · funnel = etapa comercial vista cliente (5 etapas, Dashboard)
+  DEALS=[
+    {id:301,brand:"Ishop",contactId:1,etapa:"Convenio firmado",funnel:"Promoción activa",valor:110000,next:"Renovación anual del convenio",nextDate:"2026-07-05",rating:5},
+    {id:302,brand:"Lego",contactId:4,etapa:"Convenio firmado",funnel:"Promoción activa",valor:48000,next:"Ampliar convenio a más sedes",nextDate:"2026-06-28",rating:4},
+    {id:303,brand:"Mac Center",contactId:2,etapa:"Convenio firmado",funnel:"Promoción configurada",valor:90000,next:"Activar campaña Cyber MacBook",nextDate:"2026-06-24",rating:4},
+    {id:304,brand:"Tiendas Efe",contactId:null,etapa:"Convenio firmado",funnel:"Promoción configurada",valor:120000,next:"Lanzar plan Cyber en cuotas",nextDate:"2026-06-23",rating:3},
+    {id:305,brand:"Sony",contactId:5,etapa:"Convenio firmado",funnel:"Contrato conseguido",valor:75000,next:"Configurar campaña bundle PS5",nextDate:"2026-06-26",rating:3},
+    {id:306,brand:"Curacao",contactId:3,etapa:"Negociación",funnel:"En gestión",valor:140000,next:"Reenviar T&C corregidos y cerrar",nextDate:"2026-06-22",rating:3},
+    {id:307,brand:"New Balance",contactId:null,etapa:"Contactado",funnel:"En gestión",valor:42000,next:"Enviar propuesta de convenio",nextDate:"2026-06-30",rating:2},
+    {id:308,brand:"Samsonite",contactId:null,etapa:"Prospecto",funnel:"Prospectos",valor:28000,next:"Primer contacto con trade",nextDate:"2026-06-29",rating:2},
+  ];
+}
+let PUNTOS=[];
+seedData();
+
+/* ============ role helpers ============ */
+const isAdmin=()=>USER&&USER.role==="admin";
+const mine=list=>isAdmin()?list:list.filter(x=>x.kam===USER.kam);
+const myBrandNames=()=>new Set(mine(COMMERCES).map(c=>c.n));
+
+/* ============ helpers ============ */
+const $=s=>document.querySelector(s);
+const fmt=n=>"S/ "+Math.round(n).toLocaleString("es-PE");
+const fmtK=n=>n>=1000?"S/ "+(n/1000).toFixed(n%1000?1:0)+"k":"S/ "+n;
+const daysLeft=fin=>Math.ceil((new Date(fin)-TODAY)/864e5);
+const inThisMonth=d=>{const x=new Date(d);return x.getFullYear()===2026&&x.getMonth()===5};
+const esc=s=>(s||"").replace(/'/g,"\\'").replace(/"/g,"&quot;");
+const attr=s=>(s||"").replace(/"/g,"&quot;");
+const truncate=(s,n=88)=>{s=s||"";return s.length>n?s.slice(0,n-1).trim()+"…":s;};
+
+function donut(data,size=150,thick=22){
+  const tot=data.reduce((a,b)=>a+b.v,0)||1;const r=(size-thick)/2;const cx=size/2;const C=2*Math.PI*r;let off=0;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`+data.map(d=>{const len=d.v/tot*C;const s=`<circle cx="${cx}" cy="${cx}" r="${r}" fill="none" stroke="${d.c}" stroke-width="${thick}" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" stroke-linecap="round" transform="rotate(-90 ${cx} ${cx})"/>`;off+=len;return s}).join("")+`</svg>`;
+}
+function bars(data,h=150){
+  const mx=Math.max(...data.map(d=>d.v))||1;
+  return `<div style="display:flex;align-items:flex-end;gap:10px;height:${h}px;padding-top:8px">`+data.map(d=>
+    `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end">
+       <div style="font-family:var(--data);font-weight:700;font-size:11px;color:var(--muted)">${d.t||""}</div>
+       <div style="width:100%;background:${d.c};border-radius:8px 8px 4px 4px;height:${(d.v/mx)*100}%;min-height:4px"></div>
+       <div style="font-size:11px;font-weight:700;color:var(--faint)">${d.l}</div></div>`).join("")+`</div>`;
+}
+function hbars(data,color){const tot=data.reduce((a,b)=>a+b[1],0)||1;const mx=Math.max(...data.map(d=>d[1]));
+  return data.map(([l,v],i)=>{const pct=(v/tot*100);const col=typeof color==="function"?color(l,i):(color||"#6D28D9");
+    return `<div class="hbar"><div class="top"><span>${l}</span><span class="tnum">${pct.toFixed(1)}%</span></div><div class="track"><i style="width:${v/mx*100}%;background:${col}"></i></div></div>`}).join("");
+}
+function spark(vals,w=520,h=150,color="#6D28D9"){
+  const mx=Math.max(...vals),mn=Math.min(...vals);const rg=mx-mn||1;
+  const pts=vals.map((v,i)=>[i/(vals.length-1)*w,h-((v-mn)/rg)*(h-16)-8]);
+  const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  return `<svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L${w} ${h} L0 ${h} Z" fill="url(#sg)"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function kamPill(n){return `<span class="kam-pill"><span class="kam-av" style="background:${kamColor(n)}">${initials(n)}</span>${n}</span>`}
+function estadoChip(s){const m={"Activa":"emerald","Por vencer":"amber","Borrador":"slate","Incentivo":"violet"};return `<span class="chip c-${m[s]||'slate'}"><span class="d"></span>${s}</span>`}
+function kpiCard(lbl,val,delta,dir,color,icon){
+  const map={violet:["#6D28D9","var(--brand-soft)"],amber:["#F59E0B","var(--amber-soft)"],rose:["#F43F5E","var(--rose-soft)"],emerald:["#0FB97B","var(--emerald-soft)"],sky:["#0EA5E9","var(--sky-soft)"]};
+  const[c,bg]=map[color];
+  return `<div class="card pad kpi"><div class="ic-wrap" style="background:${bg};color:${c}"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg></div><div class="val tnum">${val}</div><div class="lbl">${lbl}</div>${delta?`<div class="delta ${dir}">${delta}</div>`:""}</div>`;
+}
+
+/* ============ VIEWS ============ */
+const VIEWS={};
+
+/* ---- DASHBOARD ejecutivo (vista cliente) ---- */
+const CLIENT_STAGES=[
+  {n:"Prospectos",pct:20,c:"#94A0B3"},
+  {n:"En gestión",pct:40,c:"#0EA5E9"},
+  {n:"Contrato conseguido",pct:60,c:"#8B5CF6"},
+  {n:"Promoción configurada",pct:80,c:"#F59E0B"},
+  {n:"Promoción activa",pct:100,c:"#0FB97B"},
+];
+/* Dashboard ejecutivo: totales del programa por KAM (rollup consolidado).
+   Suma exacta → Prospectos 300 · En gestión 260 · Contrato conseguido 120 · Promoción configurada 95 · Promoción activa 84 · PDV 2.456 */
+const PROGRAM_DATA=[
+  {kam:"Gianfranco",P:42,G:36,C:18,F:14,A:13,pdv:372},
+  {kam:"Clemencia", P:40,G:34,C:17,F:13,A:12,pdv:348},
+  {kam:"Valeria",   P:36,G:32,C:15,F:12,A:11,pdv:312},
+  {kam:"María Pía", P:34,G:30,C:14,F:11,A:10,pdv:288},
+  {kam:"Thea",      P:32,G:28,C:13,F:10,A:9, pdv:264},
+  {kam:"Fabiola",   P:30,G:26,C:12,F:9, A:8, pdv:236},
+  {kam:"Marko",     P:30,G:26,C:11,F:9, A:8, pdv:228},
+  {kam:"Carlos",    P:28,G:24,C:10,F:9, A:7, pdv:212},
+  {kam:"Silvia",    P:28,G:24,C:10,F:8, A:6, pdv:196},
+];
+const STAGE_KEY={"Prospectos":"P","En gestión":"G","Contrato conseguido":"C","Promoción configurada":"F","Promoción activa":"A"};
+function programAgg(kam){
+  const rows=kam?PROGRAM_DATA.filter(r=>r.kam===kam):PROGRAM_DATA;
+  return rows.reduce((a,r)=>({P:a.P+r.P,G:a.G+r.G,C:a.C+r.C,F:a.F+r.F,A:a.A+r.A,pdv:a.pdv+r.pdv,n:a.n+1}),{P:0,G:0,C:0,F:0,A:0,pdv:0,n:0});
+}
+const nfmt=n=>Number(n).toLocaleString("es-PE");
+const promoRunning=p=>{const dl=daysLeft(p.fin);return new Date(p.ini)<=TODAY&&dl>=0;};
+function clientStage(brandName){
+  const deal=DEALS.find(d=>d.brand===brandName);
+  if(deal&&deal.funnel)return deal.funnel;              // etapa comercial explícita (se actualiza con las acciones del KAM)
+  // fallback derivado para marcas sin gestión asignada
+  const hasActive=CAMPAIGNS.some(c=>c.brand===brandName&&promoRunning(c))||INCENTIVOS.some(c=>c.brand===brandName&&promoRunning(c));
+  const hasPromo=CAMPAIGNS.some(c=>c.brand===brandName)||INCENTIVOS.some(c=>c.brand===brandName);
+  const hasConvenio=CONVENIOS.some(cv=>cv.brand===brandName);
+  const etapa=deal?deal.etapa:null;
+  if(hasActive)return "Promoción activa";
+  if(hasPromo)return "Promoción configurada";
+  if(hasConvenio||etapa==="Convenio firmado")return "Contrato conseguido";
+  if(etapa&&["Contactado","Propuesta","Negociación"].includes(etapa))return "En gestión";
+  return "Prospectos";
+}
+let dashFilter={kam:"",brand:"",from:"",to:""};
+function refreshDash(){dashFilter.kam=$("#dfKam")?$("#dfKam").value:"";dashFilter.brand=$("#dfBrand")?$("#dfBrand").value:"";dashFilter.from=$("#dfFrom")?$("#dfFrom").value:"";dashFilter.to=$("#dfTo")?$("#dfTo").value:"";$("#content").innerHTML=VIEWS.dashboard();}
+function resetDash(){dashFilter={kam:"",brand:"",from:"",to:""};$("#content").innerHTML=VIEWS.dashboard();}
+function ganttChart(promos){
+  if(!promos.length)return '<div class="faint" style="padding:22px 0;text-align:center">No hay promociones activas en el rango seleccionado.</div>';
+  const day=864e5;
+  const gs=new Date(Math.min(...promos.map(p=>+new Date(p.ini))));
+  const ge=new Date(Math.max(...promos.map(p=>+new Date(p.fin))));
+  const span=Math.max(1,(ge-gs)/day);
+  const pos=d=>Math.max(0,Math.min(100,((new Date(d)-gs)/day)/span*100));
+  const fmtd=dt=>String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
+  const ticks=[];for(let i=0;i<=5;i++)ticks.push(new Date(+gs+span*day*i/5));
+  const todayPos=(TODAY>=gs&&TODAY<=ge)?pos(TODAY):null;
+  const axis=`<div style="display:grid;grid-template-columns:210px 1fr;gap:12px;margin-bottom:8px"><div class="faint" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em">Marca / promoción</div><div style="position:relative;height:14px">${ticks.map(t=>`<span class="faint tnum" style="position:absolute;left:${pos(t)}%;font-size:9.5px;transform:translateX(-50%)">${fmtd(t)}</span>`).join("")}</div></div>`;
+  const rows=promos.slice().sort((a,b)=>new Date(a.fin)-new Date(b.fin)).map(p=>{
+    const dl=daysLeft(p.fin);const soon=dl<15;const urgent=dl<7;
+    const barc=urgent?'#F43F5E':(soon?'#F59E0B':'#0FB97B');
+    const left=pos(p.ini),width=Math.max(3,pos(p.fin)-pos(p.ini));
+    return `<div style="display:grid;grid-template-columns:210px 1fr;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)">
+      <div class="row" style="gap:9px;min-width:0"><div class="t-logo" style="width:26px;height:26px;font-size:10px;background:${catColor(p.cat)}">${initials(p.brand)}</div><div style="min-width:0"><div style="font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.brand}${soon?` <span class="chip ${urgent?'c-rose':'c-amber'}" style="padding:1px 6px;font-size:9px">${dl}d</span>`:''}</div><div class="faint" style="font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p._label||''}</div></div></div>
+      <div style="position:relative;height:26px">
+        <div style="position:absolute;inset:0;background:var(--bg);border-radius:7px"></div>
+        ${todayPos!==null?`<div title="hoy" style="position:absolute;left:${todayPos}%;top:-4px;bottom:-4px;width:2px;background:#0E1422;opacity:.4"></div>`:''}
+        <div title="${attr(p.brand+' · '+(p._label||'')+' · '+p.ini+'→'+p.fin+' · '+(p.kam||''))}" style="position:absolute;left:${left}%;width:${width}%;top:4px;height:18px;background:${barc};border-radius:6px;display:flex;align-items:center;padding:0 8px;color:#fff;font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.15)">${(p.kam||'').split(' ')[0]}${soon?' · vence en '+dl+'d':''}</div>
+      </div>
+    </div>`;}).join("");
+  return `<div style="overflow-x:auto"><div style="min-width:640px">${axis}${rows}</div></div>
+    <div class="row gap" style="margin-top:12px;font-size:11px;color:var(--muted);flex-wrap:wrap"><span class="row gap8"><i style="width:9px;height:9px;border-radius:3px;background:#0FB97B;display:inline-block"></i>En curso</span><span class="row gap8"><i style="width:9px;height:9px;border-radius:3px;background:#F59E0B;display:inline-block"></i>Vence en ≤15 días</span><span class="row gap8"><i style="width:9px;height:9px;border-radius:3px;background:#F43F5E;display:inline-block"></i>Vence en ≤7 días</span><span class="row gap8"><i style="width:2px;height:11px;background:#0E1422;opacity:.5;display:inline-block"></i>Hoy</span></div>`;
+}
+function openStageDetail(stage){
+  const key=STAGE_KEY[stage];const st=CLIENT_STAGES.find(s=>s.n===stage)||{c:"#6D28D9",pct:0};
+  let rows=PROGRAM_DATA.slice();if(dashFilter.kam)rows=rows.filter(r=>r.kam===dashFilter.kam);
+  const total=rows.reduce((a,r)=>a+r[key],0);const mx=Math.max(1,...rows.map(r=>r[key]));
+  const sorted=rows.slice().sort((a,b)=>b[key]-a[key]);
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span style="width:12px;height:12px;border-radius:3px;background:${st.c}"></span>${stage}</span>`)+`<div class="modal-body">
+    <div class="row between" style="margin-bottom:16px"><div class="faint" style="font-size:12px">${nfmt(total)} marca${total!==1?'s':''} en esta etapa · ${st.pct}% de avance del programa.</div><div class="tnum" style="font-size:22px;font-weight:800;color:${st.c}">${nfmt(total)}</div></div>
+    <div class="dl" style="margin-bottom:8px">Distribución por KAM</div>
+    ${sorted.map(r=>`<div style="margin-bottom:11px"><div class="row between" style="font-size:12.5px;font-weight:700;margin-bottom:5px">${kamPill(r.kam)}<span class="tnum">${nfmt(r[key])}</span></div><div class="lb-bar" style="max-width:none"><i style="width:${r[key]/mx*100}%;background:${st.c}"></i></div></div>`).join("")}
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button></div>`;openModal();
+}
+function kamName(n){return n||"—";}
+VIEWS.dashboard=()=>{
+  const baseBrands=mine(COMMERCES);
+  const kamOpts=PROGRAM_DATA.map(r=>r.kam);
+  // ---- rollup ejecutivo del programa (por KAM) ----
+  const agg=programAgg(dashFilter.kam);
+  const signed=agg.C+agg.F+agg.A;                 // contratos conseguidos + config + activa
+  const marcasAfil=signed;                        // marcas afiliadas = con convenio firmado
+  const contratos=signed+Math.round(signed*0.093);// firmados incl. renovaciones/adendas
+  const promosActivas=agg.A;
+  const promosMes=Math.round(agg.A*0.74);
+  const kamsAsignados=agg.n;
+  const funnelCounts={"Prospectos":agg.P,"En gestión":agg.G,"Contrato conseguido":agg.C,"Promoción configurada":agg.F,"Promoción activa":agg.A};
+  // composición por categoría (proporción de la muestra escalada a las marcas afiliadas)
+  const totBase=baseBrands.length||1;
+  const catData=Object.entries(baseBrands.reduce((m,b)=>{m[b.cat]=(m[b.cat]||0)+1;return m},{})).map(([k,v])=>[k,Math.max(1,Math.round(v/totBase*marcasAfil))]).sort((a,b)=>b[1]-a[1]);
+  // ---- Gantt: promociones reales (se filtran por KAM, marca y rango de fechas) ----
+  let camps=mine(CAMPAIGNS),incs=mine(INCENTIVOS);
+  if(dashFilter.kam){camps=camps.filter(c=>c.kam===dashFilter.kam);incs=incs.filter(c=>c.kam===dashFilter.kam);}
+  if(dashFilter.brand){camps=camps.filter(c=>c.brand===dashFilter.brand);incs=incs.filter(c=>c.brand===dashFilter.brand);}
+  const runningPromos=[...camps.filter(promoRunning).map(c=>({...c,_t:'Campaña',_label:c.nombre||c.promo})),...incs.filter(promoRunning).map(c=>({...c,_t:'Incentivo',_label:c.inc}))];
+  const from=dashFilter.from,to=dashFilter.to;
+  const inRange=(ini,fin)=>{if(!from&&!to)return true;const s=new Date(ini),e=new Date(fin);if(from&&e<new Date(from))return false;if(to&&s>new Date(to))return false;return true;};
+  const ganttPromos=runningPromos.filter(p=>inRange(p.ini,p.fin));
+  // ---- Resultados por KAM ----
+  let progRows=PROGRAM_DATA.slice();if(dashFilter.kam)progRows=progRows.filter(r=>r.kam===dashFilter.kam);
+  const kamRows=progRows.map(r=>({r,c:(KAMS.find(k=>k.n===r.kam)||{c:'#94A0B3'}).c,prosp:r.P,seg:r.G,contr:r.C+r.F+r.A,promo:r.A,pdv:r.pdv})).sort((a,b)=>b.contr-a.contr);
+  const maxContr=Math.max(1,...kamRows.map(r=>r.contr));
+  const tot={prosp:kamRows.reduce((a,r)=>a+r.prosp,0),seg:kamRows.reduce((a,r)=>a+r.seg,0),contr:kamRows.reduce((a,r)=>a+r.contr,0),promo:kamRows.reduce((a,r)=>a+r.promo,0),pdv:kamRows.reduce((a,r)=>a+r.pdv,0)};
+  return `
+  <!-- filtros -->
+  <div class="card pad" style="margin-bottom:18px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">KAM</label><select class="input" id="dfKam" onchange="refreshDash()"><option value="">Todos los KAM</option>${kamOpts.map(k=>`<option ${dashFilter.kam===k?'selected':''}>${k}</option>`).join("")}</select></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Marca</label><select class="input" id="dfBrand" onchange="refreshDash()"><option value="">Todas las marcas</option>${baseBrands.map(b=>`<option ${dashFilter.brand===b.n?'selected':''}>${b.n}</option>`).join("")}</select></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Desde</label><input class="input" type="date" id="dfFrom" value="${dashFilter.from}" onchange="refreshDash()"/></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Hasta</label><input class="input" type="date" id="dfTo" value="${dashFilter.to}" onchange="refreshDash()"/></div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="resetDash()">Limpiar filtros</button>
+      <span class="chip c-slate"><span class="d"></span>Actualizado en vivo</span>
+    </div>
+  </div>
+
+  <!-- resumen ejecutivo -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px">
+    ${kpiCard("Marcas afiliadas",nfmt(marcasAfil),"con convenio firmado","up","violet",'<path d="M3 9l1.5-5h15L21 9M4 9h16v11H4zM9 9v11"/>')}
+    ${kpiCard("Puntos de venta",nfmt(agg.pdv),"afiliados","up","sky",'<path d="M12 21s-6-5.3-6-10a6 6 0 0112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>')}
+    ${kpiCard("Contratos firmados",nfmt(contratos),"acumulado","up","emerald",'<path d="M9 12l2 2 4-4"/><path d="M9 3h6l4 4v14H5V3z"/>')}
+    ${kpiCard("Promociones activas",nfmt(promosActivas),"en curso","up","amber",'<path d="M3 11l16-6v14L3 13z"/><path d="M7 12v5a2 2 0 002 2"/>')}
+    ${kpiCard("Activas del mes",nfmt(promosMes),"junio 2026","up","rose",'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/>')}
+    ${kpiCard("KAM asignados",kamsAsignados,"equipo comercial","up","violet",'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><path d="M16 8a3 3 0 010 6"/>')}
+  </div>
+
+  <!-- funnel comercial -->
+  <div class="card pad section-gap">
+    <div class="row between" style="margin-bottom:14px"><div><div class="h-title">Funnel comercial</div><div class="faint" style="font-size:11.5px">Marcas por etapa · toca una etapa para ver el detalle</div></div></div>
+    <div style="display:flex;gap:8px;align-items:stretch;overflow-x:auto">
+      ${CLIENT_STAGES.map(st=>{const cnt=funnelCounts[st.n]||0;
+        return `<div onclick="openStageDetail('${esc(st.n)}')" style="flex:1;min-width:150px;cursor:pointer;background:var(--bg);border-radius:14px;padding:14px;border-top:3px solid ${st.c};transition:.15s" onmouseover="this.style.background='#fff';this.style.boxShadow='var(--shadow-lg)'" onmouseout="this.style.background='var(--bg)';this.style.boxShadow='none'">
+          <div class="faint" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em">${st.n}</div>
+          <div class="tnum" style="font-size:28px;font-weight:800;margin-top:6px;color:${st.c}">${nfmt(cnt)}</div>
+          <div class="row between" style="margin-top:6px"><span class="faint" style="font-size:10px">${cnt===1?'marca':'marcas'}</span><span class="tnum" style="font-size:11px;font-weight:800;color:${st.c}">${st.pct}%</span></div>
+          <div class="lb-bar" style="max-width:none;height:5px;margin-top:5px"><i style="width:${st.pct}%;background:${st.c}"></i></div>
+        </div>`;}).join('<div style="display:flex;align-items:center;color:var(--faint);font-size:20px">›</div>')}
+    </div>
+  </div>
+
+  <div class="grid cols-2 section-gap">
+    <!-- KPIs por KAM -->
+    <div class="card pad">
+      <div class="row between" style="margin-bottom:6px"><div><div class="h-title">Resultados por KAM</div><div class="faint" style="font-size:11.5px">Prospección, seguimiento y contratos cerrados por responsable</div></div><span class="faint" style="font-size:11px">${kamRows.length} KAM</span></div>
+      <div class="tbl-wrap"><table class="table" style="min-width:560px">
+      <thead><tr><th>KAM</th><th style="text-align:center">Prospectos</th><th style="text-align:center">En seguimiento</th><th style="text-align:center;background:var(--emerald-soft);color:#0a8f5e">Contratos cerrados</th><th style="text-align:center">Promo activas</th><th style="text-align:center">PDV</th></tr></thead>
+      <tbody>${kamRows.map(r=>`<tr>
+        <td>${kamPill(r.r.kam)}</td>
+        <td class="tnum" style="text-align:center">${nfmt(r.prosp)}</td>
+        <td class="tnum" style="text-align:center">${nfmt(r.seg)}</td>
+        <td style="text-align:center;background:var(--emerald-soft)"><div class="row gap8" style="justify-content:center"><b class="tnum" style="color:#0a8f5e;font-size:14px">${nfmt(r.contr)}</b><div class="lb-bar" style="max-width:52px"><i style="width:${r.contr/maxContr*100}%;background:#0FB97B"></i></div></div></td>
+        <td class="tnum" style="text-align:center">${nfmt(r.promo)}</td>
+        <td class="tnum" style="text-align:center">${nfmt(r.pdv)}</td></tr>`).join("")||emptyRow(6,"Sin datos para el filtro")}</tbody>
+      <tfoot><tr style="border-top:2px solid var(--line-2)"><td style="font-weight:800">Total</td><td class="tnum" style="text-align:center;font-weight:800">${nfmt(tot.prosp)}</td><td class="tnum" style="text-align:center;font-weight:800">${nfmt(tot.seg)}</td><td class="tnum" style="text-align:center;font-weight:800;background:var(--emerald-soft);color:#0a8f5e">${nfmt(tot.contr)}</td><td class="tnum" style="text-align:center;font-weight:800">${nfmt(tot.promo)}</td><td class="tnum" style="text-align:center;font-weight:800">${nfmt(tot.pdv)}</td></tr></tfoot>
+      </table></div>
+    </div>
+    <!-- categoría -->
+    <div class="card pad">
+      <div class="h-title" style="margin-bottom:4px">Marcas por categoría</div>
+      <div class="faint" style="font-size:11.5px">Composición de la cartera</div>
+      <div class="row" style="gap:18px;margin-top:14px">
+        <div style="position:relative;flex:none">${donut(catData.map(([k,v])=>({v,c:catColor(k)})),140)}
+          <div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center"><div><div class="tnum" style="font-size:20px;font-weight:800">${nfmt(marcasAfil)}</div><div class="faint" style="font-size:10px">marcas</div></div></div></div>
+        <div style="flex:1">${catData.map(([k,v])=>`<div class="row between" style="padding:4px 0;font-size:12.5px"><span class="row gap8"><span style="width:9px;height:9px;border-radius:3px;background:${catColor(k)}"></span>${k}</span><b class="tnum">${v}</b></div>`).join("")||'<span class="faint">Sin marcas</span>'}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- gantt promociones activas -->
+  <div class="card pad section-gap">
+    <div class="row between" style="margin-bottom:6px"><div><div class="h-title">Promociones activas · línea de tiempo</div><div class="faint" style="font-size:11.5px">Vigencias del programa · las próximas a vencer se resaltan automáticamente</div></div><span class="chip c-amber"><span class="d"></span>${ganttPromos.filter(p=>daysLeft(p.fin)<15).length} por vencer</span></div>
+    ${ganttChart(ganttPromos)}
+  </div>`;
+};
+
+/* ---- COMERCIAL ---- */
+VIEWS.comercial=()=>{
+  const brands=mine(COMMERCES);
+  return `<div class="row between page-h"><div><h2>Comercial</h2><p>${brands.length} comercios afiliados en tu gestión · info, canal, ubicaciones y KPIs</p></div>
+  <div class="row gap8"><button class="btn btn-ghost" onclick="exportMarcas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Exportar</button><button class="btn btn-primary" onclick="openCommerceModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Nuevo comercio</button></div></div>
+  <div class="filterbar"><div class="seg"><button class="on" data-mfilter="all">Todas</button>${CATS.slice(0,6).map(c=>`<button data-mfilter="${c}">${c}</button>`).join("")}</div></div>
+  <div class="grid cols-3" id="brandGrid">${brands.map(brandCard).join("")||emptyState("Aún no tienes comercios","Crea tu primer comercio afiliado")}</div>`;
+};
+function brandCard(b){const pos=PUNTOS.filter(p=>p.brandId===b.id).length;
+  return `<div class="card pad" data-cat="${b.cat}" style="cursor:pointer" onclick="openCommerceDetail(${b.id})">
+    <div class="row between"><div class="row" style="gap:12px"><div class="t-logo" style="width:44px;height:44px;border-radius:12px;font-size:16px;background:${catColor(b.cat)}">${initials(b.n)}</div><div><div style="font-weight:800;font-size:15px">${b.n}</div><span class="chip c-slate" style="margin-top:3px"><span class="d"></span>${b.cat}</span></div></div>
+    <div style="text-align:right"><div class="tnum" style="font-weight:800;font-size:15px;color:${b.kpi>=80?'#0FB97B':b.kpi>=65?'#F59E0B':'#F43F5E'}">${b.kpi}%</div><div class="faint" style="font-size:10px">cumpl.</div></div></div>
+    <div style="display:flex;gap:16px;margin-top:16px">
+      <div><div class="faint" style="font-size:10.5px;text-transform:uppercase;font-weight:700">Puntos venta</div><div class="tnum" style="font-weight:800;margin-top:2px">${pos}</div></div>
+      <div><div class="faint" style="font-size:10.5px;text-transform:uppercase;font-weight:700">Modalidad</div><div style="font-weight:700;margin-top:2px;font-size:12px">${b.modalidad.replace(" + ","+")}</div></div>
+      <div><div class="faint" style="font-size:10.5px;text-transform:uppercase;font-weight:700">Convenio</div><div style="font-weight:700;margin-top:2px;font-size:12px">${CONVENIOS.some(cv=>cv.brand===b.n)?'<span style="color:#0a8f5e">Vigente</span>':'<span class="faint">—</span>'}</div></div></div>
+    <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px" class="row between">${kamPill(b.kam)}<span class="faint" style="font-size:11.5px">${b.razonSocial||b.ruc||""}</span></div></div>`;
+}
+
+/* ---- BASE DE COMERCIOS (puntos de venta) ---- */
+VIEWS.puntos=()=>{
+  const pts=mine(PUNTOS);
+  const byBrand=pts.reduce((m,p)=>{(m[p.brand]=m[p.brand]||[]).push(p);return m},{});
+  const byDist=Object.entries(pts.reduce((m,p)=>{m[p.distrito]=(m[p.distrito]||0)+1;return m},{})).sort((a,b)=>b[1]-a[1]);
+  const dists=[...new Set(pts.map(p=>p.distrito))].sort();
+  const brandsSorted=Object.keys(byBrand).sort((a,b)=>byBrand[b].length-byBrand[a].length);
+  // PDV por distrito por KAM
+  const kamDist={};pts.forEach(p=>{(kamDist[p.kam]=kamDist[p.kam]||{});kamDist[p.kam][p.distrito]=(kamDist[p.kam][p.distrito]||0)+1});
+  const kamTotals=Object.entries(kamDist).map(([k,dd])=>[k,Object.values(dd).reduce((a,b)=>a+b,0),dd]).sort((a,b)=>b[1]-a[1]);
+  return `<div class="row between page-h"><div><h2>Base de comercios</h2><p>${pts.length} puntos de venta en ${brandsSorted.length} marcas · se alimentan automáticamente desde Comercial</p></div>
+  <button class="btn btn-ghost" onclick="exportMarcas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Exportar direcciones</button></div>
+  <div class="grid cols-3 section-gap">
+    <div class="card pad kpi"><div class="ic-wrap" style="background:var(--brand-soft);color:var(--brand)"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-6-5.3-6-10a6 6 0 0112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg></div><div class="val tnum">${pts.length}</div><div class="lbl">Puntos de venta</div></div>
+    <div class="card pad kpi"><div class="ic-wrap" style="background:var(--sky-soft);color:var(--sky)"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l1.5-5h15L21 9M4 9h16v11H4z"/></svg></div><div class="val tnum">${brandsSorted.length}</div><div class="lbl">Marcas con sedes</div></div>
+    <div class="card pad kpi"><div class="ic-wrap" style="background:var(--emerald-soft);color:var(--emerald)"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg></div><div class="val tnum">${dists.length}</div><div class="lbl">Distritos cubiertos</div></div>
+  </div>
+  <div class="filterbar">
+    <input class="input" id="posSearch" placeholder="Buscar dirección o marca…" oninput="filterPuntos()" style="min-width:240px"/>
+    <select class="input" id="posDist" onchange="filterPuntos()"><option value="">Todos los distritos</option>${dists.map(d=>`<option>${d}</option>`).join("")}</select>
+    <select class="input" id="posBrand" onchange="filterPuntos()"><option value="">Todas las marcas</option>${brandsSorted.slice().sort().map(b=>`<option>${b}</option>`).join("")}</select>
+  </div>
+  <div class="grid cols-2 section-gap">
+    <div id="brandGroups" style="display:flex;flex-direction:column;gap:16px">
+      ${brandsSorted.map(b=>posGroup(b,byBrand[b])).join("")||emptyState("Sin puntos de venta","Crea un comercio con puntos de venta en Comercial")}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="card pad"><div class="h-title" style="margin-bottom:12px">Distribución por distrito</div>${byDist.length?hbars(byDist.slice(0,8),(l,i)=>["#6D28D9","#7C3AED","#9333EA","#A855F7","#C026D3","#DB2777","#EC4899","#F472B6"][i]||"#6D28D9"):'<span class="faint">Sin datos</span>'}</div>
+      <div class="card pad"><div class="h-title" style="margin-bottom:4px">PDV por distrito y KAM</div>
+        <div class="faint" style="font-size:11.5px;margin-bottom:12px">Cobertura de puntos de venta que gestiona cada KAM</div>
+        ${kamTotals.length?kamTotals.map(([k,tot,dd])=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)">
+          <div class="row between" style="margin-bottom:8px">${kamPill(k)}<span class="chip c-violet"><span class="d"></span>${tot} PDV</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">${Object.entries(dd).sort((a,b)=>b[1]-a[1]).map(([d,n])=>`<span class="mini-tag">${d} · <b>${n}</b></span>`).join("")}</div>
+        </div>`).join(""):'<span class="faint">Sin datos</span>'}
+      </div>
+    </div>
+  </div>`;
+};
+function posGroup(brand,list){const cat=(list[0]||{}).cat;const kam=(list[0]||{}).kam;
+  const ordered=list.slice().sort((a,b)=>(a.distrito+a.dir).localeCompare(b.distrito+b.dir));
+  return `<div class="card pad brand-group" data-brand="${esc(brand)}">
+    <div class="row between" style="margin-bottom:10px">
+      <div class="row" style="gap:11px"><div class="t-logo" style="width:38px;height:38px;border-radius:11px;font-size:14px;background:${catColor(cat)}">${initials(brand)}</div>
+      <div><div style="font-weight:800;font-size:15px">${brand}</div><span class="chip c-slate" style="margin-top:2px"><span class="d"></span>${cat}</span></div></div>
+      <div style="text-align:right"><div class="tnum" style="font-weight:800;font-size:18px">${list.length}</div><div class="faint" style="font-size:10px">puntos de venta</div></div>
+    </div>
+    <div class="row between" style="border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0;margin-bottom:8px">${kamPill(kam)}<span class="faint" style="font-size:11.5px">${[...new Set(list.map(p=>p.distrito))].length} distritos</span></div>
+    <div class="tbl-wrap"><table class="table" style="min-width:auto"><thead><tr><th>Dirección</th><th>Distrito</th><th>Código(s)</th></tr></thead>
+    <tbody>${ordered.map(posRow).join("")}</tbody></table></div>
+  </div>`;
+}
+function posRow(p){return `<tr class="pos-tr" data-brand="${esc(p.brand)}" data-dist="${p.distrito}"><td><span style="font-weight:600">${p.via} ${p.dir}</span></td><td><span class="mini-tag">${p.distrito}</span></td><td>${(p.codigos||"").split(",").filter(x=>x.trim()).map(c=>`<span class="mini-tag">${c.trim()}</span>`).join("")||'<span class="faint">—</span>'}</td></tr>`}
+function filterPuntos(){const q=($("#posSearch").value||"").toLowerCase();const d=$("#posDist").value;const b=$("#posBrand").value;
+  document.querySelectorAll("#brandGroups .brand-group").forEach(g=>{let vis=0;
+    g.querySelectorAll(".pos-tr").forEach(r=>{const ok=(!d||r.dataset.dist===d)&&(!b||r.dataset.brand===b)&&(!q||r.textContent.toLowerCase().includes(q)||r.dataset.brand.toLowerCase().includes(q));r.style.display=ok?"":"none";if(ok)vis++});
+    g.style.display=vis?"":"none";});}
+
+/* ---- CAMPAÑAS & INCENTIVOS ---- */
+VIEWS.campanas=()=>{
+  const all=allPromos();
+  const activas=all.filter(x=>x.estado==="Activa").length;
+  const porVencer=all.filter(x=>x.estado==="Por vencer").length;
+  const incs=all.filter(x=>x._tipo==="Incentivo").length;
+  const catsUsed=[...new Set(all.map(x=>x.cat))];
+  const meses=[...new Set(all.map(x=>(x.ini||'').slice(0,7)).filter(Boolean))].sort();
+  const mesLbl=m=>({"01":"Ene","02":"Feb","03":"Mar","04":"Abr","05":"May","06":"Jun","07":"Jul","08":"Ago","09":"Set","10":"Oct","11":"Nov","12":"Dic"}[m.slice(5)]+" "+m.slice(0,4));
+  return `<div class="row between page-h"><div><h2>Campañas & Incentivos</h2><p>Todas tus promociones del mes con cupones y términos claros · aplicables a puntos de venta específicos</p></div>
+  <div class="row gap8"><button class="btn btn-ghost" onclick="exportPromociones()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Exportar promociones</button><button class="btn btn-ghost" onclick="openIncentiveModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 5 5 .5-4 3.5 1 5-4-2.5-4 2.5 1-5-4-3.5 5-.5z"/></svg>Nuevo incentivo</button>
+  <button class="btn btn-primary" onclick="openCampaignModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Nueva campaña</button></div></div>
+  <div class="grid kpis section-gap">
+    ${kpiCard("Promociones",all.length,"del mes","up","violet",'<path d="M3 11l16-6v14L3 13z"/><path d="M7 12v5a2 2 0 002 2"/>')}
+    ${kpiCard("Activas",activas,"en curso","up","emerald",'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>')}
+    ${kpiCard("Por vencer",porVencer,"≤ 7 días",porVencer?"down":"up","amber",'<path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/>')}
+    ${kpiCard("Incentivos",incs,"a fuerza de venta","up","sky",'<path d="M12 2l2 5 5 .5-4 3.5 1 5-4-2.5-4 2.5 1-5-4-3.5 5-.5z"/>')}
+  </div>
+  <div class="card pad section-gap" style="margin-bottom:18px">
+    <div class="row between gap" style="flex-wrap:wrap;margin-bottom:14px">
+      <div class="search" style="margin:0;width:auto;flex:1;min-width:220px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg><input id="campSearch" placeholder="Buscar por marca, cupón o promoción…" oninput="filterCamps()"/></div>
+      <div class="seg"><button class="on" data-tfilter="all">Todo</button><button data-tfilter="Campaña">Campañas</button><button data-tfilter="Incentivo">Incentivos</button></div>
+      <span class="chip c-violet" id="campCount"><span class="d"></span></span>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Estado</label><select class="input" id="fEstado" onchange="filterCamps()"><option value="">Todos</option><option>Activa</option><option>Por vencer</option><option>Borrador</option><option>Incentivo</option></select></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Mes</label><select class="input" id="fMes" onchange="filterCamps()"><option value="">Todos los meses</option>${meses.map(m=>`<option value="${m}">${mesLbl(m)}</option>`).join("")}</select></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Categoría</label><select class="input" id="fCat" onchange="filterCamps()"><option value="">Todas</option>${catsUsed.map(c=>`<option>${c}</option>`).join("")}</select></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label style="font-size:10.5px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.04em">Canal</label><select class="input" id="fCanal" onchange="filterCamps()"><option value="">Todos</option><option>Web + InStore</option><option>Web</option><option>InStore</option><option>Tienda</option></select></div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="resetCampFilters()">Limpiar filtros</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportIncentivos()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Solo incentivos</button>
+    </div>
+  </div>
+  <div class="card"><div class="tbl-wrap"><table class="table" style="min-width:920px"><thead><tr><th>Comercio</th><th>Tipo</th><th>KAM</th><th>Canal</th><th>Incentivo / Cupón</th><th>Términos y condiciones</th><th>Vigencia</th><th>Puntos</th><th>Estado</th></tr></thead>
+  <tbody id="campRows">${all.map(promoRow).join("")}</tbody></table></div></div>`;
+};
+function allPromos(){
+  const camps=mine(CAMPAIGNS).map(c=>({...c,_tipo:"Campaña"}));
+  const incs=mine(INCENTIVOS).map(i=>({...i,_tipo:"Incentivo",canal:"—",pres:0,estado:"Incentivo"}));
+  return [...camps,...incs].sort((a,b)=>new Date(b.ini)-new Date(a.ini));
+}
+function promoRow(c){const dl=daysLeft(c.fin);const isC=c._tipo==="Campaña";
+  const search=[c.brand,c.nombre,c.promo,c.cupon,c.inc,c.cat].filter(Boolean).join(" ").toLowerCase();
+  return `<tr data-tipo="${c._tipo}" data-mes="${(c.ini||'').slice(0,7)}" data-cat="${c.cat}" data-canal="${c.canal||''}" data-estado="${c.estado}" data-search="${attr(search)}" style="cursor:pointer" onclick="${isC?`openCampaignDetail(${c.id})`:`openIncentiveDetail(${c.id})`}">
+  <td><div class="t-brand"><div class="t-logo" style="background:${catColor(c.cat)}">${initials(c.brand)}</div><div><div class="t-name">${c.brand}</div><div class="t-cat">${c.nombre||c.promo||c.cat}</div></div></div></td>
+  <td>${isC?'<span class="chip c-sky"><span class="d"></span>Campaña</span>':'<span class="chip c-violet"><span class="d"></span>Incentivo</span>'}</td>
+  <td>${kamPill(c.kam)}</td><td><span class="faint">${c.canal||"—"}</span></td>
+  <td><span style="font-weight:600;font-size:12.5px">${c.cupon&&c.cupon!=="—"&&c.cupon!=="Automático"?'<b style="color:var(--brand)">'+c.cupon+'</b>':(c.inc||"—")}</span></td>
+  <td style="max-width:260px"><span style="font-size:12px;color:var(--muted);line-height:1.4;display:block" title="${attr(c.tyc||'')}">${truncate(c.tyc)||'<span class="faint">—</span>'}</span></td>
+  <td class="tnum">${(c.ini||'').slice(5)} → ${(c.fin||'').slice(5)}${(dl<=7&&dl>=0)?'<div class="faint" style="font-size:10px">vence en '+dl+' días</div>':''}</td>
+  <td><span class="mini-tag">${(c.pos||[]).length} sedes</span></td>
+  <td>${estadoChip(c.estado)}</td></tr>`}
+function filterCamps(){const tb=document.querySelector("[data-tfilter].on");const t=tb?tb.dataset.tfilter:"all";
+  const mes=$("#fMes")?$("#fMes").value:"",cat=$("#fCat")?$("#fCat").value:"",canal=$("#fCanal")?$("#fCanal").value:"",est=$("#fEstado")?$("#fEstado").value:"",q=($("#campSearch")?$("#campSearch").value:"").toLowerCase();let n=0;
+  document.querySelectorAll("#campRows tr").forEach(r=>{const ok=(t==="all"||r.dataset.tipo===t)&&(!mes||r.dataset.mes===mes)&&(!cat||r.dataset.cat===cat)&&(!canal||r.dataset.canal===canal)&&(!est||r.dataset.estado===est)&&(!q||(r.dataset.search||"").includes(q));r.style.display=ok?"":"none";if(ok)n++});
+  const el=$("#campCount");if(el)el.innerHTML='<span class="d"></span>'+n+' resultado'+(n!==1?'s':'');}
+function resetCampFilters(){["fMes","fCat","fCanal","fEstado"].forEach(id=>{const e=$("#"+id);if(e)e.value="";});const s=$("#campSearch");if(s)s.value="";document.querySelectorAll("[data-tfilter]").forEach(x=>x.classList.toggle("on",x.dataset.tfilter==="all"));filterCamps();}
+
+/* ---- CRM ---- */
+// Salud real = respuestas (responsividad del contacto) + reuniones + ejecución de campañas
+function crmSalud(c){
+  const inters=INTERACTIONS.filter(i=>i.contactId===c.id||i.brand===c.brand);
+  const reun=inters.filter(i=>i.tipo==="Reunión").length;
+  const resp=inters.filter(i=>["Llamada","Seguimiento","Acuerdo","Próxima acción"].includes(i.tipo)).length;
+  const ejec=[...CAMPAIGNS,...INCENTIVOS].filter(x=>x.brand===c.brand).length;
+  const respScore=Math.max(0,Math.min(100,c.salud||0));           // respuestas: qué tan bien responde
+  const reunScore=Math.min(100,reun*50);                          // reuniones sostenidas
+  const ejecScore=Math.min(100,ejec*45);                          // campañas/incentivos ejecutados
+  const total=Math.round(respScore*0.4+reunScore*0.3+ejecScore*0.3);
+  const lastDate=inters.map(i=>i.fecha).filter(Boolean).sort().slice(-1)[0]||"";
+  return {reun,resp,ejec,respScore,reunScore,ejecScore,total,lastDate};
+}
+function saludColor(v){return v>=70?'#0FB97B':v>=45?'#F59E0B':'#F43F5E';}
+/* ---- Funnel comercial helpers ---- */
+function stars(n){n=Math.max(0,Math.min(5,Math.round(n)));let h="";for(let i=1;i<=5;i++)h+=`<span style="color:${i<=n?'#F59E0B':'#E4E7EE'}">★</span>`;return `<span style="font-size:13px;letter-spacing:1px">${h}</span>`;}
+function contratoPill(x){const m={"Ganado":["c-emerald","Ganado"],"En proceso":["c-amber","En proceso"],"Perdido":["c-rose","Perdido"]};const[cl,t]=m[x]||m["En proceso"];return `<span class="chip ${cl}"><span class="d"></span>${t}</span>`;}
+function dealMeta(d){
+  const brand=COMMERCES.find(b=>b.n===d.brand)||{};
+  const contact=d.contactId?CONTACTS.find(c=>c.id===d.contactId):null;
+  const cat=brand.cat||"Moda";
+  const inters=INTERACTIONS.filter(i=>(d.contactId&&i.contactId===d.contactId)||i.brand===d.brand);
+  const promosActivas=CAMPAIGNS.filter(c=>c.brand===d.brand&&c.estado==="Activa").length;
+  const convenio=CONVENIOS.some(cv=>cv.brand===d.brand);
+  const s=contact?crmSalud(contact):null;
+  const contrato=d.etapa==="Convenio firmado"?"Ganado":(d.etapa==="Perdido"?"Perdido":"En proceso");
+  const rating=s?Math.round(s.total/20):(d.rating||0);
+  return {brand,contact,cat,inters,promosActivas,convenio,pct:ETAPA_PCT[d.etapa]||0,contrato,rating,kam:brand.kam};
+}
+function dealRow(d){const m=dealMeta(d);const col=ETAPA_COLOR[d.etapa];
+  return `<tr style="cursor:pointer" onclick="openDealDetail(${d.id})">
+    <td style="border-left:4px solid ${col}"><div class="t-brand"><div class="t-logo" style="width:32px;height:32px;font-size:12px;background:${catColor(m.cat)}">${initials(d.brand)}</div><div><div class="t-name">${d.brand}</div><div class="t-cat">${m.contact?m.contact.name+' · '+m.contact.role:'Sin contacto asignado'}</div></div></div></td>
+    <td>${kamPill(m.kam)}</td>
+    <td>${contratoPill(m.contrato)}</td>
+    <td>${m.promosActivas?`<span class="chip c-emerald"><span class="d"></span>${m.promosActivas} activa${m.promosActivas!==1?'s':''}</span>`:'<span class="chip c-slate"><span class="d"></span>Sin promo</span>'}</td>
+    <td style="min-width:130px"><div class="row gap8"><div class="lb-bar" style="max-width:80px;flex:1"><i style="width:${m.pct}%;background:${col}"></i></div><b class="tnum" style="font-size:12px">${m.pct}%</b></div></td>
+    <td style="max-width:200px"><div style="font-weight:600;font-size:12px">${d.next||'—'}</div>${d.nextDate?`<div class="faint tnum" style="font-size:10.5px">${d.nextDate}</div>`:''}</td>
+    <td>${stars(m.rating)}</td>
+    <td style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openDealAction(${d.id})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Acción</button></td>
+  </tr>`;
+}
+function funnelGroup(etapa,deals){const col=ETAPA_COLOR[etapa];
+  return `<div class="card" style="overflow:hidden;margin-bottom:16px">
+    <div class="row between" style="padding:12px 16px;border-bottom:1px solid var(--line)">
+      <div class="row gap8"><span style="width:10px;height:10px;border-radius:3px;background:${col}"></span><b style="font-size:14px;color:${col}">${etapa}</b><span class="faint" style="font-size:12px">${deals.length} gestión${deals.length!==1?'es':''}</span></div>
+      <span class="chip c-slate"><span class="d"></span>${ETAPA_PCT[etapa]}% de avance</span>
+    </div>
+    <div class="tbl-wrap"><table class="table" style="min-width:940px"><thead><tr><th>Marca / contacto</th><th>Responsable</th><th>Contrato</th><th>Promociones</th><th>Progreso</th><th>Próxima acción</th><th>Salud</th><th></th></tr></thead>
+    <tbody>${deals.map(dealRow).join("")}</tbody></table></div>
+  </div>`;
+}
+VIEWS.crm=()=>{
+  const deals=mine(DEALS.map(d=>({...d,kam:(COMMERCES.find(b=>b.n===d.brand)||{}).kam})));
+  const firmados=deals.filter(d=>d.etapa==="Convenio firmado").length;
+  const negoc=deals.filter(d=>["Propuesta","Negociación"].includes(d.etapa)).length;
+  const activos=deals.filter(d=>d.etapa!=="Perdido").length;
+  const ratings=deals.map(d=>dealMeta(d).rating);
+  const avgSalud=ratings.length?Math.round(ratings.reduce((a,b)=>a+b,0)/ratings.length*20):0;
+  const conv=deals.length?Math.round(firmados/deals.length*100):0;
+  const inters=mine(INTERACTIONS.map(i=>({...i,kam:(COMMERCES.find(b=>b.n===i.brand)||{}).kam}))).slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  const proximas=inters.filter(i=>i.tipo==="Próxima acción").sort((a,b)=>new Date(a.fecha)-new Date(b.fecha));
+  const stageOrder=ETAPAS; // Prospecto → … → Convenio firmado → Perdido
+  return `<div class="row between page-h"><div><h2>Funnel comercial</h2><p>Gestiona en vivo el avance del contrato y las promociones de cada marca · el cliente ve el estatus en tiempo real</p></div>
+  <div class="row gap8"><button class="btn btn-ghost" onclick="exportClientes()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Exportar contactos</button><button class="btn btn-primary" onclick="openDealAction()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Registrar acción</button></div></div>
+  <div class="grid kpis section-gap">
+    ${kpiCard("Gestiones activas",activos,"en el funnel","up","violet",'<path d="M22 3H2l8 9.5V19l4 2v-8.5z"/>')}
+    ${kpiCard("En negociación",negoc,"propuesta / negociación","up","amber",'<path d="M8 12h8M8 8h8M8 16h5"/><rect x="3" y="4" width="18" height="16" rx="2"/>')}
+    ${kpiCard("Convenios firmados",firmados,conv+"% conversión","up","emerald",'<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>')}
+    ${kpiCard("Salud promedio",avgSalud+"%",avgSalud>=60?"cartera sana":"requiere foco",avgSalud>=60?"up":"down","sky",'<path d="M3 12h4l2 6 4-14 2 8h6"/>')}
+  </div>
+  <div class="card pad section-gap">
+    <div class="row between" style="margin-bottom:14px"><div class="h-title">Embudo de contratos</div><span class="faint" style="font-size:11.5px">avance por etapa · dashboard de estatus</span></div>
+    <div style="display:flex;gap:8px;align-items:stretch;overflow-x:auto">
+      ${ETAPAS.filter(e=>e!=="Perdido").map(e=>{const cnt=deals.filter(d=>d.etapa===e).length;const col=ETAPA_COLOR[e];
+        return `<div style="flex:1;min-width:130px;background:var(--bg);border-radius:12px;padding:13px;border-top:3px solid ${col}">
+          <div class="faint" style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.03em">${e}</div>
+          <div class="tnum" style="font-size:26px;font-weight:800;margin-top:4px;color:${col}">${cnt}</div>
+          <div class="faint" style="font-size:10px">${ETAPA_PCT[e]}% avance</div>
+        </div>`;}).join('<div style="display:flex;align-items:center;color:var(--faint);font-size:18px">›</div>')}
+    </div>
+    ${deals.filter(d=>d.etapa==="Perdido").length?`<div class="faint" style="font-size:11.5px;margin-top:10px">Perdidas: <b style="color:#d22a45">${deals.filter(d=>d.etapa==="Perdido").length}</b></div>`:""}
+  </div>
+  <div class="row between" style="margin:6px 0 12px"><div class="h-title">Tablero de gestión</div><span class="faint" style="font-size:11.5px">toca una fila para ver el historial · «Acción» para avanzar la etapa</span></div>
+  ${stageOrder.map(e=>({e,ds:deals.filter(d=>d.etapa===e)})).filter(x=>x.ds.length).map(x=>funnelGroup(x.e,x.ds)).join("")||emptyState("Sin gestiones en el funnel","Registra una acción para iniciar la gestión de un contacto")}
+  ${proximas.length?`<div class="card pad section-gap"><div class="row between" style="margin-bottom:12px"><div class="h-title">Agenda de próximas acciones</div><span class="chip c-amber"><span class="d"></span>${proximas.length}</span></div>
+    ${proximas.map(p=>`<div class="call-item"><div class="kam-av" style="width:30px;height:30px;background:${catColor((COMMERCES.find(b=>b.n===p.brand)||{}).cat)}">${initials(p.brand)}</div><div style="min-width:0"><div style="font-weight:700;font-size:12.5px">${p.t}</div><div class="faint" style="font-size:11px">${p.brand}${p.contactName?` · ${p.contactName}`:""} · ${p.fecha.slice(5)}</div></div></div>`).join("")}</div>`:""}`;
+};
+function openDealDetail(id){const d=DEALS.find(x=>x.id===id);if(!d)return;const m=dealMeta(d);const contact=m.contact;
+  const inters=m.inters.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  const promos=CAMPAIGNS.filter(c=>c.brand===d.brand);const col=ETAPA_COLOR[d.etapa];
+  $("#modal").className="modal wide";
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="t-logo" style="width:32px;height:32px;font-size:12px;background:${catColor(m.cat)}">${initials(d.brand)}</span>${d.brand}</span>`)+`<div class="modal-body">
+    <div class="row gap8" style="margin-bottom:14px;flex-wrap:wrap"><span class="chip" style="background:${col}1f;color:${col}"><span class="d" style="background:${col}"></span>${d.etapa}</span>${contratoPill(m.contrato)}${m.promosActivas?`<span class="chip c-emerald"><span class="d"></span>${m.promosActivas} promo activa${m.promosActivas!==1?'s':''}</span>`:''}${m.convenio?'<span class="chip c-violet"><span class="d"></span>Convenio en biblioteca</span>':''}</div>
+    <div style="margin-bottom:14px"><div class="dl" style="margin-bottom:6px">Avance de la gestión del contrato</div><div class="row gap8"><div class="lb-bar" style="max-width:none;flex:1;height:9px"><i style="width:${m.pct}%;background:${col}"></i></div><b class="tnum">${m.pct}%</b></div></div>
+    <div class="detail-grid">
+      <div><div class="dl">Responsable</div><div class="dv">${m.kam||'—'}</div></div>
+      <div><div class="dl">Contacto</div><div class="dv" style="font-size:13px">${contact?contact.name+' · '+contact.role:'Sin asignar'}</div></div>
+      ${contact?`<div><div class="dl">Teléfono</div><div class="dv tnum" style="font-size:13px">${contact.tel}</div></div><div><div class="dl">Email</div><div class="dv" style="font-size:12.5px">${contact.email}</div></div>`:''}
+    </div>
+    <div style="margin-top:14px"><div class="dl">Próxima acción</div><div style="margin-top:4px;font-weight:600">${d.next||'—'}${d.nextDate?` <span class="faint tnum" style="font-weight:400">· ${d.nextDate}</span>`:''}</div></div>
+    <div class="sub-h">Promociones de la marca (${promos.length})</div>
+    ${promos.length?promos.map(p=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div class="row between"><span style="font-weight:600;font-size:13px">${p.nombre} · ${p.promo}</span>${estadoChip(p.estado)}</div><div class="faint" style="font-size:11px;margin-top:2px">${p.cupon&&p.cupon!=='—'?p.cupon+' · ':''}${p.ini} → ${p.fin}</div></div>`).join(""):'<span class="faint" style="font-size:12.5px">Sin promociones registradas para esta marca</span>'}
+    <div class="sub-h">Historial de la gestión (${inters.length})</div>
+    <div style="position:relative;padding-left:24px">${inters.length?inters.map(timelineItem).join(""):'<span class="faint">Sin acciones registradas aún</span>'}</div>
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="closeModal();openDealAction(${id})">Registrar acción</button></div>`;openModal();
+}
+function openDealAction(dealId){
+  const deals=mine(DEALS.map(d=>({...d,kam:(COMMERCES.find(b=>b.n===d.brand)||{}).kam})));
+  if(!deals.length){toast("No hay gestiones en tu cartera");return;}
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead("Registrar acción comercial")+`<div class="modal-body">
+    <div class="field"><label>Gestión</label><select id="da_deal" onchange="onDealPick()">${deals.map(d=>`<option value="${d.id}" ${dealId===d.id?'selected':''}>${d.brand}${d.contactId?' · '+((CONTACTS.find(c=>c.id===d.contactId)||{}).name||''):''}</option>`).join("")}</select></div>
+    <div class="field-row"><div class="field"><label>Tipo de acción</label><select id="da_tipo"><option>Reunión</option><option>Llamada</option><option>Propuesta</option><option>Acuerdo</option><option>Seguimiento</option></select></div><div class="field"><label>Mover a etapa del funnel</label><select id="da_etapa">${ETAPAS.map(e=>`<option>${e}</option>`).join("")}</select></div></div>
+    <div class="field"><label>Detalle de la acción</label><input id="da_t" placeholder="Ej. Presentación de propuesta Cyber"/></div>
+    <div class="field-row"><div class="field"><label>Fecha</label><input id="da_fecha" type="date" value="2026-06-18"/></div><div class="field"><label>Fecha próxima acción</label><input id="da_nextdate" type="date" value="2026-06-24"/></div></div>
+    <div class="field"><label>Próxima acción (se agenda en el funnel)</label><input id="da_next" placeholder="Ej. Enviar adenda firmada"/></div>
+    <div class="faint" style="font-size:11.5px">La acción se guarda en el historial del contacto, mueve la etapa y actualiza el estatus que ve el cliente.</div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createDealAction()">Guardar acción</button></div>`;
+  openModal();onDealPick();
+}
+function onDealPick(){const d=DEALS.find(x=>x.id===+$("#da_deal").value);if(d&&$("#da_etapa"))$("#da_etapa").value=d.etapa;}
+function advanceFunnel(d,target){const order=CLIENT_STAGES.map(s=>s.n);const idx=Math.max(order.indexOf(d.funnel||"Prospectos"),order.indexOf(target));if(idx>=0)d.funnel=order[idx];}
+function createDealAction(){const d=DEALS.find(x=>x.id===+$("#da_deal").value);if(!d)return;
+  d.etapa=$("#da_etapa").value;if($("#da_next").value)d.next=$("#da_next").value;if($("#da_nextdate").value)d.nextDate=$("#da_nextdate").value;
+  const fmap={"Prospecto":"Prospectos","Contactado":"En gestión","Propuesta":"En gestión","Negociación":"En gestión","Convenio firmado":"Contrato conseguido","Perdido":"Prospectos"};
+  advanceFunnel(d,fmap[d.etapa]||"Prospectos");
+  const tipo=$("#da_tipo").value,detalle=$("#da_t").value||tipo,fecha=$("#da_fecha").value;
+  const contact=d.contactId?CONTACTS.find(c=>c.id===d.contactId):null;
+  INTERACTIONS.push({id:Date.now(),contactId:d.contactId||null,contactName:contact?contact.name:d.brand,brand:d.brand,tipo,t:detalle,fecha,next:$("#da_next").value,etapa:d.etapa});
+  if($("#da_next").value)INTERACTIONS.push({id:Date.now()+1,contactId:d.contactId||null,contactName:contact?contact.name:d.brand,brand:d.brand,tipo:"Próxima acción",t:$("#da_next").value,fecha:$("#da_nextdate").value||fecha,next:""});
+  if(contact){const imp={"Reunión":8,"Acuerdo":10,"Propuesta":6,"Llamada":4,"Seguimiento":3}[tipo]||3;contact.salud=Math.min(100,contact.salud+imp);}
+  closeModal();toast("Acción registrada · funnel actualizado");go("crm");
+}
+function timelineItem(e){const col=({"Reunión":"violet","Acuerdo":"emerald","Seguimiento":"sky","Llamada":"amber","Próxima acción":"amber"})[e.tipo]||"slate";const ring={violet:'#6D28D9',emerald:'#0FB97B',sky:'#0EA5E9',amber:'#F59E0B',slate:'#94a0b3'}[col];
+  return `<div style="position:relative;padding-bottom:22px"><div style="position:absolute;left:-26px;top:2px;width:18px;height:18px;border-radius:50%;background:var(--surface);border:3px solid ${ring}"></div>
+  <div class="row between"><span class="chip c-${col}"><span class="d"></span>${e.tipo}</span><span class="faint tnum" style="font-size:11.5px">${e.fecha.slice(5)}</span></div>
+  <div style="font-weight:700;margin-top:7px;font-size:13.5px">${e.t}</div>
+  <div class="muted" style="font-size:12px;margin-top:3px">${e.brand}${e.contactName?` · ${e.contactName}`:""}</div>
+  ${e.next?`<div style="font-size:12px;margin-top:6px;color:var(--brand);font-weight:600">→ ${e.next}</div>`:""}</div>`;}
+
+/* ---- BIBLIOTECA ---- */
+let bibTab="convenios";
+VIEWS.biblioteca=()=>{
+  const conv=mine(CONVENIOS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam})));
+  const bank=mine(BANK.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam})));
+  const tcol={Logo:"#6D28D9",Foto:"#0FB97B","Gráfica":"#DB2777"};
+  const convBrands=[...new Set(conv.map(c=>c.brand))].sort();
+  return `<div class="row between page-h"><div><h2>Biblioteca</h2><p>Convenios que se depositan automáticamente al registrar un comercio, y un banco de logos y fotos por marca</p></div>
+  <div class="row gap8">${bibTab==='convenios'?`<button class="btn btn-ghost" onclick="exportConvenios()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Exportar convenios</button>`:""}<button class="btn btn-primary" onclick="${bibTab==='convenios'?'openConvenioModal()':'openBankModal()'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>Subir</button></div></div>
+  <div class="filterbar"><div class="seg"><button class="${bibTab==='convenios'?'on':''}" onclick="bibTab='convenios';go('biblioteca')">Convenios</button><button class="${bibTab==='banco'?'on':''}" onclick="bibTab='banco';go('biblioteca')">Banco de logos & fotos</button></div></div>
+  ${bibTab==='convenios'?`
+    <div class="filterbar" style="margin-top:0">
+      <input class="input" id="convSearch" placeholder="Buscar convenio…" oninput="filterConvenios()" style="min-width:240px"/>
+      <select class="input" id="convBrand" onchange="filterConvenios()"><option value="">Todas las marcas</option>${convBrands.map(b=>`<option>${b}</option>`).join("")}</select>
+      <span class="chip c-slate"><span class="d"></span>${conv.length} convenios</span>
+    </div>
+    <div class="card"><div class="tbl-wrap"><table class="table" style="min-width:620px"><thead><tr><th>Convenio</th><th>Marca</th><th>Contacto</th><th>Vigencia</th><th>Formato</th><th></th></tr></thead>
+    <tbody id="convRows">${conv.length?conv.map(c=>`<tr data-brand="${esc(c.brand)}"><td><div class="t-brand"><div class="t-logo" style="width:30px;height:30px;font-size:9px;background:#0E1422">${c.type}</div><span class="t-name">${c.name}</span></div></td><td>${c.brand}</td><td class="muted">${c.contact||"—"}</td><td class="tnum" style="font-size:12.5px">${c.vigencia||"—"}</td><td><span class="mini-tag">${c.type}</span></td><td style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="toast('Descargando ${esc(c.name)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Descargar</button></td></tr>`).join(""):emptyRow(6,"Sin convenios. Se depositan al registrar un comercio en Comercial o al adjuntarlos desde un contacto en CRM.")}</tbody></table></div></div>`
+  :`<div class="asset-grid">${bank.length?bank.map(a=>`<div class="asset"><div class="thumb" style="background:linear-gradient(135deg,${tcol[a.kind]||'#6D28D9'},${(tcol[a.kind]||'#6D28D9')}bb)">${a.type}<button class="a-dl" title="Descargar" onclick="event.stopPropagation();toast('Descargando ${esc(a.name)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg></button></div><div class="a-body"><div class="a-name">${a.name}</div><div class="a-meta">${a.brand} · ${a.kind}</div></div></div>`).join(""):emptyState("Banco vacío","Sube logos y fotos por marca")}</div>`}`;
+};
+function filterConvenios(){const q=($("#convSearch").value||"").toLowerCase();const b=$("#convBrand").value;
+  document.querySelectorAll("#convRows tr").forEach(r=>{const ok=(!b||r.dataset.brand===b)&&(!q||r.textContent.toLowerCase().includes(q));r.style.display=ok?"":"none"});}
+
+/* ---- EJECUTIVO ---- */
+VIEWS.ejecutivo=()=>{
+  const brands=mine(COMMERCES);const camps=mine(CAMPAIGNS);
+  const facturacion=camps.reduce((a,c)=>a+c.pres,0);
+  const byKam=KAMS.map(k=>({...k,pres:CAMPAIGNS.filter(c=>c.kam===k.n).reduce((a,c)=>a+c.pres,0),marcas:COMMERCES.filter(b=>b.kam===k.n).length})).filter(k=>k.marcas>0).sort((a,b)=>b.pres-a.pres);
+  const byCat=Object.entries(camps.reduce((m,c)=>{m[c.cat]=(m[c.cat]||0)+c.pres;return m},{})).sort((a,b)=>b[1]-a[1]);
+  return `<div class="row between page-h"><div><h2>Dashboard Ejecutivo</h2><p>Visión consolidada${isAdmin()?" de todos los KAMs":""} · Junio 2026</p></div>
+  <button class="btn btn-ghost" onclick="window.print()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z"/></svg>Exportar PDF</button></div>
+  <div class="grid kpis section-gap">
+    ${kpiCard("Presupuesto gestionado",fmtK(facturacion),"+18% MoM","up","emerald",'<path d="M12 3v18M7 7h7a3 3 0 010 6H8a3 3 0 000 6h8"/>')}
+    ${kpiCard("Comercios",brands.length,"activos","up","violet",'<path d="M3 9l1.5-5h15L21 9M4 9h16v11H4z"/>')}
+    ${kpiCard("Campañas vivas",camps.filter(c=>c.estado!=="Borrador").length,"en curso","up","sky",'<path d="M3 11l16-6v14L3 13z"/>')}
+    ${kpiCard("Puntos de venta",mine(PUNTOS).length,"cubiertos","up","amber",'<path d="M12 21s-6-5.3-6-10a6 6 0 0112 0c0 4.7-6 10-6 10z"/>')}
+  </div>
+  <div class="grid cols-2 section-gap">
+    <div class="card pad"><div class="h-title">Tendencia de presupuesto · 6 meses</div><div style="margin-top:12px">${spark([620,710,680,820,980,1140].map(v=>v*100))}</div><div class="row between faint" style="font-size:11px;margin-top:6px"><span>Ene</span><span>Feb</span><span>Mar</span><span>Abr</span><span>May</span><span>Jun</span></div></div>
+    <div class="card pad"><div class="h-title">Inversión por categoría</div><div style="margin-top:10px">${byCat.length?bars(byCat.slice(0,6).map(([k,v])=>({l:k.slice(0,4),t:fmtK(v).replace('S/ ',''),v,c:catColor(k)}))):'<div class="faint" style="padding:30px 0">Sin campañas</div>'}</div></div>
+  </div>
+  <div class="card pad section-gap"><div class="h-title" style="margin-bottom:6px">Performance por KAM</div>
+    <div class="tbl-wrap"><table class="table" style="min-width:560px"><thead><tr><th>KAM</th><th>Marcas</th><th>Campañas</th><th>Presupuesto</th><th>Aporte</th></tr></thead>
+    <tbody>${byKam.map(k=>{const cc=CAMPAIGNS.filter(c=>c.kam===k.n).length;return `<tr><td>${kamPill(k.n)}</td><td class="tnum">${k.marcas}</td><td class="tnum">${cc}</td><td class="tnum" style="font-weight:700">${fmt(k.pres)}</td><td><div class="row gap8"><div class="lb-bar" style="max-width:90px"><i style="width:${byKam[0].pres?k.pres/byKam[0].pres*100:0}%;background:${k.c}"></i></div><b class="tnum" style="font-size:12px">${facturacion?(k.pres/facturacion*100).toFixed(0):0}%</b></div></td></tr>`}).join("")||emptyRow(5,"Sin datos")}</tbody></table></div></div>`;
+};
+
+/* ---- IA ---- */
+VIEWS.ia=()=>`<div style="max-width:840px;margin:0 auto">
+  <div class="row" style="gap:13px;margin-bottom:8px"><div class="logo" style="padding:0"><div class="mark">✦</div></div><div><h2 style="font-size:19px;font-weight:800;letter-spacing:-.02em">IA Assistant</h2><p class="muted" style="font-size:13px">Pregúntame por tus campañas, vencimientos o reportes.</p></div></div>
+  <div class="card pad chat-wrap" style="margin-top:14px">
+    <div class="chat-body" id="chatBody"><div class="bubble ai">Hola ${USER.name.split(" ")[0]} 👋 Puedo resumir resultados, listar campañas activas o contactos por contactar. ¿Qué necesitas?</div></div>
+    <div class="chat-suggest">${["¿Qué campañas están activas?","¿Qué vence esta semana?","¿A quién debo contactar?","Resume resultados del mes"].map(s=>`<button class="suggest" onclick="askAI('${s}')">${s}</button>`).join("")}</div>
+    <div class="chat-input"><input id="chatInput" placeholder="Escribe tu pregunta…" onkeydown="if(event.key==='Enter')askAI(this.value)"/><button class="btn btn-primary" onclick="askAI($('#chatInput').value)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button></div>
+  </div></div>`;
+
+/* ---- ADMIN ---- */
+VIEWS.admin=()=>{
+  if(!isAdmin())return emptyState("Acceso restringido","Solo administradores");
+  return `<div class="page-h"><h2>Panel de administración</h2><p>Gestiona usuarios, la fuente de resultados y el reinicio de datos por cliente</p></div>
+  <div class="grid cols-2e section-gap">
+    <div class="card pad"><div class="h-title" style="margin-bottom:12px">Usuarios & accesos</div>
+      <div class="tbl-wrap"><table class="table" style="min-width:auto"><thead><tr><th>Usuario</th><th>Rol</th><th>Gestión</th></tr></thead>
+      <tbody>${Object.entries(USERS).map(([em,u])=>`<tr><td><div style="font-weight:700">${u.name}</div><div class="faint" style="font-size:11px">${em}</div></td><td><span class="role-tag ${u.role==='admin'?'role-admin':'role-kam'}">${u.role}</span></td><td>${u.kam?u.kam:"Todo (consolidado)"}</td></tr>`).join("")}</tbody></table></div>
+      <div class="faint" style="font-size:11.5px;margin-top:12px">Cada KAM ve solo su cartera; los admin ven todo. La autenticación real se conectará con Firebase Auth.</div>
+    </div>
+    <div class="card pad"><div class="h-title" style="margin-bottom:12px">Fuentes de datos</div>
+      <div class="row between" style="padding:12px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Resultados (dashboard)</div><div class="faint" style="font-size:11.5px">${RESULTS.metrics.length} métricas · ${RESULTS.updated}</div></div><button class="btn btn-ghost btn-sm" onclick="openResultsModal()">Cargar</button></div>
+      <div class="row between" style="padding:12px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Estado de cartera</div><div class="faint" style="font-size:11.5px">${(PORTFOLIO.activos+PORTFOLIO.inactivos+PORTFOLIO.proceso).toLocaleString("es-PE")} comercios</div></div><button class="btn btn-ghost btn-sm" onclick="openPortfolioModal()">Actualizar</button></div>
+      <div class="row between" style="padding:12px 0"><div><div style="font-weight:700;font-size:13px">Base geográfica</div><div class="faint" style="font-size:11.5px">Provincias y distritos</div></div><span class="chip c-emerald"><span class="d"></span>Cargada</span></div>
+    </div>
+  </div>
+  <div class="grid cols-2e section-gap">
+    <div class="card pad"><div class="row between" style="margin-bottom:12px"><div class="h-title">Nombres de campaña</div><span class="chip c-slate"><span class="d"></span>${CAMPAIGN_NAMES.length}</span></div>
+      <div class="faint" style="font-size:11.5px;margin-bottom:12px">Los KAM eligen de esta lista al crear una campaña, para mantener consistencia.</div>
+      <div id="cnList">${CAMPAIGN_NAMES.map((n,i)=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-weight:600;font-size:13px">${n}</span><button class="pos-del" style="width:28px;height:28px" onclick="removeCampaignName(${i})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`).join("")||'<span class="faint">Sin nombres cargados</span>'}</div>
+      <div class="row gap8" style="margin-top:12px"><input class="input" id="cnInput" placeholder="Nuevo nombre de campaña" style="flex:1" onkeydown="if(event.key==='Enter')addCampaignName()"/><button class="btn btn-primary btn-sm" onclick="addCampaignName()">Agregar</button></div>
+    </div>
+    <div class="card pad"><div class="h-title" style="margin-bottom:6px">Exportables / Reportes</div>
+      <div class="faint" style="font-size:11.5px;margin-bottom:12px">Descarga la base consolidada${isAdmin()?" de todos los KAM":""} en CSV (abre en Excel / Google Sheets).</div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Contactos</div><div class="faint" style="font-size:11px">Contacto, cargo, celular, email, salud, convenio</div></div><button class="btn btn-ghost btn-sm" onclick="exportClientes()">CSV</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Marcas · direcciones · códigos</div><div class="faint" style="font-size:11px">Puntos de venta con código de comercio</div></div><button class="btn btn-ghost btn-sm" onclick="exportMarcas()">CSV</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Convenios</div><div class="faint" style="font-size:11px">Convenio, marca, contacto, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportConvenios()">CSV</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Promociones (todas)</div><div class="faint" style="font-size:11px">Campañas + incentivos, material, vigencia, puntos</div></div><button class="btn btn-ghost btn-sm" onclick="exportPromociones()">CSV</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Campañas</div><div class="faint" style="font-size:11px">Nombre, promoción, incentivo, material, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportCampanas()">CSV</button></div>
+      <div class="row between" style="padding:11px 0"><div><div style="font-weight:700;font-size:13px">Incentivos</div><div class="faint" style="font-size:11px">Incentivo, vigencia, puntos, T&C</div></div><button class="btn btn-ghost btn-sm" onclick="exportIncentivos()">CSV</button></div>
+    </div>
+  </div>
+  <div class="danger-box section-gap">
+    <div class="row between"><div><div class="h-title" style="color:#d22a45">Reiniciar información</div><div style="font-size:12.5px;color:#a03a48;margin-top:4px">Esta herramienta atiende a varios clientes. Puedes borrar todos los datos operativos (comercios, puntos de venta, campañas, incentivos, CRM, biblioteca) y comenzar desde cero.</div></div></div>
+    <div class="row gap8" style="margin-top:16px"><button class="btn btn-danger" onclick="confirmReset('empty')">Empezar desde 0 (borrar todo)</button><button class="btn btn-ghost" onclick="confirmReset('demo')">Restaurar datos demo</button></div>
+  </div>`;
+};
+
+/* ============ shared small ============ */
+function emptyState(t,s){return `<div class="card pad" style="grid-column:1/-1;text-align:center;padding:48px"><div style="font-weight:800;font-size:15px">${t}</div><div class="faint" style="margin-top:4px">${s}</div></div>`}
+function emptyRow(c,t){return `<tr><td colspan="${c}" style="text-align:center;color:var(--faint);padding:34px">${t}</td></tr>`}
+function calendar(){
+  const y=2026,mo=5,days=30;const first=new Date(y,mo,1).getDay();const offset=(first+6)%7;const today=18;
+  const ev={};mine(TASKS).forEach(t=>{if(t.fecha&&t.fecha.startsWith("2026-06")){const d=+t.fecha.slice(8);(ev[d]=ev[d]||[]).push(t.tipo)}});
+  let html='<div class="cal-grid">'+["L","M","M","J","V","S","D"].map(d=>`<div class="cal-h">${d}</div>`).join("");
+  for(let i=0;i<offset;i++)html+='<div class="cal-d muted"></div>';
+  for(let d=1;d<=days;d++){const has=ev[d];const dots=has?`<div class="evd">${[...new Set(has)].map(t=>`<i style="background:${t==='reunion'?'#0FB97B':'#6D28D9'}"></i>`).join("")}</div>`:"";
+    html+=`<div class="cal-d ${d===today?'today':''} ${has?'has':''}" ${has?`onclick="openDayAgenda(${d})"`:""}>${d}${dots}</div>`}
+  return html+'</div>';
+}
+function openDayAgenda(d){const items=mine(TASKS).filter(t=>t.fecha===`2026-06-${String(d).padStart(2,'0')}`);
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead(`Agenda · ${d} junio 2026`)+`<div class="modal-body">${items.map(t=>`<div class="task"><div class="tcheck ${t.done?'done':''}" onclick="toggleTask(${t.id});openDayAgenda(${d})"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></div><div><div class="ttext" style="${t.done?'text-decoration:line-through;color:var(--faint)':''}">${t.t}</div><div class="tmeta">${t.tipo==='reunion'?'Reunión':'Tarea'} · ${t.meta}</div></div></div>`).join("")||'<div class="faint">Nada agendado</div>'}</div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button></div>`;openModal();
+}
+
+/* ============ MODALS ============ */
+function modalHead(title){return `<div class="modal-head"><h3>${title}</h3><button class="icon-btn" style="border:none" onclick="closeModal()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`}
+
+/* --- commerce detail --- */
+function openCommerceDetail(id){const b=COMMERCES.find(x=>x.id===id);const pts=PUNTOS.filter(p=>p.brandId===id);
+  $("#modal").className="modal wide";
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="t-logo" style="width:32px;height:32px;font-size:12px;background:${catColor(b.cat)}">${initials(b.n)}</span>${b.n}</span>`)+`<div class="modal-body">
+    <div class="row gap8" style="margin-bottom:14px">${estadoChip("Activa")}<span class="chip c-slate"><span class="d"></span>${b.cat}</span><span class="chip c-sky"><span class="d"></span>${b.modalidad}</span></div>
+    <div class="detail-grid">
+      <div><div class="dl">Convenio</div><div class="dv" style="font-size:13px">${(CONVENIOS.filter(cv=>cv.brand===b.n).map(cv=>cv.name).join(", "))||"—"}</div></div>
+      <div><div class="dl">KAM</div><div class="dv">${b.kam}</div></div>
+      <div><div class="dl">Razón social</div><div class="dv" style="font-size:13px">${b.razonSocial||"—"}</div></div>
+      <div><div class="dl">RUC</div><div class="dv tnum" style="font-size:13px">${b.ruc||"—"}</div></div>
+      <div><div class="dl">Código(s) de comercio</div><div class="dv" style="font-size:13px">${b.codigos||"—"}</div></div>
+      <div><div class="dl">Cumplimiento</div><div class="dv tnum">${b.kpi}%</div></div>
+    </div>
+    <div style="margin-top:14px"><div class="dl">Objetivo</div><div style="margin-top:4px">${b.obj}</div></div>
+    <div style="margin-top:14px"><div class="dl">Oficinas administrativas</div><div style="margin-top:4px">${b.oficina||"—"}</div></div>
+    ${b.fields&&b.fields.length?`<div style="margin-top:14px"><div class="dl" style="margin-bottom:6px">Campos personalizados</div>${b.fields.map(f=>`<span class="mini-tag">${f.label}: <b>${f.value}</b></span>`).join("")}</div>`:""}
+    <div class="sub-h">Puntos de venta (${pts.length})</div>
+    ${pts.map(p=>`<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:13px"><div class="row between"><span style="font-weight:600">${p.via} ${p.dir}</span><span class="mini-tag">${p.distrito}</span></div>${p.codigos?`<div class="faint" style="font-size:11px;margin-top:3px">Códigos: ${p.codigos}</div>`:""}</div>`).join("")||'<span class="faint" style="font-size:12.5px">Sin puntos registrados</span>'}
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="closeModal();openCampaignModal('${esc(b.n)}')">Nueva campaña</button></div>`;openModal();
+}
+
+/* --- commerce form (with POS + custom fields) --- */
+let draftPuntos=[], draftFields=[];
+function openCommerceModal(){
+  draftPuntos=[{via:"Av.",dir:"",distrito:"Miraflores",codigos:""}];draftFields=[];
+  $("#modal").className="modal wide";
+  $("#modal").innerHTML=modalHead("Nuevo comercio afiliado")+`<div class="modal-body">
+    <div class="sub-h">Identificación</div>
+    <div class="field-row"><div class="field"><label>Marca *</label><input id="c_n" placeholder="Ej. Ishop"/></div><div class="field"><label>Categoría</label><select id="c_cat">${CATS.map(c=>`<option>${c}</option>`).join("")}</select></div></div>
+    <div class="field-row"><div class="field"><label>Razón social</label><input id="c_rs" placeholder="Ej. Ishop Perú S.A.C."/></div><div class="field"><label>RUC</label><input id="c_ruc" placeholder="20512345678"/></div></div>
+    <div class="field-row"><div class="field"><label>Código(s) de comercio</label><input id="c_cod" placeholder="Ej. ISH-001, ISH-002"/></div><div class="field"><label>KAM responsable</label><select id="c_kam">${KAMS.map(k=>`<option ${(!isAdmin()&&k.n===USER.kam)?'selected':''}>${k.n}</option>`).join("")}</select></div></div>
+
+    <div class="sub-h">Contacto comercial</div>
+    <div class="field-row"><div class="field"><label>Nombre</label><input id="c_cnom" placeholder="Nombre"/></div><div class="field"><label>Apellido</label><input id="c_cape" placeholder="Apellido"/></div></div>
+    <div class="field-row-3"><div class="field"><label>Cargo</label><input id="c_ccargo" placeholder="Ej. Gerente comercial"/></div><div class="field"><label>Celular</label><input id="c_ctel" placeholder="51999888777"/></div><div class="field"><label>Email</label><input id="c_cmail" placeholder="correo@marca.pe"/></div></div>
+
+    <div class="sub-h">Datos comerciales</div>
+    <div class="field"><label>Modalidad</label><select id="c_mod"><option>Tienda</option><option>Ecommerce</option><option>Tienda + Ecommerce</option></select></div>
+    <div class="field"><label>Objetivo comercial</label><input id="c_obj" placeholder="Ej. Impulsar venta financiada"/></div>
+    <div class="field"><label>Ubicación de oficinas administrativas</label><input id="c_ofi" placeholder="Ej. Av. Javier Prado Este 4200, San Borja"/></div>
+
+    <div class="sub-h">Convenio</div>
+    <div class="field"><label>Nombre del convenio</label><input id="c_cvname" placeholder="Ej. Convenio marco 2026"/></div>
+    <label class="field" style="display:block"><span style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Adjuntar convenio</span>
+      <div class="filedrop"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg><div class="fd-t">Arrastra o elige un archivo</div><div class="fd-s">PDF · máx. 10 MB · se guarda en Biblioteca</div></div></label>
+
+    <div class="sub-h">Puntos de venta</div>
+    <div id="posList"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addPunto()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Agregar punto de venta</button>
+    <div class="faint" style="font-size:11px;margin-top:8px">Cada punto (con sus códigos de comercio) se envía automáticamente a la Base de comercios.</div>
+
+    <div class="sub-h">Campos personalizados</div>
+    <div id="fieldList"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addField()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Agregar campo</button>
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createCommerce()">Guardar comercio</button></div>`;
+  renderPos();renderFields();openModal();
+}
+function renderPos(){$("#posList").innerHTML=draftPuntos.map((p,i)=>`<div class="pos-card">
+  <div class="pos-num"><span>Punto de venta ${i+1}</span><button class="pos-del" onclick="draftPuntos.splice(${i},1);renderPos()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="pos-row" style="grid-template-columns:1fr 1.7fr 1.3fr">
+    <select onchange="draftPuntos[${i}].via=this.value">${VIAS.map(v=>`<option ${v===p.via?'selected':''}>${v}</option>`).join("")}</select>
+    <input placeholder="Ej. Los Jazmines 254, Villa Jardín" value="${p.dir}" oninput="draftPuntos[${i}].dir=this.value"/>
+    <select onchange="draftPuntos[${i}].distrito=this.value">${DISTRITOS.map(d=>`<option ${d===p.distrito?'selected':''}>${d}</option>`).join("")}</select>
+  </div>
+  <input placeholder="Código(s) de comercio de esta dirección (ej. ISH-001, ISH-011)" value="${p.codigos||''}" oninput="draftPuntos[${i}].codigos=this.value"/>
+</div>`).join("");}
+function addPunto(){draftPuntos.push({via:"Av.",dir:"",distrito:"Miraflores",codigos:""});renderPos()}
+function renderFields(){$("#fieldList").innerHTML=draftFields.map((f,i)=>`<div class="pos-row" style="grid-template-columns:1fr 1.4fr auto">
+  <select onchange="draftFields[${i}].type=this.value">${["Texto","Número","Desplegable"].map(t=>`<option ${t===f.type?'selected':''}>${t}</option>`).join("")}</select>
+  <input placeholder="Nombre del campo (ej. RUC)" value="${f.label}" oninput="draftFields[${i}].label=this.value"/>
+  <button class="pos-del" onclick="draftFields.splice(${i},1);renderFields()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <input style="margin:-4px 0 10px;width:100%;padding:10px 13px;border:1px solid var(--line-2);border-radius:11px" placeholder="Valor" value="${f.value||''}" oninput="draftFields[${i}].value=this.value"/>`).join("");}
+function addField(){draftFields.push({type:"Texto",label:"",value:""});renderFields()}
+function createCommerce(){
+  const n=$("#c_n").value.trim();if(!n)return toast("Ingresa el nombre de la marca");
+  const id=Date.now();const kam=$("#c_kam").value;const cat=$("#c_cat").value;
+  COMMERCES.push({id,n,cat,kam,razonSocial:$("#c_rs").value,ruc:$("#c_ruc").value,codigos:$("#c_cod").value,modalidad:$("#c_mod").value,pres:0,obj:$("#c_obj").value||"—",kpi:0,oficina:$("#c_ofi").value,fields:draftFields.filter(f=>f.label)});
+  draftPuntos.filter(p=>p.dir.trim()).forEach((p,i)=>PUNTOS.push({id:id*100+i,brandId:id,brand:n,kam,cat,via:p.via,dir:p.dir.trim(),distrito:p.distrito,codigos:(p.codigos||'').trim()}));
+  // create CRM contact from commercial contact
+  const cnom=($("#c_cnom").value+" "+$("#c_cape").value).trim();
+  const cvname=($("#c_cvname").value||"").trim();
+  if(cnom){CONTACTS.push({id:Date.now()+1,name:cnom,brand:n,role:$("#c_ccargo").value||"Contacto comercial",tel:$("#c_ctel").value,email:$("#c_cmail").value,salud:75,convenio:cvname});}
+  // convenio → se deposita automáticamente en Biblioteca
+  if(cvname){CONVENIOS.push({id:Date.now()+3,name:cvname,brand:n,type:"PDF",contact:cnom||"—",vigencia:""});}
+  closeModal();toast(`${n} creado · ${draftPuntos.filter(p=>p.dir.trim()).length} puntos${cvname?" + convenio en Biblioteca":""} + contacto en CRM`);go("comercial");
+}
+
+/* --- campaign detail / form --- */
+function openCampaignDetail(id){const c=CAMPAIGNS.find(x=>x.id===id);const dl=daysLeft(c.fin);
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="t-logo" style="width:32px;height:32px;font-size:12px;background:${catColor(c.cat)}">${initials(c.brand)}</span>${c.brand}</span>`)+`<div class="modal-body">
+    <div class="row gap8" style="margin-bottom:14px">${estadoChip(c.estado)}<span class="chip c-slate"><span class="d"></span>${c.canal}</span><span class="chip c-violet"><span class="d"></span>${c.cat}</span></div>
+    <div style="margin-bottom:14px"><div class="dl">Nombre de campaña</div><div class="dv" style="font-size:15px">${c.nombre||"—"}</div></div>
+    <div style="margin-bottom:14px"><div class="dl">Promoción o beneficio</div><div style="margin-top:4px;font-weight:600">${c.promo||"—"}</div></div>
+    <div class="detail-grid">
+      <div><div class="dl">Presupuesto</div><div class="dv tnum">${fmt(c.pres)}</div></div>
+      <div><div class="dl">Responsable</div><div class="dv">${c.resp}</div></div>
+      <div><div class="dl">Inicio</div><div class="dv tnum">${c.ini}</div></div>
+      <div><div class="dl">Fin</div><div class="dv tnum">${c.fin} ${dl>=0?`<span class="faint" style="font-size:11px">(${dl}d)</span>`:''}</div></div>
+    </div>
+    <div style="margin-top:14px"><div class="dl">Incentivo / Cupón</div><div style="margin-top:4px;background:var(--brand-soft);border-radius:11px;padding:11px 13px;font-weight:600;font-size:13px">${c.inc}${c.cupon&&c.cupon!=="—"&&c.cupon!=="Automático"?` · <b style="color:var(--brand)">${c.cupon}</b>`:""}</div></div>
+    <div style="margin-top:14px"><div class="dl">Material específico</div><div style="margin-top:4px;font-size:12.5px;line-height:1.6;color:var(--muted)">${c.material||"—"}</div></div>
+    <div style="margin-top:14px"><div class="dl">Términos y condiciones</div><div style="margin-top:4px;font-size:12.5px;line-height:1.6;color:var(--muted)">${c.tyc||"—"}</div></div>
+    <div style="margin-top:14px"><div class="dl" style="margin-bottom:6px">Puntos de venta donde aplica</div>${(c.pos||[]).map(p=>`<span class="mini-tag">${p}</span>`).join("")||'<span class="faint">Todos</span>'}</div>
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="window.print()">Exportar ficha</button></div>`;openModal();
+}
+let draftPos=[];
+function suggestTyc(brand){
+  // recommend T&C from brand's previous campaign
+  const prev=CAMPAIGNS.filter(c=>c.brand===brand).sort((a,b)=>new Date(b.ini)-new Date(a.ini))[0];
+  return prev?prev.tyc:"";
+}
+function posOptionsFor(brand){return PUNTOS.filter(p=>p.brand===brand).map(p=>`${p.via} ${p.dir}`);}
+function openCampaignModal(prefill){
+  const brands=mine(COMMERCES);const first=prefill||brands[0]?.n||"";
+  $("#modal").className="modal wide";
+  $("#modal").innerHTML=modalHead("Nueva campaña")+`<div class="modal-body">
+    <div class="field-row"><div class="field"><label>Comercio</label><select id="f_brand" onchange="onCampBrand()">${brands.map(b=>`<option ${prefill===b.n?'selected':''}>${b.n}</option>`).join("")}</select></div><div class="field"><label>Categoría</label><select id="f_cat">${CATS.map(c=>`<option>${c}</option>`).join("")}</select></div></div>
+    <div class="field"><label>Nombre de campaña <span class="faint" style="font-weight:600;text-transform:none;letter-spacing:0">· definido por admin</span></label><select id="f_nombre">${CAMPAIGN_NAMES.map(n=>`<option>${n}</option>`).join("")||'<option value="">Sin nombres cargados</option>'}</select></div>
+    <div class="field"><label>Promoción o Beneficio</label><input id="f_promo" placeholder="Ej. iPhone 15 con cupón de s/200"/></div>
+    <div class="field-row"><div class="field"><label>Canal</label><select id="f_canal"><option>Web + InStore</option><option>Web</option><option>InStore</option></select></div><div class="field"><label>Presupuesto (S/)</label><input id="f_pres" type="number" placeholder="40000"/></div></div>
+    <div class="field"><label>Incentivo / Cupón</label><input id="f_inc" placeholder="Ej. DESC80"/></div>
+    <div class="field-row"><div class="field"><label>Fecha inicio</label><input id="f_ini" type="date" value="2026-06-18"/></div><div class="field"><label>Fecha fin</label><input id="f_fin" type="date" value="2026-07-18"/></div></div>
+    <div class="field"><label>Términos y condiciones <span id="tycHint" class="faint" style="font-weight:600;text-transform:none;letter-spacing:0"></span></label><textarea id="f_tyc" rows="3" placeholder="Vigencia, restricciones, cupones por cliente…"></textarea></div>
+
+    <div class="sub-h">Material específico</div>
+    <div class="card pad" style="background:var(--bg);border:1px solid var(--line)">
+      <div class="field" style="margin-bottom:12px"><label>Piezas / material requerido</label><textarea id="f_material" rows="2" placeholder="Ej. Banner web 1080x1080, faldón de góndola, sticker de vitrina…"></textarea></div>
+      <label class="field" style="display:block;margin-bottom:0"><span style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Adjuntar arte / material</span>
+        <div class="filedrop"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div class="fd-t">Arrastra o elige un archivo</div><div class="fd-s">JPG · PNG · PDF · AI</div></div></label>
+    </div>
+
+    <div class="sub-h">Puntos de venta donde aplica</div>
+    <div id="posChecks" style="max-height:160px;overflow:auto"></div>
+  </div>
+  <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createCampaign()">Crear campaña</button></div>`;
+  openModal();onCampBrand();
+}
+function onCampBrand(){const brand=$("#f_brand").value;const b=COMMERCES.find(x=>x.n===brand);const tyc=suggestTyc(brand);
+  if(b&&$("#f_cat"))$("#f_cat").value=b.cat;
+  if(tyc){$("#f_tyc").value=tyc;$("#tycHint").textContent="· sugerido según tu campaña anterior";}else{$("#tycHint").textContent="";}
+  const opts=posOptionsFor(brand);
+  $("#posChecks").innerHTML=opts.length?opts.map((o,i)=>`<label style="display:flex;align-items:center;gap:9px;padding:7px 0;font-size:13px;font-weight:600"><input type="checkbox" class="posck" value="${esc(o)}" checked style="width:16px;height:16px"/> ${o}</label>`).join(""):'<span class="faint" style="font-size:12.5px">Este comercio aún no tiene puntos de venta registrados.</span>';
+}
+function createCampaign(){
+  const brand=$("#f_brand").value;const b=COMMERCES.find(x=>x.n===brand)||{kam:USER.kam};
+  const inc=$("#f_inc").value;
+  const pos=[...document.querySelectorAll(".posck:checked")].map(x=>x.value);
+  CAMPAIGNS.unshift({id:Date.now(),brand,cat:$("#f_cat").value,kam:b.kam,nombre:$("#f_nombre").value||"Campaña",promo:$("#f_promo").value||"—",canal:$("#f_canal").value,pres:+$("#f_pres").value||10000,inc:inc||"Por definir",cupon:inc||"—",material:$("#f_material").value||"",ini:$("#f_ini").value,fin:$("#f_fin").value,resp:b.kam,estado:"Borrador",tyc:$("#f_tyc").value,pos});
+  // el funnel del cliente avanza al configurar/activar una promoción
+  const dl=DEALS.find(x=>x.brand===brand);if(dl){const running=new Date($("#f_ini").value)<=TODAY&&daysLeft($("#f_fin").value)>=0;advanceFunnel(dl,running?"Promoción activa":"Promoción configurada");}
+  closeModal();toast("Campaña creada · ficha y cronograma generados");go("campanas");
+}
+
+/* --- incentive form/detail --- */
+function openIncentiveDetail(id){const c=INCENTIVOS.find(x=>x.id===id);
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="t-logo" style="width:32px;height:32px;font-size:12px;background:${catColor(c.cat)}">${initials(c.brand)}</span>${c.brand} · Incentivo</span>`)+`<div class="modal-body">
+    <div style="background:var(--brand-soft);border-radius:11px;padding:13px;font-weight:700">${c.inc}</div>
+    <div class="detail-grid" style="margin-top:14px"><div><div class="dl">Inicio</div><div class="dv tnum">${c.ini}</div></div><div><div class="dl">Fin</div><div class="dv tnum">${c.fin}</div></div></div>
+    <div style="margin-top:14px"><div class="dl">Términos y condiciones</div><div style="margin-top:4px;font-size:12.5px;color:var(--muted);line-height:1.6">${c.tyc||"—"}</div></div>
+    <div style="margin-top:14px"><div class="dl" style="margin-bottom:6px">Puntos de venta</div>${(c.pos||[]).map(p=>`<span class="mini-tag">${p}</span>`).join("")||'<span class="faint">Todos</span>'}</div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button></div>`;openModal();
+}
+function openIncentiveModal(){
+  const brands=mine(COMMERCES);
+  $("#modal").className="modal wide";
+  $("#modal").innerHTML=modalHead("Nuevo incentivo")+`<div class="modal-body">
+    <div class="field"><label>Comercio</label><select id="i_brand" onchange="onIncBrand()">${brands.map(b=>`<option>${b.n}</option>`).join("")}</select></div>
+    <div class="field"><label>Incentivo</label><input id="i_inc" placeholder="Ej. Por cada trx vale s/30"/></div>
+    <div class="field-row"><div class="field"><label>Fecha inicio</label><input id="i_ini" type="date" value="2026-06-18"/></div><div class="field"><label>Fecha fin</label><input id="i_fin" type="date" value="2026-07-18"/></div></div>
+    <div class="field"><label>Términos y condiciones</label><textarea id="i_tyc" rows="3" placeholder="Restricciones, acumulable, vigencia…"></textarea></div>
+    <div class="sub-h">Puntos de venta donde aplica</div><div id="iPosChecks" style="max-height:160px;overflow:auto"></div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createIncentive()">Crear incentivo</button></div>`;
+  openModal();onIncBrand();
+}
+function onIncBrand(){const opts=posOptionsFor($("#i_brand").value);$("#iPosChecks").innerHTML=opts.length?opts.map(o=>`<label style="display:flex;align-items:center;gap:9px;padding:7px 0;font-size:13px;font-weight:600"><input type="checkbox" class="iposck" value="${esc(o)}" checked style="width:16px;height:16px"/> ${o}</label>`).join(""):'<span class="faint" style="font-size:12.5px">Sin puntos registrados.</span>';}
+function createIncentive(){const brand=$("#i_brand").value;const b=COMMERCES.find(x=>x.n===brand)||{cat:"Moda",kam:USER.kam};
+  INCENTIVOS.unshift({id:Date.now(),brand,cat:b.cat,kam:b.kam,inc:$("#i_inc").value||"Incentivo",ini:$("#i_ini").value,fin:$("#i_fin").value,tyc:$("#i_tyc").value,pos:[...document.querySelectorAll(".iposck:checked")].map(x=>x.value)});
+  closeModal();toast("Incentivo creado");go("campanas");
+}
+
+/* --- CRM interaction --- */
+function openContactDetail(id){const c=CONTACTS.find(x=>x.id===id);const inters=INTERACTIONS.filter(i=>i.contactId===id).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));const s=crmSalud(c);
+  const mb=(l,v,cc)=>`<div style="flex:1;min-width:0"><div class="row between" style="font-size:10px;font-weight:800;color:var(--faint);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px"><span>${l}</span><span class="tnum">${v}%</span></div><div class="lb-bar" style="max-width:none;height:6px"><i style="width:${v}%;background:${cc}"></i></div></div>`;
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="kam-av" style="width:32px;height:32px;background:${catColor((COMMERCES.find(b=>b.n===c.brand)||{}).cat)}">${initials(c.name)}</span>${c.name}</span>`)+`<div class="modal-body">
+    <div class="detail-grid"><div><div class="dl">Comercio</div><div class="dv">${c.brand}</div></div><div><div class="dl">Cargo</div><div class="dv" style="font-size:13px">${c.role}</div></div><div><div class="dl">Teléfono</div><div class="dv tnum" style="font-size:13px">${c.tel}</div></div><div><div class="dl">Email</div><div class="dv" style="font-size:12.5px">${c.email||"—"}</div></div></div>
+    <div class="sub-h">Salud de relación · ${s.total}%</div>
+    <div style="display:flex;gap:14px">${mb("Respuestas",s.respScore,"#0EA5E9")}${mb("Reuniones",s.reunScore,"#6D28D9")}${mb("Ejecución",s.ejecScore,"#0FB97B")}</div>
+    <div class="faint" style="font-size:11px;margin-top:8px">${s.reun} reuniones · ${s.resp} respuestas registradas · ${s.ejec} campañas/incentivos ejecutados.</div>
+    ${c.convenio?`<div style="margin-top:14px"><div class="dl">Convenio</div><div style="margin-top:4px" class="row between"><span style="font-weight:600">${c.convenio}</span><button class="btn btn-ghost btn-sm" onclick="toast('Descargando convenio')">Descargar</button></div></div>`:""}
+    <div class="sub-h">Interacciones (${inters.length})</div>
+    <div style="position:relative;padding-left:24px">${inters.map(timelineItem).join("")||'<span class="faint">Sin interacciones</span>'}</div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cerrar</button><button class="btn btn-primary" onclick="closeModal();openInteractionModal(${id})">Registrar interacción</button></div>`;openModal();
+}
+function openInteractionModal(contactId){
+  const contacts=mine(CONTACTS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam})));
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead("Registrar interacción")+`<div class="modal-body">
+    <div class="field"><label>Contacto</label><select id="in_contact">${contacts.map(c=>`<option value="${c.id}" ${contactId===c.id?'selected':''}>${c.name} · ${c.brand}</option>`).join("")}</select></div>
+    <div class="field"><label>Tipo</label><select id="in_tipo"><option>Reunión</option><option>Acuerdo</option><option>Seguimiento</option><option>Llamada</option></select></div>
+    <div class="field"><label>Detalle</label><input id="in_t" placeholder="Ej. Revisión de propuesta Q3"/></div>
+    <div class="field-row"><div class="field"><label>Fecha</label><input id="in_fecha" type="date" value="2026-06-18"/></div><div class="field"><label>Impacto en salud</label><select id="in_impact"><option value="8">Positiva (+)</option><option value="0">Neutra</option><option value="-8">Negativa (−)</option></select></div></div>
+    <div class="field"><label>Próxima acción</label><input id="in_next" placeholder="Ej. Enviar propuesta"/></div>
+    <div class="field"><label>Fecha próxima acción (se agenda en calendario)</label><input id="in_nextdate" type="date" value="2026-06-24"/></div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createInteraction()">Guardar</button></div>`;openModal();
+}
+function createInteraction(){
+  const cid=+$("#in_contact").value;const c=CONTACTS.find(x=>x.id===cid);
+  const inter={id:Date.now(),contactId:cid,contactName:c.name,brand:c.brand,tipo:$("#in_tipo").value,t:$("#in_t").value||"Interacción",fecha:$("#in_fecha").value,next:$("#in_next").value};
+  INTERACTIONS.push(inter);
+  // update salud
+  const imp=+$("#in_impact").value;c.salud=Math.max(0,Math.min(100,c.salud+imp));
+  // add next action as task on timeline + calendar
+  if($("#in_next").value){TASKS.push({id:Date.now()+1,t:$("#in_next").value,meta:`CRM · ${c.brand}`,fecha:$("#in_nextdate").value,tipo:"tarea",done:false});
+    INTERACTIONS.push({id:Date.now()+2,contactId:cid,contactName:c.name,brand:c.brand,tipo:"Próxima acción",t:$("#in_next").value,fecha:$("#in_nextdate").value,next:""});}
+  closeModal();toast(`Interacción registrada · salud ${c.salud}%`);go("crm");
+}
+
+/* --- convenio / bank uploads --- */
+function openConvenioModal(){const brands=mine(COMMERCES);const contacts=mine(CONTACTS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam})));
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead("Adjuntar convenio")+`<div class="modal-body">
+    <div class="field"><label>Contacto</label><select id="cv_contact">${contacts.map(c=>`<option value="${c.id}">${c.name} · ${c.brand}</option>`).join("")}</select></div>
+    <div class="field"><label>Nombre del convenio</label><input id="cv_name" placeholder="Convenio marco 2026"/></div>
+    <label class="field" style="display:block"><span style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Archivo</span>
+      <div class="filedrop"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg><div class="fd-t">Arrastra o elige un archivo</div><div class="fd-s">PDF · máx. 10 MB</div></div></label>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createConvenio()">Adjuntar</button></div>`;openModal();
+}
+function createConvenio(){const c=CONTACTS.find(x=>x.id===+$("#cv_contact").value);const name=$("#cv_name").value||`Convenio ${c.brand}`;
+  CONVENIOS.push({id:Date.now(),name,brand:c.brand,type:"PDF",contact:c.name});c.convenio=name;closeModal();toast("Convenio adjuntado a la biblioteca");go("biblioteca");
+}
+function openBankModal(){const brands=mine(COMMERCES);
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead("Subir a banco de assets")+`<div class="modal-body">
+    <div class="field-row"><div class="field"><label>Comercio</label><select id="bk_brand">${brands.map(b=>`<option>${b.n}</option>`).join("")}</select></div><div class="field"><label>Tipo</label><select id="bk_kind"><option>Logo</option><option>Foto</option><option>Gráfica</option></select></div></div>
+    <div class="field"><label>Nombre</label><input id="bk_name" placeholder="Ej. Logo vectorizado"/></div>
+    <label class="field" style="display:block"><span style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Archivo</span>
+      <div class="filedrop"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div class="fd-t">Arrastra o elige un archivo</div><div class="fd-s">SVG · PNG · JPG</div></div></label>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="createBank()">Subir</button></div>`;openModal();
+}
+function createBank(){const brand=$("#bk_brand").value;const kind=$("#bk_kind").value;BANK.push({id:Date.now(),name:$("#bk_name").value||`${kind} ${brand}`,brand,type:kind==="Logo"?"SVG":"PNG",kind});closeModal();toast("Archivo subido al banco");go("biblioteca");}
+
+/* --- admin: results / portfolio --- */
+function openResultsModal(){
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead("Cargar resultados")+`<div class="modal-body">
+    <div class="faint" style="font-size:12px;margin-bottom:12px">Pega columnas CSV: <b>etiqueta, valor, unidad, variación</b> (una por línea). Las columnas del card se adaptan a lo que cargues.</div>
+    <div class="field"><label>Datos (CSV)</label><textarea id="rs_csv" rows="6" placeholder="Transacciones, 5.240, trx, +18% MoM&#10;Trx promedio, S/ 182, , +4%&#10;% Activos, 82%, , +3 pts">${RESULTS.metrics.map(m=>[m.label,m.value,m.unit,m.delta].join(", ")).join("\n")}</textarea></div>
+    <div class="field"><label>Fuente</label><input id="rs_src" value="${RESULTS.updatedBy}"/></div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveResults()">Guardar</button></div>`;openModal();
+}
+function saveResults(){const lines=$("#rs_csv").value.split("\n").map(l=>l.split(",").map(x=>x.trim())).filter(l=>l[0]);
+  RESULTS.metrics=lines.slice(0,8).map(l=>({label:l[0],value:l[1]||"—",unit:l[2]||"",delta:l[3]||"",dir:(l[3]||"").includes("-")?"down":"up"}));
+  RESULTS.updatedBy=$("#rs_src").value||"Admin";RESULTS.updated="2026-06-18";closeModal();toast("Resultados actualizados");go("dashboard");
+}
+function openPortfolioModal(){
+  $("#modal").className="modal";
+  $("#modal").innerHTML=modalHead("Estado de cartera")+`<div class="modal-body">
+    <div class="field-row-3"><div class="field"><label>Activos</label><input id="pf_a" type="number" value="${PORTFOLIO.activos}"/></div><div class="field"><label>Inactivos</label><input id="pf_i" type="number" value="${PORTFOLIO.inactivos}"/></div><div class="field"><label>En proceso</label><input id="pf_p" type="number" value="${PORTFOLIO.proceso}"/></div></div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="savePortfolio()">Guardar</button></div>`;openModal();
+}
+function savePortfolio(){PORTFOLIO={activos:+$("#pf_a").value||0,inactivos:+$("#pf_i").value||0,proceso:+$("#pf_p").value||0};closeModal();toast("Cifras actualizadas");go("dashboard");}
+function addCampaignName(){const v=($("#cnInput").value||"").trim();if(!v)return;if(!CAMPAIGN_NAMES.includes(v))CAMPAIGN_NAMES.push(v);toast("Nombre agregado");go("admin");}
+function removeCampaignName(i){CAMPAIGN_NAMES.splice(i,1);go("admin");}
+
+/* --- admin reset --- */
+function confirmReset(mode){
+  $("#modal").className="modal";
+  const empty=mode==="empty";
+  $("#modal").innerHTML=modalHead(empty?"Empezar desde 0":"Restaurar demo")+`<div class="modal-body">
+    <div class="${empty?'danger-box':'card pad'}"><div style="font-weight:700;${empty?'color:#d22a45':''}">${empty?"Se borrarán todos los comercios, puntos de venta, campañas, incentivos, CRM y biblioteca.":"Se restaurarán los datos de demostración."}</div><div class="faint" style="font-size:12.5px;margin-top:6px">Esta acción es para preparar la herramienta para un nuevo cliente.</div></div>
+  </div><div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button><button class="btn ${empty?'btn-danger':'btn-primary'}" onclick="doReset('${mode}')">${empty?"Sí, borrar todo":"Restaurar"}</button></div>`;openModal();
+}
+function doReset(mode){
+  if(mode==="empty"){COMMERCES=[];PUNTOS=[];CAMPAIGNS=[];INCENTIVOS=[];CONTACTS=[];INTERACTIONS=[];TASKS=[];CALLS=[];CONVENIOS=[];BANK=[];DEALS=[];CAMPAIGN_NAMES=[];
+    RESULTS={updatedBy:"—",updated:"—",metrics:[]};PORTFOLIO={activos:0,inactivos:0,proceso:0};GEO={provincias:[],distritos:[]};toast("Datos borrados · listo para un nuevo cliente");}
+  else{seedData();CAMPAIGN_NAMES=["Campaña Día del Padre","Campaña Fiestas Patrias","Campaña Cyber","Campaña Aniversario","Campaña Navidad","Campaña Back to School"];RESULTS={updatedBy:"Admin",updated:"2026-06-18",metrics:[{label:"Transacciones",value:"5.240",unit:"trx",delta:"+18% MoM",dir:"up"},{label:"Trx promedio",value:"S/ 182",unit:"",delta:"+4% MoM",dir:"up"},{label:"% Activos",value:"82%",unit:"",delta:"+3 pts",dir:"up"},{label:"Crecimiento MoM",value:"18%",unit:"",delta:"vs 12% Q1",dir:"up"}]};PORTFOLIO={activos:1256,inactivos:153,proceso:8};GEO={provincias:[["Lima",1080],["Chiclayo",52],["Piura",48],["Trujillo",44],["Arequipa",41],["Cusco",19]],distritos:[["Santiago de Surco",111],["Miraflores",100],["Independencia",75],["San Miguel",69],["La Molina",57],["San Juan de Lurigancho",56]]};toast("Datos demo restaurados");}
+  closeModal();go("admin");
+}
+
+/* ============ interactions ============ */
+function toggleTask(id){const t=TASKS.find(x=>x.id===id);if(t)t.done=!t.done}
+function markCalled(id){const c=CALLS.find(x=>x.id===id);if(!c)return;CALLS=CALLS.filter(x=>x.id!==id);
+  const ct=CONTACTS.find(x=>x.name===c.name);if(ct){INTERACTIONS.push({id:Date.now(),contactId:ct.id,contactName:ct.name,brand:ct.brand,tipo:"Llamada",t:c.motivo,fecha:"2026-06-18",next:""});ct.salud=Math.min(100,ct.salud+4);}
+  toast(`Contacto con ${c.name} registrado`);go("dashboard");
+}
+function toast(msg){const t=document.createElement("div");t.textContent=msg;t.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E1422;color:#fff;padding:13px 20px;border-radius:12px;font-weight:600;font-size:13px;z-index:200;box-shadow:var(--shadow-lg);animation:pop .2s";document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+/* ============ EXPORTABLES (CSV) ============ */
+function downloadCSV(filename,headers,rows){
+  const q=v=>{v=(v==null?"":String(v));return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
+  const csv=[headers.map(q).join(","),...rows.map(r=>r.map(q).join(","))].join("\r\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},100);
+  toast("Exportado · "+filename);
+}
+function exportClientes(){const rows=mine(CONTACTS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam}))).map(c=>[c.name,c.brand,c.role,c.tel,c.email,c.salud+"%",c.convenio||""]);
+  if(!rows.length)return toast("No hay clientes para exportar");
+  downloadCSV("contactos.csv",["Contacto","Marca","Cargo","Celular","Email","Salud","Convenio"],rows);}
+function exportMarcas(){const rows=[];mine(COMMERCES).forEach(b=>{const pts=PUNTOS.filter(p=>p.brandId===b.id);
+  if(pts.length)pts.forEach(p=>rows.push([b.n,b.cat,b.razonSocial||"",b.ruc||"",b.kam,`${p.via} ${p.dir}`,p.distrito,p.codigos||""]));
+  else rows.push([b.n,b.cat,b.razonSocial||"",b.ruc||"",b.kam,"","",b.codigos||""]);});
+  if(!rows.length)return toast("No hay marcas para exportar");
+  downloadCSV("marcas_direcciones_codigos.csv",["Marca","Categoría","Razón social","RUC","KAM","Dirección","Distrito","Código(s) comercio"],rows);}
+function exportCampanas(){const rows=mine(CAMPAIGNS).map(c=>[c.nombre||"",c.brand,c.cat,c.kam,c.canal,c.promo||"",c.inc,c.cupon,c.material||"",c.ini,c.fin,c.estado,(c.pos||[]).join(" | ")]);
+  if(!rows.length)return toast("No hay campañas para exportar");
+  downloadCSV("campanas.csv",["Nombre","Marca","Categoría","KAM","Canal","Promoción/Beneficio","Incentivo","Cupón","Material específico","Inicio","Fin","Estado","Puntos de venta"],rows);}
+function exportIncentivos(){const rows=mine(INCENTIVOS).map(c=>[c.brand,c.cat,c.kam,c.inc,c.ini,c.fin,(c.pos||[]).join(" | "),c.tyc||""]);
+  if(!rows.length)return toast("No hay incentivos para exportar");
+  downloadCSV("incentivos.csv",["Marca","Categoría","KAM","Incentivo","Inicio","Fin","Puntos de venta","T&C"],rows);}
+function exportPromociones(){
+  const rows=[
+    ...mine(CAMPAIGNS).map(c=>["Campaña",c.nombre||"",c.brand,c.cat,c.kam,c.canal||"",c.promo||"",c.inc||"",c.cupon||"",c.material||"",c.ini,c.fin,c.estado,(c.pos||[]).join(" | "),c.tyc||""]),
+    ...mine(INCENTIVOS).map(c=>["Incentivo","",c.brand,c.cat,c.kam,"—",c.inc||"","","","",c.ini,c.fin,"Incentivo",(c.pos||[]).join(" | "),c.tyc||""])
+  ];
+  if(!rows.length)return toast("No hay promociones para exportar");
+  downloadCSV("promociones.csv",["Tipo","Nombre","Marca","Categoría","KAM","Canal","Promoción/Beneficio","Incentivo","Cupón","Material específico","Inicio","Fin","Estado","Puntos de venta","T&C"],rows);}
+function exportConvenios(){const rows=mine(CONVENIOS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam}))).map(c=>[c.name,c.brand,c.contact||"",c.type||"PDF",c.vigencia||""]);
+  if(!rows.length)return toast("No hay convenios para exportar");
+  downloadCSV("convenios.csv",["Convenio","Marca","Contacto","Formato","Vigencia"],rows);}
+
+function askAI(q){if(!q||!q.trim())return;const body=$("#chatBody");$("#chatInput").value="";body.innerHTML+=`<div class="bubble user">${q}</div>`;body.scrollTop=body.scrollHeight;
+  setTimeout(()=>{body.innerHTML+=`<div class="bubble ai">${aiAnswer(q)}</div>`;body.scrollTop=body.scrollHeight},400)}
+function aiAnswer(q){q=q.toLowerCase();const camps=mine(CAMPAIGNS);const activas=camps.filter(c=>c.estado==="Activa");
+  if(q.includes("activ")) return activas.length?`Tienes <b>${activas.length} campañas activas</b>: ${activas.map(c=>c.brand).join(", ")}.`:"No hay campañas activas ahora.";
+  if(q.includes("vence")||q.includes("semana")){const v=camps.filter(c=>daysLeft(c.fin)<=7&&daysLeft(c.fin)>=0);return `Vencen en 7 días: ${v.map(c=>`<b>${c.brand}</b> (${daysLeft(c.fin)}d)`).join(", ")||"ninguna"}.`}
+  if(q.includes("contact")){const calls=mine(CALLS);return calls.length?`Tienes <b>${calls.length} contactos por contactar</b>: ${calls.map(c=>`${c.name} (${c.brand})`).join(", ")}.`:"Nadie pendiente por contactar 🎉"}
+  if(q.includes("resum")||q.includes("mes")||q.includes("resultado"))return `<b>Resultados de junio:</b> ${RESULTS.metrics.map(m=>`${m.label} ${m.value}`).join(" · ")}.`;
+  return "Puedo ayudarte con campañas activas, vencimientos, contactos por contactar o resultados del mes ✨";}
+
+/* ============ auth + router ============ */
+function doLogin(){const em=($("#loginEmail").value||"").trim().toLowerCase();if(!em)return;
+  const u=USERS[em]||{name:em.split("@")[0],role:em.includes("admin")?"admin":"kam",kam:em.includes("admin")?null:"Valeria"};login(u);}
+function quickLogin(em){login(USERS[em])}
+function login(u){USER=u;$("#loginScreen").classList.add("hidden");$("#appRoot").classList.remove("hidden");
+  $("#userName").textContent=u.name;$("#userAv").textContent=initials(u.name);
+  $("#userRole").innerHTML=u.role==="admin"?'<span class="role-tag role-admin">Admin</span> Consolidado':`<span class="role-tag role-kam">KAM</span> ${u.kam||""}`;
+  $("#adminNav").style.display=isAdmin()?"":"none";$("#adminLabel").style.display=isAdmin()?"":"none";
+  go("dashboard");
+}
+function logout(){USER=null;$("#appRoot").classList.add("hidden");$("#loginScreen").classList.remove("hidden");$("#loginEmail").value="";}
+
+const TITLES={dashboard:["Dashboard ejecutivo","Estado general del proyecto"],comercial:["Comercial","Comercios afiliados"],puntos:["Base de comercios","Puntos de venta consolidados"],campanas:["Campañas & Incentivos","Crea y monitorea en segundos"],crm:["Funnel comercial","Avance de contratos y promociones"],biblioteca:["Biblioteca","Convenios y banco de assets"],ejecutivo:["Dashboard Ejecutivo","Visión consolidada"],ia:["IA Assistant","Tu copiloto"],admin:["Panel Admin","Administración"]};
+function go(view){if(!VIEWS[view])view="dashboard";state.view=view;
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===view));
+  const[t,s]=TITLES[view];const first=USER.name.split(" ")[0];
+  $("#greet").innerHTML=`<h1>${view==='dashboard'?`Hola, ${first} 👋`:t}</h1><p>${s}</p>`;
+  $("#content").innerHTML=VIEWS[view]();window.scrollTo(0,0);toggleNav(false);
+  if(view==="campanas")filterCamps();
+}
+const state={view:"dashboard"};
+document.addEventListener("click",e=>{const nav=e.target.closest("[data-view]");if(nav&&USER)go(nav.dataset.view)});
+document.addEventListener("click",e=>{const b=e.target.closest("[data-mfilter]");if(b){document.querySelectorAll("[data-mfilter]").forEach(x=>x.classList.remove("on"));b.classList.add("on");const f=b.dataset.mfilter;document.querySelectorAll("#brandGrid .card").forEach(c=>c.style.display=(f==="all"||c.dataset.cat===f)?"":"none")}
+  const t=e.target.closest("[data-tfilter]");if(t){document.querySelectorAll("[data-tfilter]").forEach(x=>x.classList.remove("on"));t.classList.add("on");filterCamps()}});
+$("#globalSearch").addEventListener("input",e=>{const q=e.target.value.toLowerCase();if(state.view!=="comercial"&&q)go("comercial");if(state.view==="comercial")document.querySelectorAll("#brandGrid .card").forEach(c=>c.style.display=c.textContent.toLowerCase().includes(q)?"":"none")});
+
+function openModal(){$("#overlay").classList.add("open")}
+function closeModal(){$("#overlay").classList.remove("open")}
+$("#overlay").addEventListener("click",e=>{if(e.target.id==="overlay")closeModal()});
+function toggleNav(open){const s=$("#sidebar"),sc=$("#scrim");if(open===undefined)open=!s.classList.contains("open");s.classList.toggle("open",open);sc.classList.toggle("open",open)}
+</script>
+</body>
+</html>
