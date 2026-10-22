@@ -147,6 +147,40 @@ Referencias: *table view* de HubSpot Deals, *list view* de Pipedrive y vistas gu
   - Una fila con totales al pie.
 - «Exportar vista» descarga en CSV exactamente lo que está filtrado. Toda marca de la cartera aparece en el pipeline: si no tiene gestión, entra como Prospecto.
 
+### Modelo de negocio, CRM y experiencia de usuario ✅
+
+**Reglas de negocio aplicadas**
+
+- **CRM = marcas no afiliadas.** Una afiliación avanza de Prospecto a Convenio firmado. Al firmar se abre el registro del comercio. Si se cancela sin guardar, la gestión vuelve a su etapa anterior con una acción pendiente para hoy.
+- **Acciones de cartera:** el CRM tiene las pestañas Afiliaciones, Renovaciones y Campañas estacionales. Al cerrar una renovación se registra el nuevo convenio; al cerrar una adenda se crea la campaña.
+- **Convenios:** duran como máximo 1 año (lo común es 3 meses). Las campañas estacionales se registran con una adenda simple por su vigencia. No existen promociones permanentes: la promoción del convenio debe estar dentro de su vigencia.
+- **Códigos de comercio = POS.** Niubiz tiene 9 dígitos y Mastercard 6. Un código repetido se avisa pero no se bloquea, porque el POS puede haber rotado. Los códigos de la marca se toman de sus PDV.
+- **Estado de campañas e incentivos:** se calcula con las fechas (Programada, Activa, Por vencer, Vencida o Cancelada).
+- **T&C estándar:** se edita en Panel Admin. Va sin fechas y con campos entre [corchetes]; no se puede crear la campaña con corchetes pendientes. Los incentivos tienen su propia plantilla.
+- **Calendario comercial Perú 2026:** 14 temporadas, entre ellas Cyber Wow (abril, julio y noviembre), Cyber Days, Día de la Madre, Día del Padre, Fiestas Patrias, Día del Niño, Halloween, Black Friday y Navidad. Se administran en Panel Admin. El calendario estacional del Dashboard va encima de la línea de tiempo de promociones activas.
+
+**Experiencia de usuario (auditoría con los flujos de punta a punta)**
+
+- **Protección de datos:** al cerrar con datos sin guardar (Cancelar, ✕, clic fuera o Esc) se pide confirmación. El alta de comercio guarda un borrador recuperable. Cambiar de pestaña, de tipo o de comercio no borra lo escrito.
+- **Registro del comercio en 4 pasos:** Marca y contacto → Convenio y MSI → Puntos de venta → Revisión, con validación por paso.
+- **Errores en el campo:** borde rojo, mensaje debajo y salto al campo, por ejemplo «PDV 4: código 12 no válido».
+- **Pipeline:**
+  - Motivo obligatorio al cerrar en negativo, con reporte de motivos de pérdida en el Dashboard Ejecutivo.
+  - Reabrir una gestión exige justificación.
+  - Una gestión cerrada con su registro no retrocede.
+  - Toda gestión abierta tiene próxima acción, y las fechas deben ser coherentes.
+- **«Registrar acción»:** desde una fila la gestión viene fija; desde la barra superior se elige con un buscador.
+- **Avisos:** los cambios de etapa y las cancelaciones se pueden deshacer. Al guardar se vuelve a la pantalla de origen, con acceso directo a la ficha.
+- **Campañas e incentivos:** se pueden editar, duplicar y cancelar. Cancelar pide motivo y se puede deshacer.
+- **«Mi día»** es la pantalla de inicio del KAM:
+  - Acciones vencidas, de hoy y de la semana.
+  - Registros pendientes y convenios por vencer.
+  - Campañas de la semana.
+  - Datos incompletos (convenio sin PDF, adenda sin archivo, PDV sin código y POS repetido). Se calculan en vivo y desaparecen al completarlos.
+- **PDV activo/inactivo:** un PDV se desactiva con fecha y motivo en lugar de borrarse. Sale de la cobertura y de las campañas, y el CSV lo incluye (base para homologar con la app de campo).
+- **Fecha real:** los datos demo se mueven solos a la fecha de hoy; los datos reales (después de «Empezar desde 0») no se mueven.
+- **Persistencia:** los datos se guardan en el navegador (`localStorage`) y los PDF en IndexedDB. Es la capa `store` que se reemplazará en el Sprint 3.
+
 ## Sprint 2 — CRM ASPIRIA (solo administradores)
 
 **Objetivo:** que los socios de ASPIRIA gestionen su propio pipeline B2B con cuentas grandes (bancos, fintech, telecom, consumo masivo).
