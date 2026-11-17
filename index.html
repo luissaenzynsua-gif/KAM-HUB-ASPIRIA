@@ -132,6 +132,9 @@ body.is-cliente tr[onclick*="openPvEdit"]{cursor:default}
 .page-h h2{font-family:var(--display);font-size:30px;font-weight:400;line-height:1.1;color:var(--navy)}
 .page-h h2 em{font-style:italic;color:var(--teal)}
 .page-h p{color:var(--body);font-size:13.5px;font-weight:300;margin-top:4px}
+.content .page-h h2{display:none} /* el título ya está en la barra superior */
+.content .page-h p{margin-top:0}
+body.is-cliente .ops-only{display:none!important} /* avisos operativos internos de Aspiria */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r-sm);font-weight:600;font-size:13px;transition:.15s;white-space:nowrap}
 .btn-primary{background:var(--teal);color:var(--navy-deep)}
 .btn-primary:hover{background:var(--teal-l)}
@@ -785,6 +788,12 @@ function seedData(){const realToday=TODAY;TODAY=new Date(DEMO_BASE);
     {id:312,brand:"Mangos",contactId:null,etapa:"Contactado",funnel:"En gestión",next:"",nextDate:"",rating:2},
   ];
   genDemo(); // al final: completa la demo con el catálogo de marcas generado (conserva lo ingresado a mano)
+  { // demo: toda marca afiliada con contacto comercial (semilla propia: no altera el resto de la demo)
+    const R=demoRng(1711),pick=a=>a[Math.floor(R()*a.length)],sl=x=>norm(x).replace(/[^a-z0-9]/g,"");
+    const N=["Lucía","Carlos","María","José","Ana","Luis","Rosa","Jorge","Patricia","Miguel","Carmen","Ricardo","Claudia","Fernando","Gabriela"],A=["García","Flores","Rodríguez","Sánchez","Ramírez","Torres","Vargas","Castillo","Mendoza","Rivera","Paredes","Salas"];
+    COMMERCES.forEach(b=>{if(CONTACTS.some(c=>c.brand===b.n))return;const nm=pick(N)+" "+pick(A);
+      CONTACTS.push({id:uid(),name:nm,brand:b.n,role:pick(["Gerente comercial","Jefe de marketing","Jefe de alianzas","Trade marketing"]),tel:`+51 9${10+Math.floor(R()*90)} ${100+Math.floor(R()*900)} ${100+Math.floor(R()*900)}`,email:`${sl(nm.split(" ")[0])[0]}${sl(nm.split(" ")[1])}@${sl(b.n)}.pe`,salud:55+Math.floor(R()*40),convenio:""});});
+    CONVENIOS.forEach(cv=>{if(cv.contact&&cv.contact!=="—")return;const ct=CONTACTS.find(c=>c.brand===cv.brand);if(ct){cv.contact=ct.name;if(!ct.convenio&&cv.tipo!=="Adenda")ct.convenio=cv.name;}});}
   TODAY=realToday;shiftDates(daysBetween(DEMO_BASE,todayISO())); // la demo se mueve a la fecha real
   migrateModel();DEMO_DATA=true;
 }
@@ -1270,7 +1279,7 @@ VIEWS.comercial=()=>{
   const counts=brands.reduce((m,b)=>{m[b.cat]=(m[b.cat]||0)+1;return m},{});
   const pend=brands.filter(b=>{const ci=convInfo(b.n);return ci.has&&!ci.uploaded}).length;
   const venc=brands.filter(b=>["Vencido","Por vencer"].includes(convInfo(b.n).estado)).length;
-  return `<div class="page-h"><h2>Comercial</h2><p>${brands.length} comercios afiliados en tu gestión · datos, canal, puntos de venta y convenios</p></div>
+  return `<div class="page-h"><h2>Comercial</h2><p>${brands.length} comercios afiliados ${seesAll()?"en el programa":"en tu gestión"} · datos, canal, puntos de venta y convenios</p></div>
   <div class="toolbar">
     <div class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg><input id="comSearch" value="${h(comFilter.q)}" placeholder="Buscar comercio, razón social, RUC, código o KAM…" oninput="comFilter.q=this.value;renderComList()"/></div>
     <div class="seg" role="tablist" aria-label="Vista"><button class="${comView==='cards'?'on':''}" onclick="setComView('cards')" style="display:inline-flex;align-items:center;gap:6px">${ICON_GRID}Tarjetas</button><button class="${comView==='table'?'on':''}" onclick="setComView('table')" style="display:inline-flex;align-items:center;gap:6px">${ICON_TABLE}Tabla</button></div>
@@ -1278,7 +1287,7 @@ VIEWS.comercial=()=>{
     <button class="btn btn-ghost" onclick="exportMarcas()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Exportar</button>
     <button class="btn btn-primary" onclick="openCommerceModal()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>Nuevo comercio</button>
   </div>
-  <div class="filterbar" style="margin-bottom:10px"><div class="seg">${["all",...CATS].map(c=>`<button data-mfilter="${c}" class="${comFilter.cat===c?'on':''}">${c==="all"?"Todas":c}${c==="all"?` <span class="tnum" style="opacity:.6">${brands.length}</span>`:counts[c]?` <span class="tnum" style="opacity:.6">${counts[c]}</span>`:""}</button>`).join("")}</div></div>
+  <div class="filterbar" style="margin-bottom:10px"><div class="seg">${["all",...CATS.filter(c=>counts[c]||comFilter.cat===c)].map(c=>`<button data-mfilter="${c}" class="${comFilter.cat===c?'on':''}">${c==="all"?"Todas":c}${c==="all"?` <span class="tnum" style="opacity:.6">${brands.length}</span>`:counts[c]?` <span class="tnum" style="opacity:.6">${counts[c]}</span>`:""}</button>`).join("")}</div></div>
   <div id="subSeg"></div>
   <div class="filterbar" style="margin:0 0 12px;align-items:flex-end">
     ${seesAll()?`<div class="fgroup"><label class="f-label" for="cfKam">KAM</label><select class="input" id="cfKam" onchange="setComFilter('kam',this.value)"><option value="">Todos los KAM</option>${[...new Set(brands.map(b=>b.kam))].sort().map(k=>`<option value="${h(k)}" ${comFilter.kam===k?"selected":""}>${h(k)} (${brands.filter(b=>b.kam===k).length})</option>`).join("")}</select></div>`:""}
@@ -1290,7 +1299,7 @@ VIEWS.comercial=()=>{
     <button class="btn btn-ghost btn-sm" onclick="clearComFilters()">Limpiar filtros</button>
   </div>
   <div class="row between" style="margin:4px 0 14px;flex-wrap:wrap;gap:8px"><span class="faint" id="comCount" style="font-size:12px"></span>
-    <span class="row gap8">${pend?`<button class="chip c-rose" title="Filtrar" onclick="setComFilter('estado','');setComFilter('file','pendiente')"><span class="d"></span>${pend} convenio${pend!==1?'s':''} sin archivo →</button>`:''}${venc?`<button class="chip c-amber" title="Filtrar" onclick="setComFilter('file','');setComFilter('estado','alerta')"><span class="d"></span>${venc} por vencer o vencido${venc!==1?'s':''} →</button>`:''}</span></div>
+    <span class="row gap8">${pend?`<button class="chip c-rose ops-only" title="Filtrar" onclick="setComFilter('estado','');setComFilter('file','pendiente')"><span class="d"></span>${pend} convenio${pend!==1?'s':''} sin archivo →</button>`:''}${venc?`<button class="chip c-amber" title="Filtrar" onclick="setComFilter('file','');setComFilter('estado','alerta')"><span class="d"></span>${venc} por vencer o vencido${venc!==1?'s':''} →</button>`:''}</span></div>
   <div id="comList"></div>`;
 };
 function setComView(v){comView=v;document.querySelectorAll('[role="tablist"] button').forEach((b,i)=>b.classList.toggle("on",(i===0)===(v==="cards")));renderComList();}
@@ -1313,7 +1322,7 @@ function commerceTable(list){
   return `<div class="card"><div class="tbl-wrap"><table class="table" style="min-width:1160px"><thead><tr><th>Comercio · Razón social</th><th>Categoría</th><th>KAM</th><th style="text-align:center">PDV</th><th>Modalidad</th><th>Meses sin intereses</th><th>Convenio · vigencia</th><th>Convenio subido</th><th style="text-align:right">Ficha</th></tr></thead>
   <tbody>${list.map(b=>{const ci=convInfo(b.n);const pos=PUNTOS.filter(p=>p.brandId===b.id&&pdvActive(p)).length;const gaps=dataGaps([b]).length;
     return `<tr style="cursor:pointer" onclick="openCommerceDetail(${b.id})">
-      <td style="min-width:260px"><div class="t-brand"><div class="t-logo">${h(initials(b.n))}</div><div style="min-width:0"><div><span class="t-name">${h(b.n)}</span> <span class="muted" style="font-size:12.5px">· ${h(b.razonSocial)||'<span class="faint">Sin razón social</span>'}</span></div><div class="t-cat tnum">${b.ruc?"RUC "+h(b.ruc):"Sin RUC"}${gaps?` · <span style="color:var(--amber-ink);font-weight:600">⚠ ${plural(gaps,"dato incompleto","datos incompletos")}</span>`:""}</div></div></div></td>
+      <td style="min-width:260px"><div class="t-brand"><div class="t-logo">${h(initials(b.n))}</div><div style="min-width:0"><div><span class="t-name">${h(b.n)}</span> <span class="muted" style="font-size:12.5px">· ${h(b.razonSocial)||'<span class="faint">Sin razón social</span>'}</span></div><div class="t-cat tnum">${b.ruc?"RUC "+h(b.ruc):"Sin RUC"}${gaps?`<span class="ops-only" style="color:var(--amber-ink);font-weight:600"> · ⚠ ${plural(gaps,"dato incompleto","datos incompletos")}</span>`:""}</div></div></div></td>
       <td><span class="chip c-slate"><span class="d"></span>${h(catLabel(b))}</span></td>
       <td>${kamPill(b.kam)}</td>
       <td class="tnum" style="text-align:center;font-weight:600">${pos}</td>
@@ -1333,7 +1342,7 @@ function brandCard(b){const pos=PUNTOS.filter(p=>p.brandId===b.id&&pdvActive(p))
       <div><div class="dl">PDV</div><div class="tnum" style="font-weight:600;margin-top:3px">${pos}</div></div>
       <div><div class="dl">Modalidad</div><div style="font-weight:500;margin-top:3px;font-size:12px">${h(b.modalidad.replace(" + ","+"))}</div></div>
       <div><div class="dl">Convenio</div><div style="margin-top:3px">${convChip(ci)}</div></div></div>
-    <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px" class="row between">${kamPill(b.kam)}<span style="font-size:11.5px">${ci.has?(ci.uploaded?'<span style="color:var(--emerald-ink)">✓ Convenio subido</span>':'<span style="color:var(--rose-ink)">✕ Falta subir convenio</span>'):'<span class="faint">Sin convenio</span>'}</span></div></div>`;
+    <div style="border-top:1px solid var(--line);margin-top:14px;padding-top:12px" class="row between">${kamPill(b.kam)}<span style="font-size:11.5px">${ci.has?(ci.uploaded?'<span style="color:var(--emerald-ink)">✓ Convenio subido</span>':'<span class="ops-only" style="color:var(--rose-ink)">✕ Falta subir convenio</span>'):'<span class="faint">Sin convenio</span>'}</span></div></div>`;
 }
 
 /* ---- PUNTOS DE VENTA: vista operativa de sedes (marcas y campañas se gestionan en Comercial) ---- */
@@ -1578,9 +1587,9 @@ function promoRow(c){const dl=daysLeft(c.fin);const isC=c._tipo==="Campaña";
   <td>${isC?(c.estacional?'<span class="chip c-amber"><span class="d"></span>Estacional</span>':'<span class="chip c-sky"><span class="d"></span>Convenio</span>'):'<span class="chip c-violet"><span class="d"></span>Incentivo</span>'}</td>
   <td>${kamPill(c.kam)}</td><td><span class="faint">${c.canal||"—"}</span></td>
   <td><span style="font-weight:600;font-size:12.5px">${c.cupon&&c.cupon!=="—"&&c.cupon!=="Automático"?'<b style="color:var(--blue-ink)">'+c.cupon+'</b>':(c.inc||"—")}</span></td>
-  <td style="max-width:260px"><span style="font-size:12px;color:var(--muted);line-height:1.4;display:block" title="${attr(c.tyc||'')}">${truncate(c.tyc)||'<span class="faint">—</span>'}</span></td>
-  <td class="tnum">${(c.ini||'').slice(5)} → ${(c.fin||'').slice(5)}${(dl<=7&&dl>=0)?'<div class="faint" style="font-size:10px">vence en '+dl+' días</div>':''}</td>
-  <td><span class="mini-tag">${(c.pos||[]).length} sedes</span></td>
+  <td style="max-width:200px"><span style="font-size:12px;color:var(--muted);line-height:1.4;display:block" title="${attr(c.tyc||'')}">${truncate(c.tyc,48)||'<span class="faint">—</span>'}</span></td>
+  <td class="tnum" style="white-space:nowrap">${fmtDate(c.ini)}<br>→ ${fmtDate(c.fin)}${(dl<=7&&dl>=0)?'<div class="faint" style="font-size:10px">vence en '+dl+' días</div>':''}</td>
+  <td><span class="mini-tag">${(c.pos||[]).length?`${c.pos.length} PDV`:"Todos los PDV"}</span></td>
   <td>${estadoChip(c.estado)}</td></tr>`}
 function filterCamps(){const tb=document.querySelector("[data-tfilter].on");const t=tb?tb.dataset.tfilter:"all";
   const mes=$("#fMes")?$("#fMes").value:"",cat=$("#fCat")?$("#fCat").value:"",canal=$("#fCanal")?$("#fCanal").value:"",est=$("#fEstado")?$("#fEstado").value:"",q=($("#campSearch")?$("#campSearch").value:"").toLowerCase();let n=0;
@@ -2173,7 +2182,7 @@ function openCommerceDetail(id){const b=COMMERCES.find(x=>x.id===id);if(!b)retur
   $("#modal").className="modal wide";
   $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="t-logo" style="width:32px;height:32px;font-size:12px">${h(initials(b.n))}</span>${h(b.n)}</span>`)+`<div class="modal-body">
     <div class="row gap8" style="margin-bottom:14px;flex-wrap:wrap"><span class="chip c-slate"><span class="d"></span>${h(catLabel(b))}</span><span class="chip c-sky"><span class="d"></span>${h(b.modalidad)}</span>${convChip(ci)}</div>
-    ${gaps.length?`<div class="rev-warn" style="margin:0 0 14px"><b>Datos incompletos</b>${gaps.map(g=>`<div class="row between" style="gap:10px"><span>⚠ ${h(g.l)} · ${h(g.d)}</span><button class="btn btn-ghost btn-sm" onclick="closeModal();${g.act}">${g.btn}</button></div>`).join("")}</div>`:""}
+    ${gaps.length?`<div class="rev-warn ops-only" style="margin:0 0 14px"><b>Datos incompletos</b>${gaps.map(g=>`<div class="row between" style="gap:10px"><span>⚠ ${h(g.l)} · ${h(g.d)}</span><button class="btn btn-ghost btn-sm" onclick="closeModal();${g.act}">${g.btn}</button></div>`).join("")}</div>`:""}
     <div class="detail-grid">
       <div><div class="dl">Razón social</div><div class="dv" style="font-size:13px">${h(b.razonSocial)||"—"}</div></div>
       <div><div class="dl">RUC</div><div class="dv tnum" style="font-size:13px">${h(b.ruc)||"—"}</div></div>
@@ -3056,15 +3065,16 @@ function resetUserUI(){
   closeModal();toggleNav(false);$("#content").innerHTML="";window.scrollTo(0,0);}
 function login(u){resetUserUI();USER=u;try{sessionStorage.setItem("kamhub:user",JSON.stringify({em:u.em}));}catch(e){}$("#loginScreen").classList.add("hidden");$("#appRoot").classList.remove("hidden");
   $("#userName").textContent=u.name;$("#userAv").textContent=initials(u.name);
-  $("#userRole").innerHTML=u.role==="admin"?'<span class="role-tag role-admin">Admin</span> Consolidado':u.role==="cliente"?'<span class="role-tag role-cliente">Cliente</span> Solo lectura':`<span class="role-tag role-kam">KAM</span> ${u.kam||""}`;
+  $("#userRole").innerHTML=u.role==="admin"?'<span class="role-tag role-admin">Admin</span> Consolidado':u.role==="cliente"?'<span class="role-tag role-cliente">Cliente</span> Solo lectura':`<span class="role-tag role-kam">KAM</span> Operador`;
   $("#adminNav").style.display=isAdmin()?"":"none";$("#adminLabel").style.display=isAdmin()?"":"none";
   document.querySelectorAll(".nav-item[data-view]").forEach(n=>{if(n.id!=="adminNav")n.style.display=canView(n.dataset.view)?"":"none";});
   document.body.classList.toggle("is-cliente",isClient());
+  if(u.role==="kam")dashFilter.kam=u.kam;
   go(u.role==="kam"?"midia":"dashboard"); // el KAM empieza en «Mi día»; admin y cliente en el dashboard general
 }
 function logout(){resetUserUI();USER=null;document.body.classList.remove("is-cliente");try{sessionStorage.removeItem("kamhub:user");}catch(e){}$("#appRoot").classList.add("hidden");$("#loginScreen").classList.remove("hidden");$("#loginEmail").value="";$("#loginPass").value="";$("#loginErr").textContent="";}
 
-const TITLES={midia:["Mi día","Lo que necesita tu atención hoy"],dashboard:["Dashboard general","Estado general del programa · todos los KAM"],comercial:["Comercial","Comercios afiliados"],puntos:["Puntos de venta","Cobertura y operación de sedes"],campanas:["Campañas & Incentivos","Crea y monitorea en segundos"],crm:["CRM · Pipeline","Afiliaciones, renovaciones y campañas estacionales"],biblioteca:["Biblioteca","Convenios y banco de assets"],ejecutivo:["Dashboard Ejecutivo","Indicadores de alianzas"],ia:["IA Assistant","Tu copiloto"],admin:["Panel Admin","Administración"]};
+const TITLES={midia:["Mi día","Lo que necesita tu atención hoy"],dashboard:["Dashboard general","Estado del programa · filtra por KAM o marca"],comercial:["Comercial","Comercios afiliados"],puntos:["Puntos de venta","Cobertura y operación de sedes"],campanas:["Campañas & Incentivos","Crea y monitorea en segundos"],crm:["CRM · Pipeline","Afiliaciones, renovaciones y campañas estacionales"],biblioteca:["Biblioteca","Convenios y banco de assets"],ejecutivo:["Dashboard Ejecutivo","Indicadores de alianzas"],ia:["IA Assistant","Tu copiloto"],admin:["Panel Admin","Administración"]};
 function go(view){if(state.view==="puntos"&&view!=="puntos"&&pvChanged())return confirmPvDiscard(()=>goNow(view));goNow(view);}
 function goNow(view){if(!VIEWS[view]||!canView(view))view="dashboard";state.view=view;
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===view));
