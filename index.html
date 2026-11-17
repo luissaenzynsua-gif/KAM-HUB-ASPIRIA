@@ -585,7 +585,7 @@ const DISTRITOS=CIUDAD_LIST.flatMap(c=>CIUDADES[c]);
 const DIST_CIUDAD=Object.fromEntries(CIUDAD_LIST.flatMap(c=>CIUDADES[c].map(d=>[d,c])));
 const ciudadDe=d=>DIST_CIUDAD[d]||"Lima";
 const zonaDe=c=>c==="Lima"||c==="Callao"?"lima":"prov"; // Lima y Callao / Provincias
-/* Ejecutivos de capacitación: visitan y capacitan a los PDV (administrable en Panel Admin) */
+/* Capacitadores: visitan y capacitan a los PDV (administrable en Panel Admin) */
 let EJECUTIVOS=["Rosa Medina","Jorge Paredes","Lucía Torres","Martín Castro"];
 const catColor=c=>"#162050"; // tiles de marca: navy card (manual de marca)
 const initials=s=>(s||"?").split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
@@ -1223,13 +1223,13 @@ VIEWS.dashboard=()=>{
 };
 
 /* ---- COMERCIAL ---- */
-let comView="table", comFilter={cat:"all",sub:"",q:"",kam:"",estado:"",file:"",msi:"",promo:""};
+let comView="table", comFilter={cat:"all",sub:"",q:"",kam:"",estado:"",file:"",msi:"",promo:"",inc:""};
 /* Filtros de convenio: estado (vigencia) y archivo (subido / pendiente) */
 const CONV_ESTADOS=[["Vigente","Vigente"],["Por vencer","Por vencer (≤60 días)"],["Vencido","Vencido"],["alerta","Por vencer o vencido"],["Sin vigencia","Sin fecha de vigencia"],["Sin convenio","Sin convenio"]];
 const matchEstado=(ci,e)=>!e||(e==="alerta"?["Por vencer","Vencido"].includes(ci.estado):ci.estado===e);
 const matchFile=(ci,f)=>!f||(f==="subido"?ci.has&&ci.uploaded:ci.has&&!ci.uploaded);
-function setComFilter(k,v){comFilter[k]=v;const map={kam:"#cfKam",estado:"#cfEstado",file:"#cfFile",msi:"#cfMsi",promo:"#cfPromo"};if(map[k]&&$(map[k]))$(map[k]).value=v;renderComList();}
-function clearComFilters(){comFilter={cat:"all",sub:"",q:"",kam:"",estado:"",file:"",msi:"",promo:""};go("comercial");}
+function setComFilter(k,v){comFilter[k]=v;const map={kam:"#cfKam",estado:"#cfEstado",file:"#cfFile",msi:"#cfMsi",promo:"#cfPromo",inc:"#cfInc"};if(map[k]&&$(map[k]))$(map[k]).value=v;renderComList();}
+function clearComFilters(){comFilter={cat:"all",sub:"",q:"",kam:"",estado:"",file:"",msi:"",promo:"",inc:""};go("comercial");}
 const h=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmtDate=d=>{if(!d)return "—";const[y,m,dd]=d.split("-");return `${dd}/${m}/${y}`;};
 const catLabel=b=>b.cat==="Experiencias"&&b.sub?`Experiencias · ${b.sub}`:b.cat;
@@ -1286,6 +1286,7 @@ VIEWS.comercial=()=>{
     <div class="fgroup"><label class="f-label" for="cfFile">Archivo del convenio</label><select class="input" id="cfFile" onchange="setComFilter('file',this.value)"><option value="">Todos</option><option value="subido" ${comFilter.file==="subido"?"selected":""}>✓ Subido (${brands.filter(b=>matchFile(convInfo(b.n),"subido")).length})</option><option value="pendiente" ${comFilter.file==="pendiente"?"selected":""}>✕ Pendiente (${pend})</option></select></div>
     <div class="fgroup"><label class="f-label" for="cfMsi">Meses sin intereses</label><select class="input" id="cfMsi" onchange="setComFilter('msi',this.value)"><option value="">Todos</option><option value="si" ${comFilter.msi==="si"?"selected":""}>✓ Afiliada (${brands.filter(b=>b.msi).length})</option><option value="no" ${comFilter.msi==="no"?"selected":""}>No afiliada (${brands.filter(b=>!b.msi).length})</option></select></div>
     <div class="fgroup"><label class="f-label" for="cfPromo">Promoción activa</label><select class="input" id="cfPromo" onchange="setComFilter('promo',this.value)"><option value="">Todas</option><option value="con" ${comFilter.promo==="con"?"selected":""}>Con promoción (${brands.filter(b=>runningPromos(b.n)>0).length})</option><option value="sin" ${comFilter.promo==="sin"?"selected":""}>Sin promoción (${brands.filter(b=>!runningPromos(b.n)).length})</option></select></div>
+    <div class="fgroup"><label class="f-label" for="cfInc">Incentivos</label><select class="input" id="cfInc" onchange="setComFilter('inc',this.value)"><option value="">Todos</option><option value="con" ${comFilter.inc==="con"?"selected":""}>Con incentivo vigente (${brands.filter(b=>runningIncs(b.n).length).length})</option><option value="sin" ${comFilter.inc==="sin"?"selected":""}>Sin incentivo (${brands.filter(b=>!runningIncs(b.n).length).length})</option></select></div>
     <button class="btn btn-ghost btn-sm" onclick="clearComFilters()">Limpiar filtros</button>
   </div>
   <div class="row between" style="margin:4px 0 14px;flex-wrap:wrap;gap:8px"><span class="faint" id="comCount" style="font-size:12px"></span>
@@ -1297,12 +1298,13 @@ function filteredCommerces(){const q=comFilter.q.trim().toLowerCase();
   return mine(COMMERCES).filter(b=>{const ci=convInfo(b.n);return (comFilter.cat==="all"||b.cat===comFilter.cat)&&(!comFilter.sub||b.sub===comFilter.sub)
     &&(!comFilter.kam||b.kam===comFilter.kam)&&matchEstado(ci,comFilter.estado)&&matchFile(ci,comFilter.file)&&(!comFilter.msi||(comFilter.msi==="si")===!!b.msi)
     &&(!comFilter.promo||(comFilter.promo==="con")===(runningPromos(b.n)>0))
+    &&(!comFilter.inc||(comFilter.inc==="con")===(runningIncs(b.n).length>0))
     &&(!q||[b.n,b.razonSocial,b.ruc,b.kam,b.cat,b.sub,brandCodes(b).join(" "),b.modalidad].join(" ").toLowerCase().includes(q));});}
 function renderComList(){const el=$("#comList");if(!el)return;
   document.querySelectorAll("[data-mfilter]").forEach(x=>x.classList.toggle("on",x.dataset.mfilter===comFilter.cat));
   $("#subSeg").innerHTML=comFilter.cat==="Experiencias"?`<div class="seg" style="margin-bottom:12px">${["",...EXP_SUBS].map(s=>`<button class="${comFilter.sub===s?'on':''}" onclick="comFilter.sub='${s}';renderComList()">${s||"Todas las experiencias"}</button>`).join("")}</div>`:"";
   const list=filteredCommerces();const tot=mine(COMMERCES).length;
-  const act=[comFilter.cat!=="all",comFilter.sub,comFilter.kam,comFilter.estado,comFilter.file,comFilter.msi,comFilter.promo,comFilter.q.trim()].filter(Boolean).length;
+  const act=[comFilter.cat!=="all",comFilter.sub,comFilter.kam,comFilter.estado,comFilter.file,comFilter.msi,comFilter.promo,comFilter.inc,comFilter.q.trim()].filter(Boolean).length;
   $("#comCount").textContent=(list.length===tot?`${tot} comercios`:`${list.length} de ${tot} comercios`)+(act?` · ${act} filtro${act!==1?"s":""} activo${act!==1?"s":""}`:"");
   if(!list.length){el.innerHTML=emptyState("Sin resultados","Ningún comercio cumple los filtros. Usa «Limpiar filtros» para ver todos.");return;}
   el.innerHTML=comView==="cards"?`<div class="grid cols-3">${list.map(brandCard).join("")}</div>`:commerceTable(list);
@@ -1384,7 +1386,7 @@ VIEWS.puntos=()=>{const all=pvRows();
       <button class="btn btn-ghost btn-sm" style="margin-right:12px" onclick="pvF={...PV_DEF};pvEdit=null;go('puntos')">Limpiar filtros</button></div>
     <div class="crm-filters">
       ${seesAll()?sel("pvKam","kam","KAM",uniq("kam").map(k=>[k,k])):""}
-      ${sel("pvEjec","ejec","Ejecutivo",[...EJECUTIVOS.map(e=>[e,e]),["__none","Sin asignar"]])}
+      ${sel("pvEjec","ejec","Capacitador",[...EJECUTIVOS.map(e=>[e,e]),["__none","Sin asignar"]])}
       ${sel("pvCiudad","ciudad","Ciudad",uniq("ciudad").map(c=>[c,c]))}
       ${sel("pvDistrito","distrito","Distrito",uniq("distrito").map(d=>[d,d]))}
       ${sel("pvUbic","ubic","Ubicación",[["cc","Centro comercial"],["calle","Calle / avenida"]])}
@@ -1395,7 +1397,7 @@ VIEWS.puntos=()=>{const all=pvRows();
       ${sel("pvFlag","flag","Código POS",[["nocode","Sin código de comercio"],["dup","Código repetido en otro PDV"]])}
       ${sel("pvEstado","estado","Estado",[["act","Activos"],["inact","Inactivos"]])}
       ${sel("pvMsi","msi","MSI",[["on","MSI activo"],["off","Excluido manualmente"],["na","Marca no afiliada"],["nooff","Sin MSI (todos)"]])}
-      <label class="crm-fw" style="margin-left:auto;background:var(--bg)"><span>Agrupar</span><select id="pvGroupSel" onchange="pvGroup=this.value;pvCollapsed.clear();renderPv()">${[["brand","Marca"],["distrito","Distrito"],["cc","Centro comercial"],["ejecutivo","Ejecutivo"],["ciudad","Ciudad"],["","Sin agrupar"]].map(([v,l])=>`<option value="${v}" ${pvGroup===v?"selected":""}>${l}</option>`).join("")}</select></label>
+      <label class="crm-fw" style="margin-left:auto;background:var(--bg)"><span>Agrupar</span><select id="pvGroupSel" onchange="pvGroup=this.value;pvCollapsed.clear();renderPv()">${[["brand","Marca"],["distrito","Distrito"],["cc","Centro comercial"],["ejecutivo","Capacitador"],["ciudad","Ciudad"],["","Sin agrupar"]].map(([v,l])=>`<option value="${v}" ${pvGroup===v?"selected":""}>${l}</option>`).join("")}</select></label>
     </div>
     <div id="pvTable"></div>
   </div>`;};
@@ -1434,7 +1436,7 @@ function renderPv(){if(!$("#pvTable"))return;
       <div class="legend" style="margin:8px 0 14px"><span><i style="background:#7A5BD0"></i>Centro comercial · <b class="tnum">${cc}</b> (${pctOf(cc,T)}%)</span><span><i style="background:#2B80D4"></i>Calle / avenida · <b class="tnum">${T-cc}</b> (${100-pctOf(cc,T)}%)</span></div>
       <div class="dl" style="margin-bottom:6px">Centros comerciales con más PDV</div>
       ${ccList.length?cbars(ccList,"cc","#7A5BD0","PDV","PDV",5):'<span class="faint" style="font-size:12px">Sin PDV en centros comerciales</span>'}</div>
-    <div class="card pad"><div class="row between" style="margin-bottom:12px"><div class="h-title">Carga por ejecutivo de capacitación</div><span class="faint" style="font-size:11px">PDV asignados</span></div>
+    <div class="card pad"><div class="row between" style="margin-bottom:12px"><div class="h-title">Carga por capacitador</div><span class="faint" style="font-size:11px">PDV asignados</span></div>
       ${ejList.length?cbars(ejList,"ejec",l=>l==="Sin asignar"?"#E08A1E":"#00A68F","PDV","PDV"):'<span class="faint">Sin datos</span>'}</div>`;
   // pestañas de zona
   const zl=base.filter(p=>p.zona==="lima").length;
@@ -1443,7 +1445,7 @@ function renderPv(){if(!$("#pvTable"))return;
   rows.sort((a,b)=>a.brand.localeCompare(b.brand)||a.ciudad.localeCompare(b.ciudad)||a.distrito.localeCompare(b.distrito)||a.dir.localeCompare(b.dir));
   const showBrand=pvGroup!=="brand"; // agrupado por marca: la marca ya está en el encabezado del grupo
   const cols=(seesAll()?10:9)-(showBrand?0:1);
-  const head=`<thead><tr><th style="width:34px"></th>${showBrand?"<th>Marca</th>":""}<th>Dirección</th><th>Distrito · ciudad</th><th>Códigos de comercio</th>${seesAll()?"<th>KAM</th>":""}<th>Ejecutivo</th><th>Promoción</th><th>Meses sin intereses</th><th></th></tr></thead>`;
+  const head=`<thead><tr><th style="width:34px"></th>${showBrand?"<th>Marca</th>":""}<th>Dirección</th><th>Distrito · ciudad</th><th>Códigos de comercio</th>${seesAll()?"<th>KAM</th>":""}<th>Capacitador</th><th>Promoción</th><th>Meses sin intereses</th><th></th></tr></thead>`;
   const row=p=>{const open=pvEdit===p.id;
     return `<tr class="${open?"pv-open":""} ${p.activo?"":"pv-inact"}" onclick="openPvEdit(${p.id})">
       <td><span class="pv-chev ${open?"on":""}">›</span></td>
@@ -1465,7 +1467,7 @@ function renderPv(){if(!$("#pvTable"))return;
         ${col?"":`<tbody>${ps.map(row).join("")}</tbody>`}`;}).join("");}
   else body=`<tbody>${rows.slice(0,pvLimit).map(row).join("")}</tbody>`;
   $("#pvTable").innerHTML=T?`<div class="tbl-wrap"><table class="table pv-table">${head}${body}
-    <tfoot><tr><td colspan="${cols}" style="font-size:12px"><b>${plural(T,"punto de venta","puntos de venta")}</b><span class="faint"> · ${lima} en Lima y Callao · ${prov} en provincias · ${promoN} con promoción · ${msiN} con MSI · ${bothN} con ambos · ${cc} en C.C.${noCode?` · ${noCode} sin código`:""}${dupN?` · ${dupN} con código repetido`:""}${noEj?` · ${noEj} sin ejecutivo`:""}</span>
+    <tfoot><tr><td colspan="${cols}" style="font-size:12px"><b>${plural(T,"punto de venta","puntos de venta")}</b><span class="faint"> · ${lima} en Lima y Callao · ${prov} en provincias · ${promoN} con promoción · ${msiN} con MSI · ${bothN} con ambos · ${cc} en C.C.${noCode?` · ${noCode} sin código`:""}${dupN?` · ${dupN} con código repetido`:""}${noEj?` · ${noEj} sin capacitador`:""}</span>
       ${!pvGroup&&T>pvLimit?` <button class="btn btn-ghost btn-sm" style="margin-left:10px" onclick="pvLimit+=200;renderPv()">Mostrar ${Math.min(200,T-pvLimit)} más</button>`:""}</td></tr></tfoot></table></div>`
     :`<div style="padding:44px;text-align:center"><div style="font-weight:600">Sin puntos de venta para estos filtros</div><div class="faint" style="margin-top:4px">Usa «Limpiar filtros» o registra PDV desde Comercial.</div></div>`;}
 /* Cruce: PDV con promoción activa y MSI activo a la vez */
@@ -1490,7 +1492,7 @@ function pvEditor(){const d=pvDraft;
       <div class="field"><label>Dirección</label><input value="${h(d.dir)}" oninput="pvDraft.dir=this.value" placeholder="Ej. Jockey Plaza, Tienda 245"/></div>
       <div class="field"><label>Ciudad</label><select onchange="pvDraft.ciudad=this.value;pvDraft.distrito=CIUDADES[this.value][0];renderPv()">${CIUDAD_LIST.map(c=>`<option ${c===d.ciudad?"selected":""}>${c}</option>`).join("")}</select></div>
       <div class="field"><label>Distrito</label><select onchange="pvDraft.distrito=this.value">${CIUDADES[d.ciudad].map(x=>`<option ${x===d.distrito?"selected":""}>${x}</option>`).join("")}</select></div>
-      <div class="field"><label>Ejecutivo de capacitación</label><select onchange="pvDraft.ejecutivo=this.value"><option value="">Sin asignar</option>${EJECUTIVOS.map(e=>`<option ${e===d.ejecutivo?"selected":""}>${h(e)}</option>`).join("")}</select></div>
+      <div class="field"><label>Capacitador</label><select onchange="pvDraft.ejecutivo=this.value"><option value="">Sin asignar</option>${EJECUTIVOS.map(e=>`<option ${e===d.ejecutivo?"selected":""}>${h(e)}</option>`).join("")}</select></div>
     </div>
     <div class="field" style="margin-bottom:10px"><label>Códigos POS <span class="faint" style="font-weight:400">· Niubiz 9 dígitos · Mastercard 6 dígitos · Enter o coma para agregar</span></label>
       <div class="code-editor" onclick="this.querySelector('input').focus()">${d.codes.map((c,i)=>`<span class="code-chip">${h(c)}<button title="Quitar" aria-label="Quitar ${h(c)}" onclick="pvDraft.codes.splice(${i},1);renderPv()">×</button></span>`).join("")}
@@ -1517,8 +1519,15 @@ function savePvEdit(){const p=PUNTOS.find(x=>x.id===pvEdit);if(!p)return;const d
   const nl=pdvLabel(p);if(nl!==oldLabel)[CAMPAIGNS,INCENTIVOS].forEach(a=>a.forEach(c=>{if(c.brand===p.brand&&c.pos)c.pos=c.pos.map(x=>x===oldLabel?nl:x);}));
   pvEdit=null;pvDraft=null;toast(dup.length?`Guardado · aviso: ${dup.join(", ")} también figura en otro PDV (posible rotación de POS)`:"Punto de venta actualizado · también en Comercial");renderPv();}
 function exportPuntos(){const rows=pvFiltered();if(!rows.length)return toast("No hay puntos de venta en esta vista");
-  downloadCSV("puntos_de_venta.csv",["Marca","Razón social","Categoría","KAM","Ejecutivo de capacitación","Zona","Ciudad","Distrito","Ubicación","Centro comercial","Vía","Dirección","Códigos de comercio","Códigos Niubiz","Códigos Mastercard","Código repetido en otro PDV","Promociones activas","Meses sin intereses","Convenio","Estado PDV","Inactivo desde","Motivo inactivo"],
-    rows.map(p=>{const b=COMMERCES.find(x=>x.id===p.brandId)||{};return [p.brand,b.razonSocial||"",p.cat,p.kam,p.ejecutivo||"",p.zona==="lima"?"Lima y Callao":"Provincias",p.ciudad,p.distrito,isCC(p)?"Centro comercial":"Calle / avenida",p.cc,p.via,p.dir,p.codes.join(", "),p.codes.filter(c=>codeType(c)==="Niubiz").join(", "),p.codes.filter(c=>codeType(c)==="Mastercard").join(", "),p.dupCodes.join(", "),p.promoList.map(c=>c.nombre||c.inc).join(" | "),p.msiOn?"Activo":p.msiElig?"Excluido":"Marca no afiliada",p.ci.estado,p.activo?"Activo":"Inactivo",p.inactivoDesde||"",p.inactivoMotivo||""];}));}
+  // Una fila por punto de venta con toda su información: marca, ubicación, códigos, programas, beneficios, incentivos y convenio
+  downloadSheet("puntos_de_venta.xlsx",["Marca","Razón social","RUC","Categoría","Tipo de experiencia","Modalidad","KAM","Capacitador","Zona","Ciudad","Distrito","Ubicación","Centro comercial","Vía","Dirección","Códigos de comercio","Códigos Niubiz","Códigos Mastercard","Código repetido en otro PDV","MSI de la marca","MSI en el PDV","Beneficios vigentes","Detalle de beneficios","Incentivos vigentes","Detalle de incentivos","Convenio","Vigencia del convenio","Archivo del convenio","Estado PDV","Inactivo desde","Motivo inactivo"],
+    rows.map(p=>{const b=COMMERCES.find(x=>x.id===p.brandId)||{},camps=p.promoList.filter(c=>CAMPAIGNS.includes(c)),incs=p.promoList.filter(c=>INCENTIVOS.includes(c));
+      return [p.brand,b.razonSocial||"",b.ruc||"",p.cat,b.sub||"",b.modalidad||"",p.kam,p.ejecutivo||"",p.zona==="lima"?"Lima y Callao":"Provincias",p.ciudad,p.distrito,isCC(p)?"Centro comercial":"Calle / avenida",p.cc,p.via,p.dir,
+        p.codes.join(", "),p.codes.filter(c=>codeType(c)==="Niubiz").join(", "),p.codes.filter(c=>codeType(c)==="Mastercard").join(", "),p.dupCodes.join(", "),
+        b.msi?`MSI · ${(b.msiPlazos||[]).join(", ")} meses`:"No afiliada",p.msiOn?"Activo":p.msiElig?"Excluido":"",
+        camps.length,camps.map(c=>c.nombre||c.promo).join(" | "),incs.length,incs.map(c=>c.inc).join(" | "),
+        p.ci.estado,p.ci.vig||"",p.ci.has?(p.ci.uploaded?"Sí":"Pendiente"):"",p.activo?"Activo":"Inactivo",p.inactivoDesde||"",p.inactivoMotivo||""];}),
+    {sheet:"Puntos de venta",freezeCols:1,wrap:[15,22,24]});}
 
 /* ---- CAMPAÑAS & INCENTIVOS ---- */
 VIEWS.campanas=()=>{
@@ -1564,7 +1573,7 @@ function allPromos(){
 }
 function promoRow(c){const dl=daysLeft(c.fin);const isC=c._tipo==="Campaña";
   const search=[c.brand,c.nombre,c.promo,c.cupon,c.inc,c.cat].filter(Boolean).join(" ").toLowerCase();
-  return `<tr data-tipo="${c._tipo}" data-mes="${(c.ini||'').slice(0,7)}" data-cat="${c.cat}" data-canal="${c.canal||''}" data-estado="${c.estado}" data-search="${attr(search)}" style="cursor:pointer" onclick="${isC?`openCampaignDetail(${c.id})`:`openIncentiveDetail(${c.id})`}">
+  return `<tr data-tipo="${c._tipo}" data-id="${c.id}" data-mes="${(c.ini||'').slice(0,7)}" data-cat="${c.cat}" data-canal="${c.canal||''}" data-estado="${c.estado}" data-search="${attr(search)}" style="cursor:pointer" onclick="${isC?`openCampaignDetail(${c.id})`:`openIncentiveDetail(${c.id})`}">
   <td><div class="t-brand"><div class="t-logo" style="background:${catColor(c.cat)}">${initials(c.brand)}</div><div><div class="t-name">${h(c.brand)}</div><div class="t-cat">${h(c.nombre||c.promo||c.cat)}</div></div></div></td>
   <td>${isC?(c.estacional?'<span class="chip c-amber"><span class="d"></span>Estacional</span>':'<span class="chip c-sky"><span class="d"></span>Convenio</span>'):'<span class="chip c-violet"><span class="d"></span>Incentivo</span>'}</td>
   <td>${kamPill(c.kam)}</td><td><span class="faint">${c.canal||"—"}</span></td>
@@ -1620,6 +1629,8 @@ const plural=(n,s,p)=>`${n} ${n===1?s:p}`;
 const todayISO=()=>TODAY.toISOString().slice(0,10);
 /* Promociones vigentes hoy (campañas + incentivos) de una marca */
 const runningPromos=brand=>[...CAMPAIGNS,...INCENTIVOS].filter(c=>c.brand===brand&&promoRunning(c)).length;
+const runningCamps=brand=>CAMPAIGNS.filter(c=>c.brand===brand&&promoRunning(c)); // beneficios al cliente
+const runningIncs=brand=>INCENTIVOS.filter(c=>c.brand===brand&&promoRunning(c)); // incentivos a la fuerza de ventas
 /* Fila enriquecida: todo lo que la tabla necesita para filtrar y ordenar */
 function crmRow(d){const m=dealMeta(d),cfg=m.cfg,b=m.brand;
   const acts=m.inters.filter(i=>i.tipo!=="Próxima acción").sort((a,b)=>b.fecha.localeCompare(a.fecha));const last=acts[0]||null;
@@ -1795,7 +1806,7 @@ function applyStage(d,etapa,o={}){const prev=d.etapa,cfg=tipoCfg(d),n0=INTERACTI
   toast(`${d.brand}: ${prev} → ${etapa}`,{action:"Deshacer",onAction:()=>{Object.assign(d,snap);if(!snap.lostReason){delete d.lostReason;delete d.lostNote;}INTERACTIONS.splice(n0);persist();
     toast(`Cambio deshecho · ${d.brand} vuelve a «${prev}»`);if(state.view==="crm")renderCrm();}});}
 function exportCrm(){const rows=crmRows();if(!rows.length)return toast("No hay gestiones en esta vista");
-  downloadCSV("crm_gestiones.csv",["Gestión","Marca","Temporada","Contacto","Categoría","KAM","Etapa","% avance","Convenio","Vigencia convenio","Promociones activas","Última actividad","Fecha última actividad","Próxima acción","Fecha próxima acción","Motivo de cierre","Salud %"],
+  downloadSheet("crm_gestiones.xlsx",["Gestión","Marca","Temporada","Contacto","Categoría","KAM","Etapa","% avance","Convenio","Vigencia convenio","Promociones activas","Última actividad","Fecha última actividad","Próxima acción","Fecha próxima acción","Motivo de cierre","Salud %"],
     rows.map(r=>[DEAL_TIPOS[r.tipo].l,r.d.brand,r.d.temporada||"",r.m.contact?r.m.contact.name:"",r.cat,r.kam,r.d.etapa,r.pct,r.ci.estado,r.ci.vig||"",r.promos,r.last?r.last.tipo+" · "+r.last.t:"",r.last?r.last.fecha:"",r.d.next||"",r.d.nextDate||"",r.d.lostReason?r.d.lostReason+(r.d.lostNote?" · "+r.d.lostNote:""):"",r.salud]));}
 function openDealDetail(id){const d=DEALS.find(x=>x.id===id);if(!d)return;const m=dealMeta(d);const contact=m.contact,t=dealTipo(d);
   const inters=m.inters.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
@@ -2115,19 +2126,19 @@ VIEWS.admin=()=>{
       <textarea class="input" id="tycTpl" rows="7" style="width:100%;font-family:inherit;line-height:1.5">${h(TYC_TEMPLATE)}</textarea>
       <div class="row gap8" style="margin-top:10px"><button class="btn btn-primary btn-sm" onclick="saveTycTemplate()">Guardar plantilla</button><button class="btn btn-ghost btn-sm" onclick="TYC_TEMPLATE=TYC_DEF;go('admin');toast('Plantilla restablecida')">Restablecer</button><span class="faint" style="font-size:11px">${tycPlaceholders(TYC_TEMPLATE).length} campos a completar</span></div>
     </div>
-    <div class="card pad"><div class="row between" style="margin-bottom:12px"><div class="h-title">Ejecutivos de capacitación</div><span class="chip c-slate"><span class="d"></span>${EJECUTIVOS.length}</span></div>
+    <div class="card pad"><div class="row between" style="margin-bottom:12px"><div class="h-title">Capacitadores</div><span class="chip c-slate"><span class="d"></span>${EJECUTIVOS.length}</span></div>
       <div class="faint" style="font-size:11.5px;margin-bottom:12px">Se asignan a cada punto de venta para capacitación y visitas. Se usan en Puntos de venta, en el registro de comercios y en la plantilla Excel.</div>
-      ${EJECUTIVOS.map((n,i)=>{const c=PUNTOS.filter(p=>p.ejecutivo===n).length;return `<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-weight:600;font-size:13px">${h(n)} <span class="faint" style="font-weight:400">· ${plural(c,"PDV","PDV")}</span></span><button class="pos-del" style="width:28px;height:28px" title="Quitar" onclick="removeEjecutivo(${i})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;}).join("")||'<span class="faint">Sin ejecutivos</span>'}
-      <div class="row gap8" style="margin-top:12px"><input class="input" id="ejInput" placeholder="Nombre del ejecutivo" style="flex:1" onkeydown="if(event.key==='Enter')addEjecutivo()"/><button class="btn btn-primary btn-sm" onclick="addEjecutivo()">Agregar</button></div>
+      ${EJECUTIVOS.map((n,i)=>{const c=PUNTOS.filter(p=>p.ejecutivo===n).length;return `<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-weight:600;font-size:13px">${h(n)} <span class="faint" style="font-weight:400">· ${plural(c,"PDV","PDV")}</span></span><button class="pos-del" style="width:28px;height:28px" title="Quitar" onclick="removeEjecutivo(${i})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;}).join("")||'<span class="faint">Sin capacitadores</span>'}
+      <div class="row gap8" style="margin-top:12px"><input class="input" id="ejInput" placeholder="Nombre del capacitador" style="flex:1" onkeydown="if(event.key==='Enter')addEjecutivo()"/><button class="btn btn-primary btn-sm" onclick="addEjecutivo()">Agregar</button></div>
     </div>
     <div class="card pad"><div class="h-title" style="margin-bottom:6px">Exportables / Reportes</div>
-      <div class="faint" style="font-size:11.5px;margin-bottom:12px">Descarga la base consolidada${seesAll()?" de todos los KAM":""} en CSV (abre en Excel / Google Sheets).</div>
-      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Contactos</div><div class="faint" style="font-size:11px">Contacto, cargo, celular, email, salud, convenio</div></div><button class="btn btn-ghost btn-sm" onclick="exportClientes()">CSV</button></div>
-      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Marcas · direcciones · códigos</div><div class="faint" style="font-size:11px">Puntos de venta con código de comercio</div></div><button class="btn btn-ghost btn-sm" onclick="exportMarcas()">CSV</button></div>
-      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Convenios</div><div class="faint" style="font-size:11px">Convenio, marca, contacto, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportConvenios()">CSV</button></div>
-      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Promociones (todas)</div><div class="faint" style="font-size:11px">Campañas + incentivos, material, vigencia, puntos</div></div><button class="btn btn-ghost btn-sm" onclick="exportPromociones()">CSV</button></div>
-      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Campañas</div><div class="faint" style="font-size:11px">Nombre, promoción, incentivo, material, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportCampanas()">CSV</button></div>
-      <div class="row between" style="padding:11px 0"><div><div style="font-weight:700;font-size:13px">Incentivos</div><div class="faint" style="font-size:11px">Incentivo, vigencia, puntos, T&C</div></div><button class="btn btn-ghost btn-sm" onclick="exportIncentivos()">CSV</button></div>
+      <div class="faint" style="font-size:11.5px;margin-bottom:12px">Descarga la base consolidada${seesAll()?" de todos los KAM":""} en Excel con formato (si no hay conexión, en CSV).</div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Contactos</div><div class="faint" style="font-size:11px">Contacto, cargo, celular, email, salud, convenio</div></div><button class="btn btn-ghost btn-sm" onclick="exportClientes()">Excel</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Marcas</div><div class="faint" style="font-size:11px">Una fila por marca: PDV, códigos, convenio, programas, beneficios e incentivos</div></div><button class="btn btn-ghost btn-sm" onclick="exportMarcas(true)">Excel</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Convenios</div><div class="faint" style="font-size:11px">Convenio, marca, contacto, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportConvenios()">Excel</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Promociones (todas)</div><div class="faint" style="font-size:11px">Campañas + incentivos, material, vigencia, puntos</div></div><button class="btn btn-ghost btn-sm" onclick="exportPromociones()">Excel</button></div>
+      <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Campañas</div><div class="faint" style="font-size:11px">Nombre, promoción, incentivo, material, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportCampanas()">Excel</button></div>
+      <div class="row between" style="padding:11px 0"><div><div style="font-weight:700;font-size:13px">Incentivos</div><div class="faint" style="font-size:11px">Incentivo, vigencia, puntos, T&C</div></div><button class="btn btn-ghost btn-sm" onclick="exportIncentivos()">Excel</button></div>
     </div>
   </div>
   <div class="danger-box section-gap">
@@ -2181,7 +2192,7 @@ function openCommerceDetail(id){const b=COMMERCES.find(x=>x.id===id);if(!b)retur
         :`<span class="chip c-rose">✕ Pendiente</span><label class="btn btn-ghost btn-sm" style="cursor:pointer">Subir PDF<input type="file" accept=".pdf,application/pdf" hidden onchange="attachConvFile(${cv.id},this,${b.id})"/></label>`}</div></div>`).join("")
       :'<span class="faint" style="font-size:12.5px">Sin convenio registrado. Usa «Editar» para registrarlo y adjuntarlo.</span>'}
     <div class="sub-h">Puntos de venta (${pts.filter(pdvActive).length} activos${pts.some(p=>!pdvActive(p))?` · ${pts.filter(p=>!pdvActive(p)).length} inactivos`:""})</div>
-    ${pts.map(p=>`<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;${pdvActive(p)?"":"opacity:.6"}"><div class="row between"><span style="font-weight:600">${h(p.via)} ${h(p.dir)}${pdvActive(p)?"":` <span class="chip c-slate">Inactivo desde ${fmtDate(p.inactivoDesde)}</span>`}</span><span class="mini-tag">${h(p.distrito)}${(p.ciudad||"Lima")!=="Lima"?" · "+h(p.ciudad):""}</span></div><div class="faint" style="font-size:11px;margin-top:3px">${p.codigos?`POS: ${h(p.codigos)} · `:"Sin código · "}${p.ejecutivo?`Ejecutivo: ${h(p.ejecutivo)}`:"Sin ejecutivo"}${b.msi?(p.msi!==false?" · MSI activo":" · MSI excluido"):""}</div></div>`).join("")||'<span class="faint" style="font-size:12.5px">Sin puntos registrados</span>'}
+    ${pts.map(p=>`<div style="padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;${pdvActive(p)?"":"opacity:.6"}"><div class="row between"><span style="font-weight:600">${h(p.via)} ${h(p.dir)}${pdvActive(p)?"":` <span class="chip c-slate">Inactivo desde ${fmtDate(p.inactivoDesde)}</span>`}</span><span class="mini-tag">${h(p.distrito)}${(p.ciudad||"Lima")!=="Lima"?" · "+h(p.ciudad):""}</span></div><div class="faint" style="font-size:11px;margin-top:3px">${p.codigos?`POS: ${h(p.codigos)} · `:"Sin código · "}${p.ejecutivo?`Capacitador: ${h(p.ejecutivo)}`:"Sin capacitador"}${b.msi?(p.msi!==false?" · MSI activo":" · MSI excluido"):""}</div></div>`).join("")||'<span class="faint" style="font-size:12.5px">Sin puntos registrados</span>'}
   </div>
   <div class="modal-foot"><button class="btn btn-ghost" onclick="askClose()">Cerrar</button><button class="btn btn-ghost" onclick="openCommerceModal(${b.id})">Editar registro</button><button class="btn btn-primary" onclick="closeModal();openCampaignModal('${esc(b.n)}')">Nueva campaña</button></div>`;openModal();
 }
@@ -2358,7 +2369,7 @@ function renderPos(){$("#posList").innerHTML=draftPuntos.map((p,i)=>{const ciuda
   </div>
   <div class="pos-row" style="grid-template-columns:1.5fr 1fr auto;margin-bottom:0">
     <input aria-label="Códigos de comercio" inputmode="numeric" placeholder="Códigos POS · Niubiz 9 dígitos / Mastercard 6 (ej. 123456789, 654321)" value="${h(p.codigos)}" oninput="draftPuntos[${i}].codigos=this.value"/>
-    <select aria-label="Ejecutivo de capacitación" onchange="draftPuntos[${i}].ejecutivo=this.value"><option value="">Ejecutivo: sin asignar</option>${EJECUTIVOS.map(e=>`<option ${e===p.ejecutivo?'selected':''}>${h(e)}</option>`).join("")}</select>
+    <select aria-label="Capacitador" onchange="draftPuntos[${i}].ejecutivo=this.value"><option value="">Capacitador: sin asignar</option>${EJECUTIVOS.map(e=>`<option ${e===p.ejecutivo?'selected':''}>${h(e)}</option>`).join("")}</select>
     <label class="pos-msi ${draftMsi.on?"":"off"}" title="${draftMsi.on?"Desmarca si este PDV no puede ejecutar meses sin intereses":"Activa primero la afiliación de la marca a meses sin intereses"}"><input type="checkbox" ${draftMsi.on&&p.msi!==false?"checked":""} ${draftMsi.on?"":"disabled"} onchange="draftPuntos[${i}].msi=this.checked"/>MSI</label>
   </div>
 </div>`;}).join("")||'<div class="faint" style="font-size:12.5px;margin-bottom:10px">Sin puntos de venta.</div>';}
@@ -2419,7 +2430,7 @@ function canon(list,v,alias={}){const n=norm(v).replace(/\.$/,"");if(!n)return n
   return list.find(x=>norm(x).replace(/\.$/,"")===n)||alias[n]||null;}
 const MODALIDADES=["Tienda","Ecommerce","Tienda + Ecommerce"];
 /* Columnas oficiales: clave interna ← encabezado de la plantilla */
-const PDV_COLS=[["via","Vía *"],["dir","Dirección *"],["ciudad","Ciudad"],["distrito","Distrito *"],["codigos","Códigos POS (Niubiz / Mastercard)"],["ejecutivo","Ejecutivo de capacitación"],["msi","MSI activo en el PDV"]];
+const PDV_COLS=[["via","Vía *"],["dir","Dirección *"],["ciudad","Ciudad"],["distrito","Distrito *"],["codigos","Códigos POS (Niubiz / Mastercard)"],["ejecutivo","Capacitador"],["msi","MSI activo en el PDV"]];
 const BRAND_COLS=[["n","Nombre comercial *"],["razonSocial","Razón social"],["ruc","RUC"],["cat","Categoría *"],["sub","Tipo de experiencia"],["kam","KAM responsable *"],["modalidad","Modalidad *"],["obj","Objetivo comercial"],["oficina","Oficinas administrativas"],["cvname","Nombre del convenio"],["cvdesde","Convenio vigente desde"],["cvvig","Convenio vigente hasta"],["msi","Meses sin intereses"],["msiPlazos","Plazos MSI (meses)"]];
 const BULK_PDV_COLS=[["n","Nombre comercial *"],...PDV_COLS];
 
@@ -2436,7 +2447,7 @@ function styleHeader(row,n,allReq){for(let i=1;i<=n;i++){const c=row.getCell(i);
   c.alignment={vertical:"middle"};c.border={bottom:{style:"medium",color:{argb:"FF00C4AA"}}};}row.height=22;}
 /* Hoja «Listas» protegida: fuente única de los valores válidos */
 async function addListas(wb){const ws=wb.addWorksheet("Listas",{properties:{tabColor:{argb:"FF8896AA"}}});
-  const lists=[["Vías",VIAS],["Ciudades",CIUDAD_LIST],["Distritos",DISTRITOS],["Ciudad del distrito",DISTRITOS.map(ciudadDe)],["Ejecutivos de capacitación",EJECUTIVOS],["Sí / No",["Sí","No"]],["Categorías",CATS],["Tipo de experiencia",EXP_SUBS],["KAM responsable",isAdmin()?KAMS.map(k=>k.n):[USER.kam]],["Modalidad",MODALIDADES]];const ref={};
+  const lists=[["Vías",VIAS],["Ciudades",CIUDAD_LIST],["Distritos",DISTRITOS],["Ciudad del distrito",DISTRITOS.map(ciudadDe)],["Capacitadores",EJECUTIVOS],["Sí / No",["Sí","No"]],["Categorías",CATS],["Tipo de experiencia",EXP_SUBS],["KAM responsable",isAdmin()?KAMS.map(k=>k.n):[USER.kam]],["Modalidad",MODALIDADES]];const ref={};
   lists.forEach(([t,vals],i)=>{const c=colL(i);ws.getCell(`${c}1`).value=t;vals.forEach((v,j)=>{ws.getCell(`${c}${j+2}`).value=v;});ws.getColumn(i+1).width=26;ref[t]=`Listas!$${c}$2:$${c}$${vals.length+1}`;});
   styleHeader(ws.getRow(1),lists.length,true);
   await ws.protect("",{selectLockedCells:true,selectUnlockedCells:true});return ref;}
@@ -2466,7 +2477,7 @@ function pdvValidations(ws,off,ref,nCols){
   ws.addConditionalFormatting({ref:rng(cD),rules:[{type:"expression",formulae:[`AND(${cD}2<>"",${cC}2<>"",COUNTIFS(${ref["Distritos"]},${cD}2,${ref["Ciudad del distrito"]},${cC}2)=0)`],style:BAD_FILL}]});
   ws.getColumn(off+5).numFmt="@";
   vRule(ws,off+4,{type:"textLength",operator:"lessThanOrEqual",formulae:[200],promptTitle:"Códigos POS",prompt:"Niubiz = 9 dígitos · Mastercard = 6 dígitos. Varios separados por coma: 123456789, 654321",errorTitle:"Texto muy largo",error:"Máximo 200 caracteres."});
-  vList(ws,off+5,ref["Ejecutivos de capacitación"],"Ejecutivo","Ejecutivo de capacitación asignado (opcional)");
+  vList(ws,off+5,ref["Capacitadores"],"Capacitador","Capacitador asignado (opcional)");
   vList(ws,off+6,ref["Sí / No"],"MSI activo","Sí / No. Vacío = sigue la afiliación de la marca. «No» excluye este PDV");
   [off,off+1,off+3].forEach(i=>vRequired(ws,i,nCols));}
 function instrWS(wb,title,lines){const ws=wb.addWorksheet("Instrucciones",{properties:{tabColor:{argb:"FF2B80D4"}}});ws.getColumn(1).width=125;
@@ -2489,7 +2500,7 @@ async function downloadPdvTemplate(){try{const EJ=await loadExcelJS();const wb=n
     "1. Completa la hoja «Puntos de venta»: una fila por dirección. Las columnas en azul oscuro (*) son obligatorias.",
     "2. Vía: elige de la lista (Av., C.C., Ca., Jr., Mz., Lote, Psje.). En Dirección no repitas la vía.",
     "3. Ciudad: Lima, Callao o provincia (Arequipa, Trujillo, Chiclayo, Piura, Cusco, Huancayo, Ica, Iquitos). Distrito: debe pertenecer a esa ciudad; si no coincide se pinta de rojo. Si dejas Ciudad vacía, se deduce del distrito.",
-    "4. Ejecutivo de capacitación: opcional, elige de la lista.",
+    "4. Capacitador: opcional, elige de la lista.",
     "5. MSI activo en el PDV: «No» excluye el PDV de meses sin intereses. Vacío = sigue la afiliación de la marca.",
     "6. Códigos POS: Niubiz tiene 9 dígitos y Mastercard 6. Varios se separan con coma. Si un código ya existe en otro PDV se importa con aviso (el POS pudo rotar). Las direcciones repetidas se omiten.","",...TPL_TIPS,"",
     "EJEMPLO","C.C. | Jockey Plaza, Tienda 245 | Lima | Santiago de Surco | 123456789, 654321 | Rosa Medina","C.C. | Real Plaza Cayma | Arequipa | Cayma | 987654321 | (vacío)"]);
@@ -2549,7 +2560,7 @@ function validatePdv(r,seen,sheet,errors,warns){
   if(ciudad&&distrito&&ciudadDe(distrito)!==ciudad){errors.push({hoja:sheet,fila:r._row,msg:`El distrito «${distrito}» no pertenece a ${ciudad}`});ok=false;}
   const msiV=r.msi?canon(["Sí","No"],r.msi,{"si":"Sí","s":"Sí","x":"Sí","1":"Sí","n":"No","0":"No"}):"";
   if(r.msi&&!msiV){errors.push({hoja:sheet,fila:r._row,msg:`«MSI activo» debe ser Sí o No (vino «${r.msi}»)`});ok=false;}
-  if(r.ejecutivo&&!ejecutivo){errors.push({hoja:sheet,fila:r._row,msg:`Ejecutivo «${r.ejecutivo}» no existe (Panel Admin → Ejecutivos de capacitación)`});ok=false;}
+  if(r.ejecutivo&&!ejecutivo){errors.push({hoja:sheet,fila:r._row,msg:`Capacitador «${r.ejecutivo}» no existe (Panel Admin → Capacitadores)`});ok=false;}
   if(!dir){errors.push({hoja:sheet,fila:r._row,msg:"Falta la dirección"});ok=false;}
   if(!via){errors.push({hoja:sheet,fila:r._row,msg:r.via?`Vía «${r.via}» no válida (usa: ${VIAS.join(", ")})`:"Falta la vía"});ok=false;}
   if(!distrito){errors.push({hoja:sheet,fila:r._row,msg:r.distrito?`Distrito «${r.distrito}» no reconocido`:"Falta el distrito"});ok=false;}
@@ -2906,7 +2917,7 @@ function openPortfolioModal(){
   </div><div class="modal-foot"><button class="btn btn-ghost" onclick="askClose()">Cancelar</button><button class="btn btn-primary" onclick="savePortfolio()">Guardar</button></div>`;openModal();
 }
 function savePortfolio(){PORTFOLIO={activos:+$("#pf_a").value||0,inactivos:+$("#pf_i").value||0,proceso:+$("#pf_p").value||0};closeModal();toast("Cifras actualizadas");go("dashboard");}
-function addEjecutivo(){const v=($("#ejInput").value||"").trim();if(!v)return;if(EJECUTIVOS.some(e=>norm(e)===norm(v)))return toast("Ese ejecutivo ya existe");EJECUTIVOS.push(v);toast("Ejecutivo agregado");go("admin");}
+function addEjecutivo(){const v=($("#ejInput").value||"").trim();if(!v)return;if(EJECUTIVOS.some(e=>norm(e)===norm(v)))return toast("Ese capacitador ya existe");EJECUTIVOS.push(v);toast("Capacitador agregado");go("admin");}
 function removeEjecutivo(i){const n=EJECUTIVOS[i];const c=PUNTOS.filter(p=>p.ejecutivo===n);c.forEach(p=>p.ejecutivo="");EJECUTIVOS.splice(i,1);toast(c.length?`${n} quitado · ${c.length} PDV quedan sin asignar`:`${n} quitado`);go("admin");}
 function addTemporada(){const n=($("#tpName").value||"").trim(),ini=$("#tpIni").value,fin=$("#tpFin").value;
   if(!n||!ini||!fin)return toast("Ingresa nombre, inicio y fin de la temporada");if(fin<ini)return toast("La temporada termina antes de empezar");
@@ -2942,7 +2953,31 @@ function toast(msg,opts={}){document.querySelectorAll(".kh-toast").forEach(x=>x.
   if(opts.action){const b=document.createElement("button");b.className="kh-toast-act";b.textContent=opts.action;b.onclick=()=>{t.remove();if(opts.onAction)opts.onAction();};t.appendChild(b);}
   const x=document.createElement("button");x.className="kh-toast-x";x.setAttribute("aria-label","Cerrar aviso");x.textContent="×";x.onclick=()=>t.remove();t.appendChild(x);
   document.body.appendChild(t);setTimeout(()=>t.remove(),opts.ms||(opts.action?8000:Math.min(9000,3200+String(msg).length*35)));}
-/* ============ EXPORTABLES (CSV) ============ */
+/* ============ EXPORTABLES (Excel con formato · CSV de respaldo) ============
+   downloadSheet: encabezado navy, filtros, primera fila fija, anchos según contenido, filas alternas,
+   fechas AAAA-MM-DD como fecha real, números centrados, texto largo ajustado y estados con color. */
+const XL_OK=["FFE3F5F0","FF00796A"],XL_WARN=["FFFDF1DF","FF9A5B00"],XL_BAD=["FFFBECEC","FFB23A3A"],XL_OFF=["FFEEF1F5","FF5B6577"],XL_INFO=["FFE8F0FB","FF1C5CAB"];
+const XL_STATUS={"Vigente":XL_OK,"Activa":XL_OK,"Activo":XL_OK,"Sí":XL_OK,"Convenio firmado":XL_OK,"Por vencer":XL_WARN,"Por vencer (≤60 días)":XL_WARN,"Pendiente":XL_WARN,"Negociación":XL_WARN,"Propuesta":XL_INFO,"Contactado":XL_INFO,"Prospecto":XL_INFO,"Programada":XL_INFO,"Vencido":XL_BAD,"Vencida":XL_BAD,"Perdido":XL_BAD,"No":XL_BAD,"Cancelada":XL_OFF,"Borrador":XL_OFF,"Sin convenio":XL_OFF,"Sin vigencia":XL_OFF,"Excluido":XL_OFF,"Inactivo":XL_OFF};
+const ISO_RE=/^\d{4}-\d{2}-\d{2}$/;
+async function downloadSheet(filename,headers,rows,o={}){
+  let EJ;try{EJ=await loadExcelJS();}catch(e){toast("Sin conexión para el formato Excel: se descarga en CSV");return downloadCSV(filename.replace(/\.xlsx$/,".csv"),headers,rows);}
+  const wb=new EJ.Workbook();wb.creator="KAM HUB · ASPIRIA";wb.created=new Date();
+  const ws=wb.addWorksheet(o.sheet||"Datos",{views:[{state:"frozen",xSplit:o.freezeCols||0,ySplit:1}],properties:{tabColor:{argb:"FF00C4AA"}}});
+  ws.addRow(headers);styleHeader(ws.getRow(1),headers.length,true);ws.autoFilter={from:"A1",to:`${colL(headers.length-1)}1`};
+  const n=headers.length,str=v=>v==null?"":String(v);
+  const maxLen=headers.map((h,i)=>Math.max(h.length,...rows.slice(0,300).map(r=>str(r[i]).length)));
+  const isNum=headers.map((h,i)=>rows.length>0&&rows.every(r=>r[i]===""||r[i]==null||typeof r[i]==="number"));
+  const isDate=headers.map((h,i)=>rows.some(r=>ISO_RE.test(str(r[i])))&&rows.every(r=>r[i]===""||r[i]==null||ISO_RE.test(str(r[i]))));
+  const wrap=headers.map((h,i)=>(o.wrap||[]).includes(i)||maxLen[i]>45);
+  const status=new Set(o.status||headers.map((h,i)=>/^(estado|convenio|archivo|etapa|msi)/i.test(h)?i:-1).filter(i=>i>=0));
+  headers.forEach((h,i)=>{ws.getColumn(i+1).width=(o.widths&&o.widths[i])||(wrap[i]?48:isDate[i]?13:Math.min(40,Math.max(9,maxLen[i]+3)));});
+  rows.forEach((r,ri)=>{const row=ws.addRow(r.map((v,i)=>isDate[i]&&ISO_RE.test(str(v))?new Date(v+"T12:00:00"):v));row.font={size:10};
+    for(let i=0;i<n;i++){const c=row.getCell(i+1);c.alignment={vertical:"top",wrapText:wrap[i],horizontal:isNum[i]||isDate[i]?"center":"left"};
+      c.border={bottom:{style:"hair",color:{argb:"FFD5DCE6"}}};if(ri%2)c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"FFF7F9FC"}};
+      if(isNum[i])c.numFmt="#,##0";if(isDate[i])c.numFmt="dd/mm/yyyy";
+      const k=status.has(i)?XL_STATUS[str(c.value)]:null;if(k){c.fill={type:"pattern",pattern:"solid",fgColor:{argb:k[0]}};c.font={size:10,bold:true,color:{argb:k[1]}};c.alignment={vertical:"top",horizontal:"center"};}}});
+  const foot=ws.addRow([]);foot.getCell(1).value=`${rows.length} registro${rows.length!==1?"s":""} · KAM HUB ASPIRIA · ${USER?USER.name:""} · ${new Date().toLocaleString("es-PE")}`;foot.font={size:9,italic:true,color:{argb:"FF8896AA"}};
+  await saveWB(wb,filename);}
 function downloadCSV(filename,headers,rows){
   const q=v=>{v=(v==null?"":String(v));return /[",\n;]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;};
   const csv=[headers.map(q).join(","),...rows.map(r=>r.map(q).join(","))].join("\r\n");
@@ -2952,28 +2987,41 @@ function downloadCSV(filename,headers,rows){
 }
 function exportClientes(){const rows=mine(CONTACTS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam}))).map(c=>[c.name,c.brand,c.role,c.tel,c.email,c.salud+"%",c.convenio||""]);
   if(!rows.length)return toast("No hay clientes para exportar");
-  downloadCSV("contactos.csv",["Contacto","Marca","Cargo","Celular","Email","Salud","Convenio"],rows);}
-function exportMarcas(){const rows=[];mine(COMMERCES).forEach(b=>{const pts=PUNTOS.filter(p=>p.brandId===b.id);
-  if(pts.length)pts.forEach(p=>rows.push([b.n,b.cat,b.razonSocial||"",b.ruc||"",b.kam,`${p.via} ${p.dir}`,p.distrito,p.ciudad||ciudadDe(p.distrito),p.ejecutivo||"",b.msi?"Sí":"No",b.msi?(p.msi!==false?"Activo":"Excluido"):"",p.codigos||""]));
-  else rows.push([b.n,b.cat,b.razonSocial||"",b.ruc||"",b.kam,"","","","",b.msi?"Sí":"No","",""]);});
-  if(!rows.length)return toast("No hay marcas para exportar");
-  downloadCSV("marcas_direcciones_codigos.csv",["Marca","Categoría","Razón social","RUC","KAM","Dirección","Distrito","Ciudad","Ejecutivo de capacitación","Marca afiliada a MSI","MSI en el PDV","Códigos POS"],rows);}
-function exportCampanas(){const rows=mine(CAMPAIGNS).map(c=>[c.nombre||"",c.brand,c.cat,c.kam,c.canal,c.promo||"",c.inc,c.cupon,c.material||"",c.ini,c.fin,promoEstado(c),(c.pos||[]).join(" | ")]);
-  if(!rows.length)return toast("No hay campañas para exportar");
-  downloadCSV("campanas.csv",["Nombre","Marca","Categoría","KAM","Canal","Promoción/Beneficio","Incentivo","Cupón","Material específico","Inicio","Fin","Estado","Puntos de venta"],rows);}
-function exportIncentivos(){const rows=mine(INCENTIVOS).map(c=>[c.brand,c.cat,c.kam,c.inc,c.ini,c.fin,(c.pos||[]).join(" | "),c.tyc||""]);
-  if(!rows.length)return toast("No hay incentivos para exportar");
-  downloadCSV("incentivos.csv",["Marca","Categoría","KAM","Incentivo","Inicio","Fin","Puntos de venta","T&C"],rows);}
-function exportPromociones(){
-  const rows=[
-    ...mine(CAMPAIGNS).map(c=>["Campaña",c.nombre||"",c.brand,c.cat,c.kam,c.canal||"",c.promo||"",c.inc||"",c.cupon||"",c.material||"",c.ini,c.fin,promoEstado(c),(c.pos||[]).join(" | "),c.tyc||""]),
-    ...mine(INCENTIVOS).map(c=>["Incentivo","",c.brand,c.cat,c.kam,"—",c.inc||"","","","",c.ini,c.fin,promoEstado(c),(c.pos||[]).join(" | "),c.tyc||""])
-  ];
-  if(!rows.length)return toast("No hay promociones para exportar");
-  downloadCSV("promociones.csv",["Tipo","Nombre","Marca","Categoría","KAM","Canal","Promoción/Beneficio","Incentivo","Cupón","Material específico","Inicio","Fin","Estado","Puntos de venta","T&C"],rows);}
+  downloadSheet("contactos.xlsx",["Contacto","Marca","Cargo","Celular","Email","Salud","Convenio"],rows);}
+/* Lista de marcas (una fila por marca). Desde Comercial respeta los filtros activos; desde Admin exporta toda la base. */
+function exportMarcas(all){const list=all?mine(COMMERCES):filteredCommerces();
+  const rows=list.map(b=>{const ci=convInfo(b.n),pts=PUNTOS.filter(p=>p.brandId===b.id&&pdvActive(p)),camps=runningCamps(b.n),incs=runningIncs(b.n);
+    return [b.n,b.razonSocial||"",b.ruc||"",b.cat,b.sub||"",b.modalidad||"",b.kam,pts.length,brandCodes(b).join(" | "),
+      ci.estado,ci.vig||"",ci.has?(ci.uploaded?"Sí":"Pendiente"):"",
+      b.msi?`MSI · ${(b.msiPlazos||[]).join(", ")} meses`:"",
+      camps.length,camps.map(c=>c.nombre||c.promo).join(" | "),
+      incs.length,incs.map(c=>c.inc).join(" | ")];});
+  if(!rows.length)return toast("No hay marcas para exportar con los filtros actuales");
+  const tag=!all&&comFilter.inc==="con"?"_con_incentivos":!all&&comFilter.promo==="con"?"_con_promocion":"";
+  downloadSheet(`marcas${tag}.xlsx`,["Marca","Razón social","RUC","Categoría","Tipo de experiencia","Modalidad","KAM","Puntos de venta","Códigos POS","Convenio","Vigencia del convenio","Archivo del convenio","Programas","Beneficios vigentes","Detalle de beneficios","Incentivos vigentes","Detalle de incentivos"],rows,
+    {sheet:"Marcas",freezeCols:1,wrap:[8,14,16],widths:[26,32,14,16,16,18,26,11,30,13,13,11,22,11,44,11,44]});
+  toast(`${rows.length} marca${rows.length!==1?"s":""} exportada${rows.length!==1?"s":""}`);}
+/* Campañas & Incentivos: una fila por promoción. En la vista respeta los filtros activos (tipo, estado, mes, categoría, canal, búsqueda);
+   desde el panel Admin exporta toda la base. kind: "Campaña" | "Incentivo" | undefined (ambos). */
+const PROMO_COLS=["Tipo","Nombre","Marca","Categoría","KAM","Canal","Beneficio al cliente","Incentivo","Cupón","Material en PDV","Inicio","Fin","Días restantes","Estado","PDV participantes","Detalle de PDV","Responsable","Términos y condiciones"];
+function promoExportRow(c,isC){const pdv=c.pos&&c.pos.length?c.pos:[],all=!pdv.length,tot=PUNTOS.filter(p=>p.brand===c.brand&&pdvActive(p)).length,dl=daysLeft(c.fin),est=promoEstado(c);
+  return [isC?(c.estacional?"Campaña estacional":"Campaña de convenio"):"Incentivo a la fuerza de ventas",isC?(c.nombre||""):(c.inc||""),c.brand,c.cat,c.kam,isC?(c.canal||""):"Fuerza de ventas",
+    isC?(c.promo||""):"",c.inc||"",isC?(c.cupon||""):"",isC?(c.material||""):"",c.ini,c.fin,est==="Activa"||est==="Por vencer"?dl:"",est,
+    all?tot:pdv.length,all?"Todos los PDV de la marca":pdv.join(" | "),c.resp||c.kam||"",c.tyc||""];}
+function visiblePromos(kind){const vis=[...document.querySelectorAll("#campRows tr[data-id]")].filter(r=>r.style.display!=="none");
+  if(vis.length||document.querySelector("#campRows")){const ids=new Set(vis.map(r=>r.dataset.tipo+":"+r.dataset.id));
+    return [...mine(CAMPAIGNS).filter(c=>ids.has("Campaña:"+c.id)).map(c=>[c,true]),...mine(INCENTIVOS).filter(c=>ids.has("Incentivo:"+c.id)).map(c=>[c,false])].filter(([c,isC])=>!kind||(kind==="Campaña")===isC);}
+  return [...(kind!=="Incentivo"?mine(CAMPAIGNS).map(c=>[c,true]):[]),...(kind!=="Campaña"?mine(INCENTIVOS).map(c=>[c,false]):[])];}
+function exportPromos(kind,file,sheet){const list=visiblePromos(kind);if(!list.length)return toast("No hay promociones para exportar con los filtros actuales");
+  list.sort((a,b)=>(b[0].ini||"").localeCompare(a[0].ini||""));
+  downloadSheet(file,PROMO_COLS,list.map(([c,isC])=>promoExportRow(c,isC)),{sheet,freezeCols:2,wrap:[6,7,9,15,17],widths:[24,30,20,15,24,16,36,30,13,30,12,12,10,13,11,40,24,60]});
+  toast(`${list.length} promoci${list.length!==1?"ones exportadas":"ón exportada"}`);}
+function exportPromociones(){exportPromos(undefined,"promociones.xlsx","Promociones");}
+function exportCampanas(){exportPromos("Campaña","campanas.xlsx","Campañas");}
+function exportIncentivos(){exportPromos("Incentivo","incentivos.xlsx","Incentivos");}
 function exportConvenios(){const rows=mine(CONVENIOS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam}))).map(c=>[c.name,c.tipo||"Convenio",c.brand,c.contact||"",c.desde||"",c.vigencia||"",c.file?"Subido":"Pendiente"]);
   if(!rows.length)return toast("No hay convenios para exportar");
-  downloadCSV("convenios.csv",["Documento","Tipo","Marca","Contacto","Vigente desde","Vigente hasta","Archivo"],rows);}
+  downloadSheet("convenios.xlsx",["Documento","Tipo","Marca","Contacto","Vigente desde","Vigente hasta","Archivo"],rows);}
 
 function askAI(q){if(!q||!q.trim())return;const body=$("#chatBody");$("#chatInput").value="";body.innerHTML+=`<div class="bubble user">${h(q)}</div>`;body.scrollTop=body.scrollHeight;
   setTimeout(()=>{body.innerHTML+=`<div class="bubble ai">${aiAnswer(q)}</div>`;body.scrollTop=body.scrollHeight},400)}
@@ -3000,7 +3048,7 @@ function doLogin(){const em=($("#loginEmail").value||"").trim().toLowerCase(),pw
 /* Estado de vista por usuario (filtros, orden, agrupación, borradores). Nunca se comparte entre sesiones:
    se reinicia al iniciar y al cerrar sesión. Con backend (Sprint 3) se guardará por usuario en su perfil. */
 function resetUserUI(){
-  comView="table";comFilter={cat:"all",sub:"",q:"",kam:"",estado:"",file:"",msi:"",promo:""};
+  comView="table";comFilter={cat:"all",sub:"",q:"",kam:"",estado:"",file:"",msi:"",promo:"",inc:""};
   crmF={...CRM_DEF};crmSort={k:"next",dir:1};mdShowAll=false;
   pvF={...PV_DEF};pvGroup="brand";pvCollapsed=new Set();pvEdit=null;pvDraft=null;pvLimit=200;
   dashFilter={kam:"",brand:"",from:"",to:""};bibTab="convenios";bulkPlan=null;
