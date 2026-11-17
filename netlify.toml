@@ -1,0 +1,16 @@
+# KAM HUB · ASPIRIA — despliegue en Netlify
+# Solo se publica la aplicación (index.html + assets). ACTIVOS/ (manual de marca, prototipo) y docs/ no salen a internet.
+
+[build]
+  command = "rm -rf dist && mkdir dist && cp index.html dist/ && cp -r assets dist/ && printf 'User-agent: *\\nDisallow: /\\n' > dist/robots.txt"
+  publish = "dist"
+
+# Sistema cerrado: sin indexación y con cabeceras de seguridad básicas.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow, noarchive"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

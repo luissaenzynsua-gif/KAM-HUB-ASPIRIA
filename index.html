@@ -4,6 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>KAM HUB · ASPIRIA</title>
+<meta name="robots" content="noindex, nofollow, noarchive" />
 <link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,9 +70,16 @@ input,select,textarea{font-family:inherit;color:var(--ink)}
 .login label{display:block;font-size:12px;font-weight:600;color:var(--body);margin-bottom:6px}
 .login input{width:100%;padding:12px 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);font-size:14px;outline:none;margin-bottom:14px}
 .login input:focus{border-color:var(--teal)}
-.login .demo{display:flex;gap:8px;margin-top:10px}
-.login .demo button{flex:1;padding:10px;border:1px solid rgba(13,27,75,.25);border-radius:var(--r-sm);font-size:12.5px;font-weight:600;color:var(--navy)}
-.login .demo button:hover{border-color:var(--navy);background:var(--bg)}
+.login .login-err{min-height:18px;font-size:12.5px;color:var(--rose-ink);margin:-6px 0 10px}
+.login-tabs{display:flex;background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:3px;margin:18px 0 14px}
+.login-tabs button{flex:1;padding:9px;border-radius:3px;font-size:12.5px;font-weight:600;color:var(--body);letter-spacing:.02em}
+.login-tabs button.on{background:var(--navy);color:#fff}
+.login #loginHint{margin-top:0;min-height:38px}
+/* Cliente (solo lectura): oculta las acciones de edición; la capa JS (RO_FNS) bloquea el resto */
+body.is-cliente button[onclick*="openCommerceModal"],body.is-cliente button[onclick*="openBulkImportModal"],body.is-cliente button[onclick*="openConvenioModal"],body.is-cliente button[onclick*="openBankModal"],body.is-cliente button[onclick*="openPvEdit"],body.is-cliente button[onclick*="deactivatePdv"],body.is-cliente button[onclick*="reactivatePdv"],body.is-cliente button[onclick*="openCampaignModal"],body.is-cliente button[onclick*="openIncentiveModal"],body.is-cliente button[onclick*="openDealAction"],body.is-cliente button[onclick*="openRenewModal"],body.is-cliente button[onclick*="openInteractionModal"],body.is-cliente button[onclick*="cancelPromo"],body.is-cliente button[onclick*="createRenewals"],body.is-cliente button[onclick*="openNewDeal"],body.is-cliente .filedrop,body.is-cliente label.btn:has(input[type=file]),body.is-cliente input[type=file]{display:none!important}
+body.is-cliente button.switch{pointer-events:none}
+body.is-cliente tr[onclick*="openPvEdit"]{cursor:default}
+.role-cliente{background:var(--blue);color:#fff}
 .login .hint{font-size:11.5px;color:var(--faint);margin-top:16px;text-align:center}
 
 /* ---------- shell ---------- */
@@ -485,15 +493,18 @@ th.sortable:hover,th.sorted{color:var(--navy)}
     <img class="brand-logo" src="assets/logo-aspiria.png" alt="ASPIRIA"/>
     <div class="eyebrow">KAM HUB · Operador comercial B2B</div>
     <h1>Cada cuenta, <em>bajo control.</em></h1>
-    <p>Ingresa con tu correo. Cada KAM ve su cartera; los administradores ven todo consolidado.</p>
-    <label>Correo corporativo</label>
-    <input id="loginEmail" type="email" placeholder="valentina.herrera@aspiriateam.com" onkeydown="if(event.key==='Enter')doLogin()"/>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">Ingresar →</button>
-    <div class="demo">
-      <button onclick="quickLogin('valentina.herrera@aspiriateam.com')">Entrar como KAM</button>
-      <button onclick="quickLogin('admin@aspiriateam.com')">Entrar como Admin</button>
+    <div class="login-tabs" role="tablist" aria-label="Tipo de acceso">
+      <button type="button" role="tab" class="on" data-mode="cliente" aria-selected="true" onclick="setLoginMode('cliente')">Cliente</button>
+      <button type="button" role="tab" data-mode="operador" aria-selected="false" onclick="setLoginMode('operador')">Operador</button>
     </div>
-    <div class="hint">Demo · KAM: valentina.herrera@aspiriateam.com · Admin: admin@aspiriateam.com</div>
+    <p id="loginHint">Consulta el estado de tu programa: dashboard, comercios, puntos de venta, reportes y descargables.</p>
+    <label for="loginEmail">Correo corporativo</label>
+    <input id="loginEmail" type="email" autocomplete="username" placeholder="nombre@aspiriateam.com" onkeydown="if(event.key==='Enter')$('#loginPass').focus()"/>
+    <label for="loginPass">Contraseña</label>
+    <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="login-err" id="loginErr" role="alert"></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="doLogin()">Ingresar →</button>
+    <div class="hint">¿Sin acceso? Solicítalo al administrador de tu cuenta.</div>
   </div>
 </div>
 
@@ -535,11 +546,17 @@ th.sortable:hover,th.sorted{color:var(--navy)}
 
 <script>
 /* ============ DEMO USERS ============ */
+/* Usuarios autorizados. Sistema cerrado: solo entran los correos de esta lista con su clave.
+   Roles: admin (ve y gestiona todo) · kam (operador: su cartera + dashboard general) · cliente (solo lectura, vista consolidada).
+   Provisional hasta el backend (Sprint 3): la clave se valida en el navegador, no sustituye a Firebase Auth. */
 const USERS={
-  "valentina.herrera@aspiriateam.com":{name:"Valentina Herrera",role:"kam",kam:"Valentina Herrera Campos"},
-  "diego.salazar@aspiriateam.com":{name:"Diego Salazar",role:"kam",kam:"Diego Salazar Vega"},
-  "admin@aspiriateam.com":{name:"Admin",role:"admin",kam:null}
+  "luis.saenz@aspiriateam.com":{name:"Luis Saenz",role:"admin",kam:null,pass:"123456789"},
+  "stefano.agurto@aspiriateam.com":{name:"Stefano Agurto",role:"admin",kam:null,pass:"123456789"},
+  "gestioncliente@aspiriateam.com":{name:"Gestión Cliente",role:"cliente",kam:null,pass:"123456789"},
+  "valentina.herrera@aspiriateam.com":{name:"Valentina Herrera",role:"kam",kam:"Valentina Herrera Campos",pass:"123456789"},
+  "diego.salazar@aspiriateam.com":{name:"Diego Salazar",role:"kam",kam:"Diego Salazar Vega",pass:"123456789"}
 };
+Object.entries(USERS).forEach(([em,u])=>u.em=em);
 let USER=null;
 
 /* ============ REFERENCE DATA ============ */
@@ -657,7 +674,7 @@ function seedData(){const realToday=TODAY;TODAY=new Date(DEMO_BASE);
     {id:9,n:"Tanta",cat:"Restaurantes",kam:"Valentina Herrera Campos",razonSocial:"Grupo Gastón Acurio S.A.C.",ruc:"20523456781",codigos:"TAN-01, TAN-02",modalidad:"Tienda",obj:"Impulsar consumo en salón con cuotas sin interés",kpi:81,oficina:"Av. Pardo y Aliaga 675, San Isidro",fields:[]},
     {id:10,n:"Despegar",cat:"Experiencias",sub:"Viajes",kam:"Andrea Quiroz Palacios",razonSocial:"Despegar Perú S.A.C.",ruc:"20534567812",codigos:"DSP-WEB",modalidad:"Ecommerce",obj:"Paquetes de viaje financiados en 12 cuotas",kpi:73,oficina:"Av. Víctor Andrés Belaúnde 147, San Isidro",fields:[]},
     {id:11,n:"Cibertec",cat:"Educación",kam:"Camila Rojas Mendoza",razonSocial:"Cibertec Perú S.A.C.",ruc:"20545678123",codigos:"CIB-001",modalidad:"Tienda + Ecommerce",obj:"Financiar matrículas de carreras técnicas",kpi:62,oficina:"Av. Tomás Marsano 2875, Surco",fields:[]},
-    {id:12,n:"Sky Terrace",cat:"Experiencias",sub:"Terrazas",kam:"Valentina Herrera Campos",razonSocial:"Sky Terrace Lima E.I.R.L.",ruc:"20556781234",codigos:"SKY-01",modalidad:"Tienda",obj:"Reservas de terraza con beneficio exclusivo",kpi:70,oficina:"Malecón de la Reserva 1035, Miraflores",fields:[]},
+    {id:12,n:"Mangos",cat:"Experiencias",sub:"Terrazas",kam:"Valentina Herrera Campos",razonSocial:"Mangos Larcomar S.A.C.",ruc:"20556781234",codigos:"MNG-01",modalidad:"Tienda",obj:"Reservas de terraza con beneficio exclusivo",kpi:70,oficina:"C.C. Larcomar, Miraflores",fields:[]},
   ];
   // puntos de venta seed
   const P=(bid,brand,kam,cat,list)=>list.map((x,i)=>({id:bid*100+i,brandId:bid,brand,kam,cat,via:x[0],dir:x[1],distrito:x[2],ciudad:ciudadDe(x[2]),codigos:x[3]||"",ejecutivo:x[4]===undefined?EJECUTIVOS[(bid+i)%EJECUTIVOS.length]:x[4]}));
@@ -670,7 +687,7 @@ function seedData(){const realToday=TODAY;TODAY=new Date(DEMO_BASE);
     ...P(7,"Curacao","Diego Salazar Vega","Electrohogar",[["Av.","La Marina 2000","San Miguel","CUR-200"],["C.C.","Mega Plaza","Independencia","CUR-201"]]),
     ...P(9,"Tanta","Valentina Herrera Campos","Restaurantes",[["Av.","Pardo y Aliaga 675","San Isidro","TAN-01"],["C.C.","Jockey Plaza","Santiago de Surco","TAN-02"]]),
     ...P(11,"Cibertec","Camila Rojas Mendoza","Educación",[["Av.","Tomás Marsano 2875","Santiago de Surco","CIB-001"]]),
-    ...P(12,"Sky Terrace","Valentina Herrera Campos","Experiencias",[["Psje.","Malecón de la Reserva 1035","Miraflores","SKY-01",""]]),
+    ...P(12,"Mangos","Valentina Herrera Campos","Experiencias",[["C.C.","Larcomar","Miraflores","MNG-01",""]]),
     // provincias
     ...P(13,"Ishop","Fernanda Ibáñez Soto","Tecnología",[["C.C.","Mall Aventura Porongoche","Paucarpata","ISH-021"],["C.C.","Real Plaza Cayma","Cayma","ISH-022"]]).map(p=>({...p,brandId:1})),
     ...P(14,"Tiendas Efe","Diego Salazar Vega","Electrohogar",[["Av.","Balta 1020","Chiclayo","EFE-301"],["C.C.","Open Plaza Piura","Piura","EFE-302"],["Av.","España 1250","Trujillo","EFE-303",""]]).map(p=>({...p,brandId:3})),
@@ -741,7 +758,7 @@ function seedData(){const realToday=TODAY;TODAY=new Date(DEMO_BASE);
     {id:8,name:"Convenio New Balance 2026",brand:"New Balance",type:"PDF",contact:"—",vigencia:"2026-11-30"},
     {id:9,name:"Convenio Tanta 2026",brand:"Tanta",type:"PDF",contact:"—",vigencia:"2026-07-31",file:"convenio_tanta_2026.pdf"},
     {id:10,name:"Convenio Cibertec 2025-2026",brand:"Cibertec",type:"PDF",contact:"—",vigencia:"2026-05-31"},
-    {id:11,name:"Convenio Sky Terrace 2026",brand:"Sky Terrace",type:"PDF",contact:"—",vigencia:"2026-12-31",file:"convenio_skyterrace_2026.pdf"},
+    {id:11,name:"Convenio Mangos 2026",brand:"Mangos",type:"PDF",contact:"—",vigencia:"2026-12-31",file:"convenio_mangos_2026.pdf"},
   ];
   BANK=[
     {id:1,name:"Logo Ishop (vector)",brand:"Ishop",type:"SVG",kind:"Logo"},
@@ -765,9 +782,9 @@ function seedData(){const realToday=TODAY;TODAY=new Date(DEMO_BASE);
     {id:309,brand:"Tanta",contactId:null,etapa:"Negociación",funnel:"En gestión",next:"Enviar contrapropuesta de cuotas",nextDate:"2026-06-15",rating:4},
     {id:310,brand:"Despegar",contactId:null,etapa:"Propuesta",funnel:"En gestión",next:"Presentar paquetes 12 cuotas",nextDate:"2026-06-18",rating:3},
     {id:311,brand:"Cibertec",contactId:null,etapa:"Perdido",funnel:"Prospectos",next:"",nextDate:"",rating:1},
-    {id:312,brand:"Sky Terrace",contactId:null,etapa:"Contactado",funnel:"En gestión",next:"",nextDate:"",rating:2},
+    {id:312,brand:"Mangos",contactId:null,etapa:"Contactado",funnel:"En gestión",next:"",nextDate:"",rating:2},
   ];
-  genDemo(); // al final: completa la demo hasta 75 marcas · 100 promociones · 223 PDV (conserva lo ingresado a mano)
+  genDemo(); // al final: completa la demo con el catálogo de marcas generado (conserva lo ingresado a mano)
   TODAY=realToday;shiftDates(daysBetween(DEMO_BASE,todayISO())); // la demo se mueve a la fecha real
   migrateModel();DEMO_DATA=true;
 }
@@ -818,7 +835,7 @@ function migrateModel(){
 }
 let PUNTOS=[];
 /* ============ GENERADOR DEMO (semilla fija → siempre los mismos datos) ============
-   Completa la demo hasta: 75 marcas · 100 promociones · 85% de marcas con MSI · 223 PDV
+   Completa la demo con el catálogo BR: las marcas firmadas pasan a Comercial, el resto queda en el CRM; 85% con MSI.
    (40% en C.C. principales de Lima · 18% en provincias · resto en calles de Lima). Conserva los datos ingresados a mano. */
 function demoRng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function genDemo(){
@@ -828,31 +845,31 @@ function genDemo(){
   // [nombre, categoría, subtipo, modalidad, razón social]
   const T="Tienda",TE="Tienda + Ecommerce",E="Ecommerce";
   const BR=[
-    ["Samsung","Tecnología","",TE,"Samsung Electronics Perú S.A.C."],["LG","Tecnología","",TE,"LG Electronics Perú S.A."],["Xiaomi","Tecnología","",TE,"Xiaomi Store Perú S.A.C."],
-    ["Huawei","Tecnología","",TE,"Huawei del Perú S.A.C."],["Lenovo","Tecnología","",TE,"Lenovo Perú S.A.C."],["Motorola","Tecnología","",T,"Motorola Mobility Perú S.A.C."],
+    ["Memory Kings","Tecnología","",TE,"Memory Kings S.A.C."],["Yichang","Tecnología","",TE,"Yichang & Cía. S.A."],["Doit","Tecnología","",TE,"Do It S.A.C."],
+    ["Loginstore","Tecnología","",TE,"Loginstore S.A.C."],["Impacto","Tecnología","",TE,"Tiendas Impacto S.A.C."],["Juntoz","Tecnología","",E,"Juntoz S.A.C."],
     ["Coolbox","Tecnología","",TE,"Coolbox S.A.C."],["Phantom","Tecnología","",TE,"Phantom Gaming S.A.C."],
-    ["Hiraoka","Electrohogar","",TE,"Importaciones Hiraoka S.A.C."],["Carsa","Electrohogar","",T,"Carsa Perú S.A."],["Oster","Electrohogar","",TE,"Oster Perú S.A.C."],["Electrolux","Electrohogar","",TE,"Electrolux del Perú S.A."],
-    ["Saga Falabella","Moda","",TE,"Saga Falabella S.A."],["Ripley","Moda","",TE,"Tiendas por Departamento Ripley S.A."],["Oechsle","Moda","",TE,"Tiendas Peruanas S.A."],
-    ["Estilos","Moda","",T,"Estilos S.R.L."],["Topitop","Moda","",TE,"Topy Top S.A."],["Zara","Moda","",TE,"Zara Perú S.A.C."],["H&M","Moda","",T,"H&M Perú S.A.C."],
-    ["Platanitos","Moda","",TE,"Platanitos S.A.C."],["Bata","Moda","",T,"Bata Perú S.A."],["Michelle Belau","Moda","",T,"Michelle Belau S.A.C."],
-    ["Adidas","Deporte","",TE,"Adidas Perú S.A.C."],["Nike","Deporte","",TE,"Nike Perú S.A.C."],["Puma","Deporte","",T,"Puma Perú S.A.C."],["Marathon","Deporte","",TE,"Marathon Sports Perú S.A.C."],["Skechers","Deporte","",T,"Skechers Perú S.A.C."],
-    ["Sodimac","Hogar","",TE,"Sodimac Perú S.A."],["Promart","Hogar","",TE,"Homecenters Peruanos S.A."],["Casaideas","Hogar","",T,"Casaideas Perú S.A.C."],["Dormitorios Paraíso","Hogar","",T,"Productos Paraíso del Perú S.A.C."],["Cassinelli","Hogar","",T,"Cassinelli S.A.C."],
+    ["Hiraoka","Electrohogar","",TE,"Importaciones Hiraoka S.A.C."],["Carsa","Electrohogar","",T,"Carsa Perú S.A."],["Rash","Electrohogar","",TE,"Rash Perú S.A.C."],["Marcimex","Electrohogar","",TE,"Marcimex Perú S.A.C."],
+    ["Renzo Costa","Moda","",TE,"Renzo Costa S.A.C."],["Pieers","Moda","",TE,"Pieers S.A.C."],["Ilaria","Moda","",TE,"Ilaria Joyas S.A.C."],
+    ["Estilos","Moda","",T,"Estilos S.R.L."],["Topitop","Moda","",TE,"Topy Top S.A."],["Calimod","Moda","",TE,"Calimod S.A.C."],["Kids Made Here","Moda","",T,"Kids Made Here S.A.C."],
+    ["Platanitos","Moda","",TE,"Platanitos S.A.C."],["Viale","Moda","",T,"Viale S.A.C."],["Michelle Belau","Moda","",T,"Michelle Belau S.A.C."],
+    ["Triathlon","Deporte","",TE,"Triathlon Sport S.A.C."],["Footloose","Deporte","",TE,"Footloose Perú S.A.C."],["Walon","Deporte","",T,"Walon Sport S.A."],["Marathon","Deporte","",TE,"Marathon Sports Perú S.A.C."],["Bruno Ferrini","Moda","",T,"Bruno Ferrini S.A.C."],
+    ["Rosen","Hogar","",TE,"Rosen Perú S.A.C."],["Drimer","Hogar","",TE,"Drimer Perú S.A.C."],["Decor Center","Hogar","",T,"Decor Center S.A.C."],["Dormitorios Paraíso","Hogar","",T,"Productos Paraíso del Perú S.A.C."],["Cassinelli","Hogar","",T,"Cassinelli S.A.C."],
     ["Inkafarma","Salud","",TE,"InRetail Pharma S.A."],["Mifarma","Salud","",TE,"Mifarma S.A.C."],["Econolentes","Salud","",T,"Econolentes S.A.C."],["Oftalmosalud","Salud","",T,"Oftalmosalud S.A.C."],
-    ["Natura","Belleza","",TE,"Natura Cosméticos S.A."],["Yanbal","Belleza","",T,"Yanbal Perú S.A."],
+    ["Perfumerías Unidas","Belleza","",TE,"Perfumerías Unidas S.A."],["Aruma","Belleza","",T,"Aruma S.A.C."],
     ["Pardos Chicken","Restaurantes","",T,"Pardos S.A.C."],["Rokys","Restaurantes","",T,"Rokys S.A.C."],["Bembos","Restaurantes","",T,"Bembos S.A.C."],["La Lucha Sanguchería","Restaurantes","",T,"La Lucha S.A.C."],
-    ["Papa John's","Restaurantes","",T,"Pizza Perú S.A.C."],["Starbucks","Restaurantes","",T,"Delosi S.A."],["Chili's","Restaurantes","",T,"Gastro Chili's S.A.C."],["Madam Tusan","Restaurantes","",T,"Madam Tusan S.A.C."],
-    ["Cineplanet","Entretenimiento","",TE,"Cineplex S.A."],["Cinemark","Entretenimiento","",TE,"Cinemark del Perú S.R.L."],["Happyland","Entretenimiento","",T,"Happyland Perú S.A.C."],["Coney Park","Entretenimiento","",T,"Coney Park S.A.C."],
+    ["La Panka","Restaurantes","",T,"La Panka S.A.C."],["Altomayo","Restaurantes","",T,"Café Altomayo S.A.C."],["Don Belisario","Restaurantes","",T,"Don Belisario S.A.C."],["Madam Tusan","Restaurantes","",T,"Madam Tusan S.A.C."],
+    ["Cineplanet","Entretenimiento","",TE,"Cineplex S.A."],["Cinestar","Entretenimiento","",TE,"Cinestar S.A.C."],["Happyland","Entretenimiento","",T,"Happyland Perú S.A.C."],["Coney Park","Entretenimiento","",T,"Coney Park S.A.C."],
     ["UPC","Educación","",TE,"Universidad Peruana de Ciencias Aplicadas S.A.C."],["USIL","Educación","",TE,"Universidad San Ignacio de Loyola S.A."],["Toulouse Lautrec","Educación","",TE,"Instituto Toulouse Lautrec S.A.C."],["ICPNA","Educación","",TE,"Instituto Cultural Peruano Norteamericano"],
-    ["Nuevo Mundo Viajes","Experiencias","Viajes",TE,"Nuevo Mundo Viajes S.A.C."],["Viajes Falabella","Experiencias","Viajes",TE,"Viajes Falabella S.A.C."],["Teleticket","Experiencias","Eventos",E,"Teleticket S.A.C."],
+    ["Nuevo Mundo Viajes","Experiencias","Viajes",TE,"Nuevo Mundo Viajes S.A.C."],["Costamar","Experiencias","Viajes",TE,"Costamar Travel S.A.C."],["Teleticket","Experiencias","Eventos",E,"Teleticket S.A.C."],
     ["Joinnus","Experiencias","Eventos",E,"Joinnus S.A.C."],["Mercado 28","Experiencias","Terrazas",T,"Mercado 28 S.A.C."],
-    ["Honda Motos","Motos","",T,"Honda del Perú S.A."],["Yamaha","Motos","",T,"Yamaha Motor del Perú S.A."],["Toyota","Automotriz","",T,"Toyota del Perú S.A."],["Kia","Automotriz","",T,"Kia Import Perú S.A.C."]];
+    ["Socopur","Motos","",T,"Socopur S.A.C."],["Crosland Motos","Motos","",T,"Crosland Automotriz S.A.C."],["Autoland","Automotriz","",T,"Autoland S.A."],["Grupo Pana","Automotriz","",T,"Pana Autos S.A."]];
   // etapas del pipeline (63): 44 firmados · 6 negociación · 4 propuesta · 4 contactado · 3 prospecto · 2 perdido
   const STG=shuffle([...Array(44).fill("Convenio firmado"),...Array(6).fill("Negociación"),...Array(4).fill("Propuesta"),...Array(4).fill("Contactado"),...Array(3).fill("Prospecto"),...Array(2).fill("Perdido")]);
   const NOMBRES=["Lucía","Carlos","María","José","Ana","Luis","Rosa","Jorge","Patricia","Miguel","Carmen","Ricardo","Claudia","Fernando","Gabriela","Óscar","Daniela","Javier","Paola","Raúl"];
   const APELLIDOS=["García","Flores","Rodríguez","Quispe","Sánchez","Ramírez","Torres","Vargas","Castillo","Chávez","Mendoza","Rivera","Gutiérrez","Espinoza","Vásquez","Salas","Paredes","Cruz","Huamán","Silva"];
   const CARGOS=["Gerente comercial","Jefe de marketing","Trade marketing","Gerente de tienda","Jefe de alianzas","Gerente de canales"];
   const slug=s=>norm(s).replace(/[^a-z0-9]/g,"");
-  const usedPref=new Set(["ISH","MAC","EFE","LEG","NB","CUR","TAN","CIB","SKY","DSP"]);
+  const usedPref=new Set(["ISH","MAC","EFE","LEG","NB","CUR","TAN","CIB","MNG","DSP"]);
   const prefOf=n=>{let base=n.normalize("NFD").replace(/[^A-Za-z]/g,"").toUpperCase().slice(0,3),p=base,k=2;while(usedPref.has(p))p=base.slice(0,2)+(k++);usedPref.add(p);return p;};
   const gen=BR.map((x,i)=>{const id=100+i,etapa=STG[i],kam=pick(KAMS).n;
     const b={id,n:x[0],cat:x[1],kam,razonSocial:x[4],ruc:"20"+String(int(100000000,999999999)),codigos:"",modalidad:x[3],obj:pick(["Impulsar la venta financiada en cuotas","Activar promociones en temporada alta","Crecer la penetración de meses sin intereses","Ampliar cobertura de PDV afiliados"]),kpi:int(52,97),oficina:"",fields:[],pref:prefOf(x[0])};
@@ -925,7 +942,12 @@ function genDemo(){
 
 /* ============ role helpers ============ */
 const isAdmin=()=>USER&&USER.role==="admin";
-const mine=list=>isAdmin()?list:list.filter(x=>x.kam===USER.kam);
+const isClient=()=>USER&&USER.role==="cliente";
+const seesAll=()=>isAdmin()||isClient(); // vista consolidada (todos los KAM)
+const mine=list=>seesAll()?list:list.filter(x=>x.kam===USER.kam);
+/* Vistas por rol. Sin entrada = acceso a todo (admin y operador; el panel Admin se gatea aparte). */
+const NAV_ROLES={cliente:["dashboard","comercial","puntos","ejecutivo","biblioteca"]};
+const canView=v=>!USER||!NAV_ROLES[USER.role]||NAV_ROLES[USER.role].includes(v);
 const myBrandNames=()=>new Set(mine(COMMERCES).map(c=>c.n));
 
 /* ============ helpers ============ */
@@ -1134,7 +1156,7 @@ VIEWS.dashboard=()=>{
   <div class="card pad" style="margin-bottom:18px">
     <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
       <div style="display:flex;flex-direction:column;gap:4px"><label class="f-label">KAM</label><select class="input" id="dfKam" onchange="refreshDash()"><option value="">Todos los KAM</option>${kamOpts.map(k=>`<option ${dashFilter.kam===k?'selected':''}>${k}</option>`).join("")}</select></div>
-      <div style="display:flex;flex-direction:column;gap:4px"><label class="f-label">Marca</label><select class="input" id="dfBrand" onchange="refreshDash()"><option value="">Todas las marcas</option>${baseBrands.map(b=>`<option ${dashFilter.brand===b.n?'selected':''}>${b.n}</option>`).join("")}</select></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><label class="f-label">Marca</label><select class="input" id="dfBrand" onchange="refreshDash()"><option value="">Todas las marcas</option>${baseBrands.map(b=>`<option ${dashFilter.brand===b.n?'selected':''}>${h(b.n)}</option>`).join("")}</select></div>
       <div style="display:flex;flex-direction:column;gap:4px"><label class="f-label">Desde</label><input class="input" type="date" id="dfFrom" value="${dashFilter.from}" onchange="refreshDash()"/></div>
       <div style="display:flex;flex-direction:column;gap:4px"><label class="f-label">Hasta</label><input class="input" type="date" id="dfTo" value="${dashFilter.to}" onchange="refreshDash()"/></div>
       <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="resetDash()">Limpiar filtros</button>
@@ -1259,7 +1281,7 @@ VIEWS.comercial=()=>{
   <div class="filterbar" style="margin-bottom:10px"><div class="seg">${["all",...CATS].map(c=>`<button data-mfilter="${c}" class="${comFilter.cat===c?'on':''}">${c==="all"?"Todas":c}${c==="all"?` <span class="tnum" style="opacity:.6">${brands.length}</span>`:counts[c]?` <span class="tnum" style="opacity:.6">${counts[c]}</span>`:""}</button>`).join("")}</div></div>
   <div id="subSeg"></div>
   <div class="filterbar" style="margin:0 0 12px;align-items:flex-end">
-    ${isAdmin()?`<div class="fgroup"><label class="f-label" for="cfKam">KAM</label><select class="input" id="cfKam" onchange="setComFilter('kam',this.value)"><option value="">Todos los KAM</option>${[...new Set(brands.map(b=>b.kam))].sort().map(k=>`<option value="${h(k)}" ${comFilter.kam===k?"selected":""}>${h(k)} (${brands.filter(b=>b.kam===k).length})</option>`).join("")}</select></div>`:""}
+    ${seesAll()?`<div class="fgroup"><label class="f-label" for="cfKam">KAM</label><select class="input" id="cfKam" onchange="setComFilter('kam',this.value)"><option value="">Todos los KAM</option>${[...new Set(brands.map(b=>b.kam))].sort().map(k=>`<option value="${h(k)}" ${comFilter.kam===k?"selected":""}>${h(k)} (${brands.filter(b=>b.kam===k).length})</option>`).join("")}</select></div>`:""}
     <div class="fgroup"><label class="f-label" for="cfEstado">Estado del convenio</label><select class="input" id="cfEstado" onchange="setComFilter('estado',this.value)"><option value="">Todos</option>${CONV_ESTADOS.map(([v,l])=>`<option value="${v}" ${comFilter.estado===v?"selected":""}>${l} (${brands.filter(b=>matchEstado(convInfo(b.n),v)).length})</option>`).join("")}</select></div>
     <div class="fgroup"><label class="f-label" for="cfFile">Archivo del convenio</label><select class="input" id="cfFile" onchange="setComFilter('file',this.value)"><option value="">Todos</option><option value="subido" ${comFilter.file==="subido"?"selected":""}>✓ Subido (${brands.filter(b=>matchFile(convInfo(b.n),"subido")).length})</option><option value="pendiente" ${comFilter.file==="pendiente"?"selected":""}>✕ Pendiente (${pend})</option></select></div>
     <div class="fgroup"><label class="f-label" for="cfMsi">Meses sin intereses</label><select class="input" id="cfMsi" onchange="setComFilter('msi',this.value)"><option value="">Todos</option><option value="si" ${comFilter.msi==="si"?"selected":""}>✓ Afiliada (${brands.filter(b=>b.msi).length})</option><option value="no" ${comFilter.msi==="no"?"selected":""}>No afiliada (${brands.filter(b=>!b.msi).length})</option></select></div>
@@ -1333,7 +1355,7 @@ const ccName=p=>isCC(p)?p.dir.split(",")[0].trim():"";
 const codesOf=s=>String(s||"").split(/[,;]/).map(x=>x.trim()).filter(Boolean);
 /* PDV enriquecido con datos de su marca (KAM y categoría siempre desde la marca) */
 function pvRows(all){const ix=codeIndex();return PUNTOS.map(p=>{const b=COMMERCES.find(x=>x.id===p.brandId)||{};const ciudad=p.ciudad||ciudadDe(p.distrito);const codes=codesOf(p.codigos);
-  return {...p,activo:pdvActive(p),brand:b.n||p.brand,kam:b.kam||p.kam,cat:b.cat||p.cat,ciudad,zona:zonaDe(ciudad),cc:ccName(p),codes,dupCodes:codes.filter(c=>(ix.get(c)||[]).length>1),ci:convInfo(b.n||p.brand),promoList:pdvPromoList(p,b.n||p.brand),promos:pdvPromoList(p,b.n||p.brand).length,msiElig:!!b.msi,msiOn:pdvMsiOn(p,b)};}).filter(p=>all||isAdmin()||p.kam===USER.kam);}
+  return {...p,activo:pdvActive(p),brand:b.n||p.brand,kam:b.kam||p.kam,cat:b.cat||p.cat,ciudad,zona:zonaDe(ciudad),cc:ccName(p),codes,dupCodes:codes.filter(c=>(ix.get(c)||[]).length>1),ci:convInfo(b.n||p.brand),promoList:pdvPromoList(p,b.n||p.brand),promos:pdvPromoList(p,b.n||p.brand).length,msiElig:!!b.msi,msiOn:pdvMsiOn(p,b)};}).filter(p=>all||seesAll()||p.kam===USER.kam);}
 function pvMatch(p,f,skip){const q=f.q.trim().toLowerCase();
   return (skip==="zona"||!f.zona||p.zona===f.zona)&&(!f.kam||p.kam===f.kam)&&(!f.estado||(f.estado==="act"?p.activo:!p.activo))
     &&(!f.ejec||(f.ejec==="__none"?!p.ejecutivo:p.ejecutivo===f.ejec))
@@ -1361,7 +1383,7 @@ VIEWS.puntos=()=>{const all=pvRows();
       <div class="search" style="margin:0 8px 0 auto;width:250px;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg><input id="pvQ" value="${h(pvF.q)}" placeholder="Buscar dirección, código, marca…" oninput="pvF.q=this.value;pvLimit=200;renderPv()"/></div>
       <button class="btn btn-ghost btn-sm" style="margin-right:12px" onclick="pvF={...PV_DEF};pvEdit=null;go('puntos')">Limpiar filtros</button></div>
     <div class="crm-filters">
-      ${isAdmin()?sel("pvKam","kam","KAM",uniq("kam").map(k=>[k,k])):""}
+      ${seesAll()?sel("pvKam","kam","KAM",uniq("kam").map(k=>[k,k])):""}
       ${sel("pvEjec","ejec","Ejecutivo",[...EJECUTIVOS.map(e=>[e,e]),["__none","Sin asignar"]])}
       ${sel("pvCiudad","ciudad","Ciudad",uniq("ciudad").map(c=>[c,c]))}
       ${sel("pvDistrito","distrito","Distrito",uniq("distrito").map(d=>[d,d]))}
@@ -1420,8 +1442,8 @@ function renderPv(){if(!$("#pvTable"))return;
   // tabla
   rows.sort((a,b)=>a.brand.localeCompare(b.brand)||a.ciudad.localeCompare(b.ciudad)||a.distrito.localeCompare(b.distrito)||a.dir.localeCompare(b.dir));
   const showBrand=pvGroup!=="brand"; // agrupado por marca: la marca ya está en el encabezado del grupo
-  const cols=(isAdmin()?10:9)-(showBrand?0:1);
-  const head=`<thead><tr><th style="width:34px"></th>${showBrand?"<th>Marca</th>":""}<th>Dirección</th><th>Distrito · ciudad</th><th>Códigos de comercio</th>${isAdmin()?"<th>KAM</th>":""}<th>Ejecutivo</th><th>Promoción</th><th>Meses sin intereses</th><th></th></tr></thead>`;
+  const cols=(seesAll()?10:9)-(showBrand?0:1);
+  const head=`<thead><tr><th style="width:34px"></th>${showBrand?"<th>Marca</th>":""}<th>Dirección</th><th>Distrito · ciudad</th><th>Códigos de comercio</th>${seesAll()?"<th>KAM</th>":""}<th>Ejecutivo</th><th>Promoción</th><th>Meses sin intereses</th><th></th></tr></thead>`;
   const row=p=>{const open=pvEdit===p.id;
     return `<tr class="${open?"pv-open":""} ${p.activo?"":"pv-inact"}" onclick="openPvEdit(${p.id})">
       <td><span class="pv-chev ${open?"on":""}">›</span></td>
@@ -1429,7 +1451,7 @@ function renderPv(){if(!$("#pvTable"))return;
       <td><div class="row gap8" style="flex-wrap:nowrap">${isCC(p)?'<span class="chip c-violet" style="padding:2px 6px">C.C.</span>':`<span class="mini-tag" style="margin:0">${h(p.via)}</span>`}<span style="font-weight:500">${h(p.dir)}</span></div>${p.activo?"":`<div><span class="chip c-slate" title="${h(p.inactivoMotivo||"")}">Inactivo desde ${fmtDate(p.inactivoDesde)}</span></div>`}</td>
       <td><div>${h(p.distrito)}</div><div class="t-cat">${h(p.ciudad)}${p.zona==="prov"?" · provincia":""}</div></td>
       <td>${p.codes.length?p.codes.map(codeTag).join(""):'<span class="chip c-amber">Sin código</span>'}${p.dupCodes.length?`<div><span class="chip c-amber" title="El mismo POS figura en otro PDV: puede haber rotado">⚠ ${p.dupCodes.join(", ")} repetido</span></div>`:""}</td>
-      ${isAdmin()?`<td>${kamPill(p.kam)}</td>`:""}
+      ${seesAll()?`<td>${kamPill(p.kam)}</td>`:""}
       <td>${p.ejecutivo?`<span style="font-size:12.5px">${h(p.ejecutivo)}</span>`:'<span class="chip c-amber">Sin asignar</span>'}</td>
       <td>${p.promos?`<span class="chip c-emerald" ${tipAttr("Promociones vigentes",p.promoList.map(c=>c.nombre||c.inc).join(" · "))}><span class="d"></span>${plural(p.promos,"activa","activas")}</span>`:'<span class="faint">—</span>'}</td>
       <td onclick="event.stopPropagation()">${p.msiElig?`<button class="switch ${p.msiOn?"on":""}" role="switch" aria-checked="${p.msiOn}" aria-label="MSI en ${h(p.dir)}" onclick="togglePdvMsi(${p.id})"><i></i></button><span class="msi-lbl ${p.msiOn?"":"down"}">${p.msiOn?"Activo":"Excluido"}</span>`:'<span class="faint" style="font-size:11.5px">Marca no afiliada</span>'}</td>
@@ -1926,7 +1948,7 @@ VIEWS.biblioteca=()=>{
       <span class="chip c-slate"><span class="d"></span>${conv.length} convenios</span>
     </div>
     <div class="card"><div class="tbl-wrap"><table class="table" style="min-width:620px"><thead><tr><th>Convenio</th><th>Marca</th><th>Contacto</th><th>Vigencia</th><th>Archivo</th><th></th></tr></thead>
-    <tbody id="convRows">${conv.length?conv.map(c=>`<tr data-brand="${esc(c.brand)}"><td><div class="t-brand"><div class="t-logo" style="width:30px;height:30px;font-size:9px;background:var(--navy)">${c.type}</div><span class="t-name">${c.name}</span></div></td><td>${c.brand}</td><td class="muted">${c.contact||"—"}</td><td class="tnum" style="font-size:12.5px">${fmtDate(c.vigencia)}</td><td>${c.file?'<span class="chip c-emerald">✓ Subido</span>':'<span class="chip c-rose">✕ Pendiente</span>'}</td><td style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="downloadConvenio(${c.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Descargar</button></td></tr>`).join(""):emptyRow(6,"Sin convenios. Se depositan al registrar un comercio en Comercial o al adjuntarlos desde un contacto en CRM.")}</tbody></table></div></div>`
+    <tbody id="convRows">${conv.length?conv.map(c=>`<tr data-brand="${esc(c.brand)}"><td><div class="t-brand"><div class="t-logo" style="width:30px;height:30px;font-size:9px;background:var(--navy)">${c.type}</div><span class="t-name">${h(c.name)}</span></div></td><td>${h(c.brand)}</td><td class="muted">${c.contact||"—"}</td><td class="tnum" style="font-size:12.5px">${fmtDate(c.vigencia)}</td><td>${c.file?'<span class="chip c-emerald">✓ Subido</span>':'<span class="chip c-rose">✕ Pendiente</span>'}</td><td style="text-align:right"><button class="btn btn-ghost btn-sm" onclick="downloadConvenio(${c.id})"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg>Descargar</button></td></tr>`).join(""):emptyRow(6,"Sin convenios. Se depositan al registrar un comercio en Comercial o al adjuntarlos desde un contacto en CRM.")}</tbody></table></div></div>`
   :`<div class="asset-grid">${bank.length?bank.map(a=>`<div class="asset"><div class="thumb" style="background:${tcol[a.kind]||'#0D1B4B'}">${a.type}<button class="a-dl" title="Descargar" onclick="event.stopPropagation();toast('Descargando ${esc(a.name)}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v12M6 10l6 6 6-6M5 20h14"/></svg></button></div><div class="a-body"><div class="a-name">${a.name}</div><div class="a-meta">${a.brand} · ${a.kind}</div></div></div>`).join(""):emptyState("Banco vacío","Sube logos y fotos por marca")}</div>`}`;
 };
 function filterConvenios(){const q=($("#convSearch").value||"").toLowerCase();const b=$("#convBrand").value;
@@ -1965,7 +1987,7 @@ VIEWS.ejecutivo=()=>{
   const ico={brand:'<path d="M3 9l1.5-5h15L21 9M4 9h16v11H4z"/>',ok:'<path d="M9 12l2 2 4-4"/><path d="M9 3h6l4 4v14H5V3z"/>',nego:'<path d="M8 12h8M8 8h8M8 16h5"/><rect x="3" y="4" width="18" height="16" rx="2"/>',promo:'<path d="M3 11l16-6v14L3 13z"/><path d="M7 12v5a2 2 0 002 2"/>',lost:'<circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/>',pdv:'<path d="M12 21s-6-5.3-6-10a6 6 0 0112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/>'};
   const pc=(n,t)=>`${n}<span class="faint" style="font-weight:400"> · ${pctOf(n,t)}%</span>`;
   const sum=k=>byKam.reduce((a,r)=>a+r[k],0);
-  return `<div class="row between page-h"><div><h2>Dashboard Ejecutivo</h2><p>Visión consolidada${isAdmin()?" de todos los KAM":""} · cartera afiliada, afiliaciones en curso, renovaciones, campañas estacionales y cobertura de PDV</p></div>
+  return `<div class="row between page-h"><div><h2>Dashboard Ejecutivo</h2><p>Visión consolidada${seesAll()?" de todos los KAM":""} · cartera afiliada, afiliaciones en curso, renovaciones, campañas estacionales y cobertura de PDV</p></div>
   <button class="btn btn-ghost" onclick="window.print()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z"/></svg>Exportar PDF</button></div>
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px;margin-top:20px">
     ${kpiCard("Marcas afiliadas",brands.length,`${plural(prosp,"afiliación en curso","afiliaciones en curso")}`,"up","violet",ico.brand)}
@@ -2073,7 +2095,7 @@ VIEWS.admin=()=>{
   <div class="grid cols-2e section-gap">
     <div class="card pad"><div class="h-title" style="margin-bottom:12px">Usuarios & accesos</div>
       <div class="tbl-wrap"><table class="table" style="min-width:auto"><thead><tr><th>Usuario</th><th>Rol</th><th>Gestión</th></tr></thead>
-      <tbody>${Object.entries(USERS).map(([em,u])=>`<tr><td><div style="font-weight:700">${u.name}</div><div class="faint" style="font-size:11px">${em}</div></td><td><span class="role-tag ${u.role==='admin'?'role-admin':'role-kam'}">${u.role}</span></td><td>${u.kam?u.kam:"Todo (consolidado)"}</td></tr>`).join("")}</tbody></table></div>
+      <tbody>${Object.entries(USERS).map(([em,u])=>`<tr><td><div style="font-weight:700">${u.name}</div><div class="faint" style="font-size:11px">${em}</div></td><td><span class="role-tag ${u.role==='admin'?'role-admin':u.role==='cliente'?'role-cliente':'role-kam'}">${u.role==='kam'?'operador':u.role}</span></td><td>${u.kam?u.kam:u.role==='cliente'?"Solo lectura (consolidado)":"Todo (consolidado)"}</td></tr>`).join("")}</tbody></table></div>
       <div class="faint" style="font-size:11.5px;margin-top:12px">Cada KAM ve solo su cartera; los admin ven todo. La autenticación real se conectará con Firebase Auth.</div>
     </div>
     <div class="card pad"><div class="h-title" style="margin-bottom:12px">Fuentes de datos</div>
@@ -2099,7 +2121,7 @@ VIEWS.admin=()=>{
       <div class="row gap8" style="margin-top:12px"><input class="input" id="ejInput" placeholder="Nombre del ejecutivo" style="flex:1" onkeydown="if(event.key==='Enter')addEjecutivo()"/><button class="btn btn-primary btn-sm" onclick="addEjecutivo()">Agregar</button></div>
     </div>
     <div class="card pad"><div class="h-title" style="margin-bottom:6px">Exportables / Reportes</div>
-      <div class="faint" style="font-size:11.5px;margin-bottom:12px">Descarga la base consolidada${isAdmin()?" de todos los KAM":""} en CSV (abre en Excel / Google Sheets).</div>
+      <div class="faint" style="font-size:11.5px;margin-bottom:12px">Descarga la base consolidada${seesAll()?" de todos los KAM":""} en CSV (abre en Excel / Google Sheets).</div>
       <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Contactos</div><div class="faint" style="font-size:11px">Contacto, cargo, celular, email, salud, convenio</div></div><button class="btn btn-ghost btn-sm" onclick="exportClientes()">CSV</button></div>
       <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Marcas · direcciones · códigos</div><div class="faint" style="font-size:11px">Puntos de venta con código de comercio</div></div><button class="btn btn-ghost btn-sm" onclick="exportMarcas()">CSV</button></div>
       <div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line)"><div><div style="font-weight:700;font-size:13px">Convenios</div><div class="faint" style="font-size:11px">Convenio, marca, contacto, vigencia</div></div><button class="btn btn-ghost btn-sm" onclick="exportConvenios()">CSV</button></div>
@@ -2388,7 +2410,7 @@ function saveCommerce(editId){
 const XLSX_URL="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
 let _xlsxP=null;
 function loadXLSX(){if(window.XLSX)return Promise.resolve(window.XLSX);
-  return _xlsxP||(_xlsxP=new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src=XLSX_URL;sc.onload=()=>ok(window.XLSX);sc.onerror=()=>{_xlsxP=null;ko(new Error("No se pudo cargar el lector de Excel. Revisa tu conexión a internet."));};document.head.appendChild(sc);}));}
+  return _xlsxP||(_xlsxP=new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src=XLSX_URL;sc.integrity="sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw";sc.crossOrigin="anonymous";sc.onload=()=>ok(window.XLSX);sc.onerror=()=>{_xlsxP=null;ko(new Error("No se pudo cargar el lector de Excel. Revisa tu conexión a internet."));};document.head.appendChild(sc);}));}
 const norm=s=>String(s??"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\*/g,"").replace(/\s+/g," ").trim().toLowerCase();
 const DIST_ALIAS={"lima":"Cercado de Lima","cercado":"Cercado de Lima","surco":"Santiago de Surco","magdalena":"Magdalena del Mar","sjl":"San Juan de Lurigancho","sjm":"San Juan de Miraflores","smp":"San Martín de Porres","ves":"Villa El Salvador","vmt":"Villa María del Triunfo","pachacamac":"Pachacámac"};
 const VIA_ALIAS={"av":"Av.","avenida":"Av.","cc":"C.C.","c.c":"C.C.","centro comercial":"C.C.","ca":"Ca.","calle":"Ca.","jr":"Jr.","jiron":"Jr.","mz":"Mz.","manzana":"Mz.","lote":"Lote","lt":"Lote","psje":"Psje.","pasaje":"Psje.","malecon":"Psje."};
@@ -2405,7 +2427,7 @@ const BULK_PDV_COLS=[["n","Nombre comercial *"],...PDV_COLS];
 const EXCELJS_URL="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js";
 let _xjsP=null;
 function loadExcelJS(){if(window.ExcelJS)return Promise.resolve(window.ExcelJS);
-  return _xjsP||(_xjsP=new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src=EXCELJS_URL;sc.onload=()=>ok(window.ExcelJS);sc.onerror=()=>{_xjsP=null;ko(new Error("No se pudo generar la plantilla. Revisa tu conexión a internet."));};document.head.appendChild(sc);}));}
+  return _xjsP||(_xjsP=new Promise((ok,ko)=>{const sc=document.createElement("script");sc.src=EXCELJS_URL;sc.integrity="sha384-Pqp51FUN2/qzfxZxBCtF0stpc9ONI6MYZpVqmo8m20SoaQCzf+arZvACkLkirlPz";sc.crossOrigin="anonymous";sc.onload=()=>ok(window.ExcelJS);sc.onerror=()=>{_xjsP=null;ko(new Error("No se pudo generar la plantilla. Revisa tu conexión a internet."));};document.head.appendChild(sc);}));}
 const TPL_ROWS=5000; // filas con validación en la plantilla
 const colL=i=>{let s="",n=i+1;while(n){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;}; // índice 0 → "A"
 const BAD_FILL={fill:{type:"pattern",pattern:"solid",bgColor:{argb:"FFFBECEC"}},font:{color:{argb:"FFB23A3A"},bold:true}};
@@ -2802,8 +2824,8 @@ function createIncentive(){clearAllErr();const brand=$("#i_brand").value,b=COMME
 function openContactDetail(id){const c=CONTACTS.find(x=>x.id===id);const inters=INTERACTIONS.filter(i=>i.contactId===id).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));const s=crmSalud(c);
   const mb=(l,v,cc)=>`<div style="flex:1;min-width:0"><div class="row between" style="font-size:10px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px"><span>${l}</span><span class="tnum">${v}%</span></div><div class="lb-bar" style="max-width:none;height:6px"><i style="width:${v}%;background:${cc}"></i></div></div>`;
   $("#modal").className="modal";
-  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="kam-av" style="width:32px;height:32px;background:${catColor((COMMERCES.find(b=>b.n===c.brand)||{}).cat)}">${initials(c.name)}</span>${c.name}</span>`)+`<div class="modal-body">
-    <div class="detail-grid"><div><div class="dl">Comercio</div><div class="dv">${c.brand}</div></div><div><div class="dl">Cargo</div><div class="dv" style="font-size:13px">${c.role}</div></div><div><div class="dl">Teléfono</div><div class="dv tnum" style="font-size:13px">${c.tel}</div></div><div><div class="dl">Email</div><div class="dv" style="font-size:12.5px">${c.email||"—"}</div></div></div>
+  $("#modal").innerHTML=modalHead(`<span class="row gap8"><span class="kam-av" style="width:32px;height:32px;background:${catColor((COMMERCES.find(b=>b.n===c.brand)||{}).cat)}">${initials(c.name)}</span>${h(c.name)}</span>`)+`<div class="modal-body">
+    <div class="detail-grid"><div><div class="dl">Comercio</div><div class="dv">${h(c.brand)}</div></div><div><div class="dl">Cargo</div><div class="dv" style="font-size:13px">${c.role}</div></div><div><div class="dl">Teléfono</div><div class="dv tnum" style="font-size:13px">${c.tel}</div></div><div><div class="dl">Email</div><div class="dv" style="font-size:12.5px">${c.email||"—"}</div></div></div>
     <div class="sub-h">Salud de relación · ${s.total}%</div>
     <div style="display:flex;gap:14px">${mb("Respuestas",s.respScore,"#2B80D4")}${mb("Reuniones",s.reunScore,"#0D1B4B")}${mb("Ejecución",s.ejecScore,"#00A68F")}</div>
     <div class="faint" style="font-size:11px;margin-top:8px">${s.reun} reuniones · ${s.resp} respuestas registradas · ${s.ejec} campañas/incentivos ejecutados.</div>
@@ -2816,7 +2838,7 @@ function openInteractionModal(contactId){
   const contacts=mine(CONTACTS.map(c=>({...c,kam:(COMMERCES.find(b=>b.n===c.brand)||{}).kam})));
   $("#modal").className="modal";
   $("#modal").innerHTML=modalHead("Registrar interacción")+`<div class="modal-body">
-    <div class="field"><label>Contacto</label><select id="in_contact">${contacts.map(c=>`<option value="${c.id}" ${contactId===c.id?'selected':''}>${c.name} · ${c.brand}</option>`).join("")}</select></div>
+    <div class="field"><label>Contacto</label><select id="in_contact">${contacts.map(c=>`<option value="${c.id}" ${contactId===c.id?'selected':''}>${h(c.name)} · ${h(c.brand)}</option>`).join("")}</select></div>
     <div class="field"><label>Tipo</label><select id="in_tipo"><option>Reunión</option><option>Acuerdo</option><option>Seguimiento</option><option>Llamada</option></select></div>
     <div class="field"><label>Detalle</label><input id="in_t" placeholder="Ej. Revisión de propuesta Q3"/></div>
     <div class="field-row"><div class="field"><label>Fecha</label><input id="in_fecha" type="date" value="${todayISO()}"/></div><div class="field"><label>Impacto en salud</label><select id="in_impact"><option value="8">Positiva (+)</option><option value="0">Neutra</option><option value="-8">Negativa (−)</option></select></div></div>
@@ -2856,7 +2878,7 @@ function createConvenio(){clearAllErr();const brand=$("#cv_brand").value;if(!bra
 function openBankModal(){const brands=mine(COMMERCES);
   $("#modal").className="modal";
   $("#modal").innerHTML=modalHead("Subir a banco de assets")+`<div class="modal-body">
-    <div class="field-row"><div class="field"><label>Comercio</label><select id="bk_brand">${brands.map(b=>`<option>${b.n}</option>`).join("")}</select></div><div class="field"><label>Tipo</label><select id="bk_kind"><option>Logo</option><option>Foto</option><option>Gráfica</option></select></div></div>
+    <div class="field-row"><div class="field"><label>Comercio</label><select id="bk_brand">${brands.map(b=>`<option>${h(b.n)}</option>`).join("")}</select></div><div class="field"><label>Tipo</label><select id="bk_kind"><option>Logo</option><option>Foto</option><option>Gráfica</option></select></div></div>
     <div class="field"><label>Nombre</label><input id="bk_name" placeholder="Ej. Logo vectorizado"/></div>
     <label class="field" style="display:block"><span style="display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">Archivo</span>
       <div class="filedrop"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div class="fd-t">Arrastra o elige un archivo</div><div class="fd-s">SVG · PNG · JPG</div></div></label>
@@ -2953,19 +2975,28 @@ function exportConvenios(){const rows=mine(CONVENIOS.map(c=>({...c,kam:(COMMERCE
   if(!rows.length)return toast("No hay convenios para exportar");
   downloadCSV("convenios.csv",["Documento","Tipo","Marca","Contacto","Vigente desde","Vigente hasta","Archivo"],rows);}
 
-function askAI(q){if(!q||!q.trim())return;const body=$("#chatBody");$("#chatInput").value="";body.innerHTML+=`<div class="bubble user">${q}</div>`;body.scrollTop=body.scrollHeight;
+function askAI(q){if(!q||!q.trim())return;const body=$("#chatBody");$("#chatInput").value="";body.innerHTML+=`<div class="bubble user">${h(q)}</div>`;body.scrollTop=body.scrollHeight;
   setTimeout(()=>{body.innerHTML+=`<div class="bubble ai">${aiAnswer(q)}</div>`;body.scrollTop=body.scrollHeight},400)}
 function aiAnswer(q){q=q.toLowerCase();const camps=[...mine(CAMPAIGNS),...mine(INCENTIVOS)];const activas=camps.filter(promoRunning);
-  if(q.includes("activ")) return activas.length?`Tienes <b>${activas.length} promociones vigentes</b> en ${new Set(activas.map(c=>c.brand)).size} marcas: ${[...new Set(activas.map(c=>c.brand))].slice(0,12).join(", ")}${activas.length>12?"…":""}.`:"No hay promociones vigentes ahora.";
-  if(q.includes("vence")||q.includes("semana")){const v=camps.filter(c=>daysLeft(c.fin)<=7&&daysLeft(c.fin)>=0);return `Vencen en 7 días: ${v.map(c=>`<b>${c.brand}</b> (${daysLeft(c.fin)}d)`).join(", ")||"ninguna"}.`}
-  if(q.includes("contact")){const calls=mine(CALLS);return calls.length?`Tienes <b>${calls.length} contactos por contactar</b>: ${calls.map(c=>`${c.name} (${c.brand})`).join(", ")}.`:"No hay contactos pendientes."}
-  if(q.includes("resum")||q.includes("mes")||q.includes("resultado"))return `<b>Resultados de junio:</b> ${RESULTS.metrics.map(m=>`${m.label} ${m.value}`).join(" · ")}.`;
+  if(q.includes("activ")) return activas.length?`Tienes <b>${activas.length} promociones vigentes</b> en ${new Set(activas.map(c=>c.brand)).size} marcas: ${[...new Set(activas.map(c=>c.brand))].slice(0,12).map(h).join(", ")}${activas.length>12?"…":""}.`:"No hay promociones vigentes ahora.";
+  if(q.includes("vence")||q.includes("semana")){const v=camps.filter(c=>daysLeft(c.fin)<=7&&daysLeft(c.fin)>=0);return `Vencen en 7 días: ${v.map(c=>`<b>${h(c.brand)}</b> (${daysLeft(c.fin)}d)`).join(", ")||"ninguna"}.`}
+  if(q.includes("contact")){const calls=mine(CALLS);return calls.length?`Tienes <b>${calls.length} contactos por contactar</b>: ${calls.map(c=>`${h(c.name)} (${h(c.brand)})`).join(", ")}.`:"No hay contactos pendientes."}
+  if(q.includes("resum")||q.includes("mes")||q.includes("resultado"))return RESULTS.metrics.length?`<b>Resultados al ${h(RESULTS.updated)}:</b> ${RESULTS.metrics.map(m=>`${h(m.label)} ${h(m.value)}`).join(" · ")}.`:"Aún no hay resultados cargados.";
   return "Puedo ayudarte con campañas activas, vencimientos, contactos por contactar o resultados del mes.";}
 
 /* ============ auth + router ============ */
-function doLogin(){const em=($("#loginEmail").value||"").trim().toLowerCase();if(!em)return;
-  const u=USERS[em]||{name:em.split("@")[0],role:em.includes("admin")?"admin":"kam",kam:em.includes("admin")?null:"Valentina Herrera Campos"};login(u);}
-function quickLogin(em){login(USERS[em])}
+let loginMode="cliente"; // pestaña activa del login: cliente | operador (KAM y administradores)
+const LOGIN_HINT={cliente:"Consulta el estado de tu programa: dashboard, comercios, puntos de venta, reportes y descargables.",operador:"Acceso para KAM y administradores. Cada KAM ve su cartera; los administradores ven y gestionan todo."};
+function setLoginMode(m){loginMode=m;document.querySelectorAll(".login-tabs button").forEach(b=>{const on=b.dataset.mode===m;b.classList.toggle("on",on);b.setAttribute("aria-selected",on);});
+  $("#loginHint").textContent=LOGIN_HINT[m];$("#loginErr").textContent="";$("#loginEmail").focus();}
+function doLogin(){const em=($("#loginEmail").value||"").trim().toLowerCase(),pw=$("#loginPass").value||"",err=$("#loginErr");
+  const u=USERS[em];if(!em||!pw){err.textContent="Ingresa tu correo y tu contraseña.";return;}
+  if(!u||u.pass!==pw){err.textContent="Correo o contraseña incorrectos.";$("#loginPass").value="";$("#loginPass").focus();return;}
+  // la pestaña debe corresponder al rol (se valida después de la clave para no revelar qué correos existen)
+  const isCli=u.role==="cliente";
+  if(loginMode==="cliente"&&!isCli){err.textContent="Este acceso es de operador. Cambia a la pestaña Operador.";return;}
+  if(loginMode==="operador"&&isCli){err.textContent="Este acceso es de cliente. Cambia a la pestaña Cliente.";return;}
+  err.textContent="";login(u);}
 /* Estado de vista por usuario (filtros, orden, agrupación, borradores). Nunca se comparte entre sesiones:
    se reinicia al iniciar y al cerrar sesión. Con backend (Sprint 3) se guardará por usuario en su perfil. */
 function resetUserUI(){
@@ -2975,17 +3006,19 @@ function resetUserUI(){
   dashFilter={kam:"",brand:"",from:"",to:""};bibTab="convenios";bulkPlan=null;
   draftPuntos=[];draftFields=[];draftConvFile=null;draftMsi={on:false,desde:"",plazos:[3,6,12]};
   closeModal();toggleNav(false);$("#content").innerHTML="";window.scrollTo(0,0);}
-function login(u){resetUserUI();USER=u;try{sessionStorage.setItem("kamhub:user",JSON.stringify(u));}catch(e){}$("#loginScreen").classList.add("hidden");$("#appRoot").classList.remove("hidden");
+function login(u){resetUserUI();USER=u;try{sessionStorage.setItem("kamhub:user",JSON.stringify({em:u.em}));}catch(e){}$("#loginScreen").classList.add("hidden");$("#appRoot").classList.remove("hidden");
   $("#userName").textContent=u.name;$("#userAv").textContent=initials(u.name);
-  $("#userRole").innerHTML=u.role==="admin"?'<span class="role-tag role-admin">Admin</span> Consolidado':`<span class="role-tag role-kam">KAM</span> ${u.kam||""}`;
+  $("#userRole").innerHTML=u.role==="admin"?'<span class="role-tag role-admin">Admin</span> Consolidado':u.role==="cliente"?'<span class="role-tag role-cliente">Cliente</span> Solo lectura':`<span class="role-tag role-kam">KAM</span> ${u.kam||""}`;
   $("#adminNav").style.display=isAdmin()?"":"none";$("#adminLabel").style.display=isAdmin()?"":"none";
-  go(u.role==="admin"?"dashboard":"midia"); // el KAM empieza en «Mi día»
+  document.querySelectorAll(".nav-item[data-view]").forEach(n=>{if(n.id!=="adminNav")n.style.display=canView(n.dataset.view)?"":"none";});
+  document.body.classList.toggle("is-cliente",isClient());
+  go(u.role==="kam"?"midia":"dashboard"); // el KAM empieza en «Mi día»; admin y cliente en el dashboard general
 }
-function logout(){resetUserUI();USER=null;try{sessionStorage.removeItem("kamhub:user");}catch(e){}$("#appRoot").classList.add("hidden");$("#loginScreen").classList.remove("hidden");$("#loginEmail").value="";}
+function logout(){resetUserUI();USER=null;document.body.classList.remove("is-cliente");try{sessionStorage.removeItem("kamhub:user");}catch(e){}$("#appRoot").classList.add("hidden");$("#loginScreen").classList.remove("hidden");$("#loginEmail").value="";$("#loginPass").value="";$("#loginErr").textContent="";}
 
 const TITLES={midia:["Mi día","Lo que necesita tu atención hoy"],dashboard:["Dashboard general","Estado general del programa · todos los KAM"],comercial:["Comercial","Comercios afiliados"],puntos:["Puntos de venta","Cobertura y operación de sedes"],campanas:["Campañas & Incentivos","Crea y monitorea en segundos"],crm:["CRM · Pipeline","Afiliaciones, renovaciones y campañas estacionales"],biblioteca:["Biblioteca","Convenios y banco de assets"],ejecutivo:["Dashboard Ejecutivo","Indicadores de alianzas"],ia:["IA Assistant","Tu copiloto"],admin:["Panel Admin","Administración"]};
 function go(view){if(state.view==="puntos"&&view!=="puntos"&&pvChanged())return confirmPvDiscard(()=>goNow(view));goNow(view);}
-function goNow(view){if(!VIEWS[view])view="dashboard";state.view=view;
+function goNow(view){if(!VIEWS[view]||!canView(view))view="dashboard";state.view=view;
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.view===view));
   const[t,s]=TITLES[view];const first=USER.name.split(" ")[0];
   $("#greet").innerHTML=`<h1>${view==='dashboard'?`Hola, <em>${first}</em>`:t}</h1><p>${s}</p>`;
@@ -3072,8 +3105,12 @@ function idb(){return new Promise((ok,ko)=>{const r=indexedDB.open("kamhub-files
 async function fileSave(key,blob){try{const db=await idb();db.transaction("files","readwrite").objectStore("files").put(blob,key);}catch(e){}}
 async function fileGet(key){try{const db=await idb();return await new Promise(ok=>{const q=db.transaction("files").objectStore("files").get(key);q.onsuccess=()=>ok(q.result||null);q.onerror=()=>ok(null);});}catch(e){return null;}}
 async function fileClear(){try{const db=await idb();db.transaction("files","readwrite").objectStore("files").clear();}catch(e){}}
+/* Cliente: solo lectura. Envuelve las funciones que crean o modifican datos para que no actúen con ese rol,
+   aunque se invoquen desde la consola, un atajo o un botón que el CSS no haya ocultado. */
+const RO_FNS=["openCommerceModal","openBulkImportModal","openConvenioModal","openBankModal","openPvEdit","deactivatePdv","reactivatePdv","togglePdvMsi","openCampaignModal","openIncentiveModal","openNewDeal","openDealAction","openRenewModal","openInteractionModal","cancelPromo","createRenewals","confirmReset","openResultsModal","openPortfolioModal","toggleTask","attachConvFile","onConvFile"];
+RO_FNS.forEach(n=>{const fn=window[n];if(typeof fn!=="function")return;window[n]=function(...a){if(isClient()){if(n!=="openPvEdit")toast("Tu acceso es de solo lectura");return;}return fn.apply(this,a);};});
 if(!loadStore()){seedData();persist();} // primera vez: datos demo
-try{const u=JSON.parse(sessionStorage.getItem("kamhub:user")||"null");if(u)login(u);}catch(e){}
+try{const st=JSON.parse(sessionStorage.getItem("kamhub:user")||"null");const u=st&&USERS[st.em];if(u)login(u);else sessionStorage.removeItem("kamhub:user");}catch(e){}
 function toggleNav(open){const s=$("#sidebar"),sc=$("#scrim");if(open===undefined)open=!s.classList.contains("open");s.classList.toggle("open",open);sc.classList.toggle("open",open)}
 </script>
 </body>
